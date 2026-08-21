@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nat Habit — Face Scrub New-Range Report</title>
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+:root{
+  color-scheme: light;
+  --surface-1:      #fcfcfb;
+  --page-plane:     #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --gridline:       #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --success-text:   #006300;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+  --series-5: #e87ba4; --series-6: #008300; --series-7: #4a3aa7; --series-8: #e34948;
+  --status-good:#0ca30c; --status-warning:#fab219; --status-serious:#ec835a; --status-critical:#d03b3b;
+  --card-radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-1:      #1a1a19;
+  --page-plane:     #0d0d0d;
+  --text-primary:   #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted:     #898781;
+  --gridline:       #2c2c2a;
+  --baseline:       #383835;
+  --border: rgba(255,255,255,0.10);
+  --success-text: #0ca30c;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+  --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+}
+[data-theme="dark"] .chart-card{box-shadow:none;}
+body{
+  font-family: var(--font); background: var(--page-plane); color: var(--text-primary);
+  -webkit-font-smoothing: antialiased; line-height:1.5;
+}
+a{color:var(--series-1);}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px;}
+header.top{background:var(--surface-1); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50;}
+.top-inner{max-width:1180px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;flex-direction:column;gap:2px;}
+.brand .kicker{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);font-weight:600;}
+.brand h1{font-size:19px;margin:0;font-weight:700;}
+.top-actions{display:flex;align-items:center;gap:10px;}
+.theme-toggle{border:1px solid var(--border); background:transparent; color:var(--text-secondary); border-radius:20px; padding:7px 14px; font-size:13px; cursor:pointer; font-family:var(--font);}
+.theme-toggle:hover{background:var(--page-plane);}
+nav.tabs{max-width:1180px;margin:0 auto;padding:0 24px; display:flex; gap:4px; overflow-x:auto;}
+nav.tabs button{border:none;background:none;color:var(--text-secondary); font-family:var(--font); font-size:14px; font-weight:600; padding:10px 14px; cursor:pointer; white-space:nowrap; border-bottom:3px solid transparent; margin-bottom:-1px;}
+nav.tabs button:hover{color:var(--text-primary);}
+nav.tabs button.active{color:var(--series-1); border-bottom-color:var(--series-1);}
+section.tabpanel{display:none; padding-top:28px;}
+section.tabpanel.active{display:block;}
+.section-head{margin-bottom:18px;}
+.section-head h2{font-size:22px;margin:0 0 4px;}
+.section-head p{color:var(--text-secondary); margin:0; font-size:14.5px; max-width:820px;}
+.callout{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:16px 18px; font-size:13.5px; color:var(--text-secondary); margin-bottom:22px;}
+.callout b{color:var(--text-primary);}
+.callout.methodology{border-left:3px solid var(--series-1);}
+.kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:22px;}
+.kpi-tile{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:16px 16px;}
+.kpi-tile .label{font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+.kpi-tile .value{font-size:28px; font-weight:700; color:var(--text-primary);}
+.kpi-tile .sub{font-size:12.5px; color:var(--text-secondary); margin-top:4px;}
+.pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+.pill{border:1px solid var(--border); background:var(--surface-1); color:var(--text-secondary); border-radius:20px; padding:7px 14px; font-size:13px; cursor:pointer; font-family:var(--font); font-weight:600;}
+.pill:hover{border-color:var(--series-1);}
+.pill.active{background:var(--series-1); border-color:var(--series-1); color:#fff;}
+.chart-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:22px; margin-bottom:24px;}
+.chart-card{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:20px 22px; box-shadow:0 1px 2px rgba(11,11,11,0.03);}
+.chart-card h3{font-size:14.5px; margin:0; font-weight:700;}
+.chart-card .chart-title-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 3px;}
+.chart-card .chart-sub{font-size:12px; color:var(--text-muted); margin-bottom:14px;}
+.chart-card.wide{grid-column: 1 / -1;}
+.method-badge{display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; padding:2px 7px; border-radius:20px; text-transform:uppercase; line-height:1.5; cursor:help; white-space:nowrap;}
+.method-badge.ranked{background:rgba(99,102,241,.14); color:#4f46e5; border:1px solid rgba(99,102,241,.35);}
+.method-badge.multi{background:rgba(217,119,6,.14); color:#b45309; border:1px solid rgba(217,119,6,.35);}
+.legend{display:flex; gap:16px; margin-bottom:10px; flex-wrap:wrap;}
+.legend-item{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-secondary);}
+.legend-swatch{width:10px;height:10px;border-radius:2px;flex:none;}
+.bar-row{margin-bottom:10px; position:relative;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-row .bar-label-line{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; gap:8px;}
+.bar-row .bar-label{font-size:12.5px; color:var(--text-secondary); font-weight:500;}
+.bar-row .bar-value{font-size:12.5px; color:var(--text-primary); font-weight:700; flex:none; font-variant-numeric:tabular-nums;}
+.bar-track{height:20px; background:var(--gridline); border-radius:4px; overflow:hidden; position:relative;}
+.bar-fill{height:100%; border-radius:4px; transition:filter .15s ease;}
+.bar-row:hover .bar-fill{filter:brightness(1.08);}
+.gbar-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px;}
+.gbar-row{margin-bottom:0; background:var(--page-plane); border:1px solid var(--border); border-radius:10px; padding:13px 15px;}
+.gbar-cat{font-size:12.5px; color:var(--text-primary); font-weight:700; margin-bottom:10px;}
+.gbar-series{margin-bottom:9px;}
+.gbar-series:last-child{margin-bottom:0;}
+.gbar-series .s-line{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; gap:10px;}
+.gbar-series .s-name{font-size:11px; color:var(--text-muted); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.gbar-series .s-val{font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-primary); flex:none;}
+.gbar-series .s-track{height:12px; background:var(--gridline); border-radius:3px; overflow:hidden; width:100%;}
+.gbar-series .s-fill{height:100%; border-radius:3px;}
+.quote-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-bottom:8px;}
+.quote-card{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:16px 18px; position:relative;}
+.quote-card .quote-mark{font-size:28px; color:var(--series-1); opacity:.35; line-height:1; font-family:Georgia,serif;}
+.quote-card p.qtext{font-size:14px; color:var(--text-primary); margin:4px 0 10px; font-style:italic;}
+.quote-card .qmeta{display:flex; gap:6px; flex-wrap:wrap;}
+.tag-pill{font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; font-weight:700; padding:3px 8px; border-radius:10px; background:var(--page-plane); color:var(--text-muted); border:1px solid var(--border);}
+.show-more-wrap{text-align:center; margin:14px 0 26px;}
+.show-more-btn{border:1px solid var(--border); background:var(--surface-1); color:var(--series-1); border-radius:20px; padding:9px 20px; font-size:13px; cursor:pointer; font-weight:700; font-family:var(--font);}
+.show-more-btn:hover{background:var(--page-plane);}
+.journey-stage{display:grid; grid-template-columns:56px 1fr; gap:18px; margin-bottom:6px; position:relative;}
+.journey-stage .stage-rail{display:flex; flex-direction:column; align-items:center;}
+.stage-num{width:40px; height:40px; border-radius:50%; background:var(--series-1); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex:none;}
+.stage-line{flex:1; width:2px; background:var(--gridline); margin-top:6px; min-height:24px;}
+.journey-stage:last-child .stage-line{display:none;}
+.stage-body{padding-bottom:36px;}
+.stage-body h3{font-size:18px; margin:2px 0 8px;}
+.stage-body .stage-prose{font-size:14.5px; color:var(--text-secondary); max-width:760px; margin:0 0 14px;}
+.stage-stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.stat-chip{background:var(--page-plane); border:1px solid var(--border); border-radius:10px; padding:8px 12px; font-size:12.5px; color:var(--text-secondary); min-width:110px;}
+.stat-chip b{display:block; font-size:17px; color:var(--text-primary); font-weight:700;}
+.opportunity-box{background:var(--surface-1); border:1px solid var(--border); border-left:3px solid var(--status-good); border-radius:var(--card-radius); padding:18px 20px; margin-top:10px;}
+.opportunity-box h4{margin:0 0 8px; font-size:14px;}
+.opportunity-box p{font-size:13.5px; color:var(--text-secondary); margin:0 0 8px;}
+.opportunity-box p:last-child{margin-bottom:0;}
+.takeaway-box{background:var(--surface-1); border:1px solid var(--border); border-left:3px solid var(--series-1); border-radius:var(--card-radius); padding:16px 20px; margin-bottom:22px;}
+.takeaway-box .takeaway-label{font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--series-1); margin-bottom:6px;}
+.takeaway-box p{font-size:13.5px; color:var(--text-secondary); margin:0; line-height:1.6;}
+.takeaway-box p b{color:var(--text-primary);}
+.data-table-wrap{overflow-x:auto;}
+table.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+table.data-table th{text-align:left; padding:9px 12px; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); border-bottom:2px solid var(--gridline); font-weight:700; white-space:nowrap;}
+table.data-table td{padding:9px 12px; border-bottom:1px solid var(--gridline); vertical-align:top;}
+table.data-table tr:hover td{background:var(--page-plane);}
+.big-stat-callout{background:var(--surface-1); border:1px solid var(--border); border-left:4px solid var(--series-8); border-radius:var(--card-radius); padding:20px 22px; margin-bottom:20px;}
+.big-stat-callout .num{font-size:40px; font-weight:700; color:var(--series-8); line-height:1;}
+.big-stat-callout.good{border-left-color:var(--status-good);}
+.big-stat-callout.good .num{color:var(--status-good);}
+.big-stat-callout .desc{font-size:13.5px; color:var(--text-secondary); margin-top:8px; max-width:640px;}
+.explore-panel{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:16px 18px;}
+.explore-builder{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.explore-select{border:1px solid var(--border); background:var(--page-plane); color:var(--text-primary); border-radius:8px; padding:8px 10px; font-size:13px; font-family:var(--font); min-width:190px;}
+.explore-add-btn{border:1px solid var(--series-1); background:var(--series-1); color:#fff; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:var(--font);}
+.explore-add-btn:hover{filter:brightness(1.08);}
+.explore-add-btn:disabled{opacity:.45; cursor:not-allowed;}
+.filter-pill{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--series-1); background:rgba(42,120,214,.10); color:var(--series-1); border-radius:20px; padding:6px 8px 6px 14px; font-size:12.5px; font-weight:600;}
+.filter-pill .fp-x{cursor:pointer; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--series-1); color:#fff; font-size:12px; line-height:1; font-weight:800;}
+.filter-pill .fp-x:hover{filter:brightness(1.15);}
+.explore-clear-btn{border:1px solid var(--border); background:transparent; color:var(--text-muted); border-radius:20px; padding:6px 14px; font-size:12.5px; cursor:pointer; font-family:var(--font); font-weight:600;}
+.explore-clear-btn:hover{color:var(--text-primary); border-color:var(--text-primary);}
+.explore-empty-note{font-size:12.5px; color:var(--text-muted);}
+.persona-card{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:20px 22px; grid-column: span 1;}
+.persona-card.wide{grid-column: 1 / -1;}
+.persona-card .persona-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px; flex-wrap:wrap;}
+.persona-card h3{font-size:16px; margin:0;}
+.persona-card .persona-pct{font-size:22px; font-weight:800; color:var(--series-1); font-variant-numeric:tabular-nums;}
+.persona-card .persona-n{font-size:11.5px; color:var(--text-muted); margin-bottom:12px;}
+.persona-card .persona-row{margin-bottom:9px; font-size:12.5px; line-height:1.5;}
+.persona-card .persona-row b{color:var(--text-muted); display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; font-weight:700;}
+.persona-card .persona-quote{font-size:12.5px; font-style:italic; color:var(--text-secondary); border-left:2px solid var(--series-1); padding-left:10px; margin:10px 0;}
+.persona-card .persona-stats{display:flex; gap:14px; flex-wrap:wrap; margin:10px 0; font-size:11.5px; color:var(--text-muted);}
+.persona-card .persona-stats b{color:var(--text-primary); font-weight:700;}
+.persona-card .persona-why{background:var(--page-plane); border:1px solid var(--border); border-radius:10px; padding:11px 13px; font-size:12.5px; line-height:1.55; color:var(--text-secondary); margin:10px 0 14px;}
+.persona-card .persona-why b{color:var(--text-primary); display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px; font-weight:700;}
+.word-cloud{display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; padding:6px 0 2px;}
+.word-bubble{font-weight:700; line-height:1.3; cursor:default; white-space:nowrap;}
+.word-cloud.positive .word-bubble{color:var(--series-3);}
+.word-cloud.negative .word-bubble{color:var(--series-8);}
+.word-cloud.other .word-bubble{color:var(--series-7);}
+footer.site-footer{border-top:1px solid var(--border); margin-top:40px; padding:26px 0 60px; color:var(--text-muted); font-size:12.5px;}
+footer.site-footer .wrap{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+footer.site-footer code{background:var(--surface-1); padding:1px 5px; border-radius:4px;}
+.variant-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.02em; background:rgba(42,120,214,.12); color:var(--series-1);}
+.variant-pill.zero{background:rgba(227,73,72,.15); color:var(--series-8);}
+.format-card{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--card-radius); padding:18px 20px;}
+.format-card h4{margin:0 0 6px; font-size:15px;}
+.format-card .fc-meta{font-size:11.5px; color:var(--text-muted); margin-bottom:10px; font-weight:600; text-transform:uppercase; letter-spacing:.02em;}
+.format-card .fc-row{font-size:12.5px; margin-bottom:6px; line-height:1.55;}
+.format-card .fc-row b{color:var(--text-primary);}
+.reco-list{margin:0; padding-left:0; list-style:none;}
+.reco-list li{display:flex; gap:10px; margin-bottom:10px; font-size:13.5px; color:var(--text-secondary); align-items:flex-start;}
+.reco-list li .reco-num{flex:none; width:22px; height:22px; border-radius:50%; background:var(--series-1); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px;}
+@media (max-width:640px){
+  .journey-stage{grid-template-columns:40px 1fr; gap:12px;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .persona-brand-matrix{grid-template-columns:1fr !important;}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="kicker">Nat Habit &middot; Category Research</span>
+      <h1>Face Scrub New-Range Report</h1>
+    </div>
+    <div class="top-actions">
+      <span id="lastUpdated" style="font-size:12.5px;color:var(--text-muted);">Data refreshed 2026-08-21</span>
+      <button class="theme-toggle" id="themeToggle">🌙 Dark mode</button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabNav">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="problem">Why the Format Is Holding Mura Back</button>
+    <button data-tab="cohorts">Cohort Deep Dive</button>
+    <button data-tab="ideal">What She Wants</button>
+    <button data-tab="current">Current Brand & Price</button>
+    <button data-tab="market">Market Landscape</button>
+    <button data-tab="personas">Buyer Personas</button>
+    <button data-tab="voice">Voice of Customer</button>
+    <button data-tab="explore">Explore the Data</button>
+    <button data-tab="newrange">The Case for a New Range</button>
+  </nav>
+</header>
+<div class="wrap">
+
+<section class="tabpanel active" id="tab-overview">
+  <div class="section-head">
+    <h2>Overview</h2>
+    <p>Why Nat Habit is exploring a new face scrub range, and what this report is built from.</p>
+  </div>
+  <div class="callout methodology">
+    <b>About this report.</b> Nat Habit's current face scrub, Mura, has a ~2-month shelf life and needs refrigeration &mdash;
+    a format that is hard to manufacture and ship, and (per our own existing-user research) suppresses the habit it's meant to build.
+    This report combines three studies to build the case for a new, shelf-stable face scrub range: a
+    <b>59-respondent consumer survey</b> on face scrub attitudes and needs (mixed Nat Habit users and non-users), a
+    <b>50-respondent cohort study of existing Mura users</b> (Active Loyalists, Active Trialists, Active Users, Lapsers and Loyal Lapsers),
+    and a <b>market landscaping study of 75 competing face-scrub ASINs</b> across Amazon, Flipkart, Nykaa, Myntra and quick-commerce (Jan 2026).
+    Use the tabs above to move between sections &mdash; start with <b>Why the Format Is Holding Mura Back</b> for the core problem,
+    or jump straight to <b>The Case for a New Range</b> for the recommendation.
+  </div>
+  <div class="kpi-row" id="overviewKpis"></div>
+  <div class="chart-grid" id="overviewCharts"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-problem">
+  <div class="section-head">
+    <h2>Why the Format Is Holding Mura Back</h2>
+    <p>What the 50-respondent existing-user cohort study tells us about Mura today &mdash; based on real usage, not stated intent.</p>
+  </div>
+  <div id="problemThesis"></div>
+  <div class="chart-grid" id="problemCharts"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">Variant performance</h2></div>
+  <div class="data-table-wrap chart-card" id="variantTableWrap" style="margin-bottom:24px;"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">Where in India it breaks down</h2></div>
+  <div class="chart-grid" id="geoNotes"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-cohorts">
+  <div class="section-head">
+    <h2>Cohort Deep Dive</h2>
+    <p>Five cohorts of existing Mura users (n=50, 10 per cohort) &mdash; what keeps each one buying, and what pushes them out.</p>
+  </div>
+  <div class="chart-grid" id="cohortCards"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">What this means for the new range</h2></div>
+  <div class="chart-card wide" id="cohortRecoCard"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-ideal">
+  <div class="section-head">
+    <h2>What She Wants in a Face Scrub</h2>
+    <p>Based on all 59 survey respondents (a mix of Nat Habit users, Mura triallists and non-users).</p>
+  </div>
+  <div class="kpi-row" id="idealKpis"></div>
+  <div class="chart-grid" id="idealCharts"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-current">
+  <div class="section-head">
+    <h2>Current Brand Behaviour &amp; Price</h2>
+    <p>How respondents feel about the brand they use today, why they've switched before, and what they'd pay for a new one.</p>
+  </div>
+  <div id="currentBigStat"></div>
+  <div class="kpi-row" id="currentKpis"></div>
+  <div class="chart-grid" id="currentCharts"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-market">
+  <div class="section-head">
+    <h2>Market Landscape</h2>
+    <p>Amazon / Flipkart / Nykaa / Myntra / quick-commerce category study &mdash; 75 ASINs, Jan 2026 (Helium 10 + keyword data).</p>
+  </div>
+  <div class="kpi-row" id="marketKpis"></div>
+  <div class="chart-grid" id="marketCharts"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">Top-selling ASINs (&asymp;90% of category revenue)</h2></div>
+  <div class="data-table-wrap chart-card" id="asinTableWrap" style="margin-bottom:24px;"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">So, what?</h2></div>
+  <div class="chart-card wide" id="marketSoWhat"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-personas">
+  <div class="section-head">
+    <h2>Buyer Personas</h2>
+    <p>Built from each respondent's own description of their ideal face scrub &mdash; mutually exclusive, adds to 100% of the sample.</p>
+  </div>
+  <div class="chart-grid" id="personaCards"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-voice">
+  <div class="section-head">
+    <h2>Voice of Customer</h2>
+    <p>224 open-text responses across the survey, filterable by theme.</p>
+  </div>
+  <div class="pill-row" id="voicePills"></div>
+  <div class="quote-grid" id="voiceQuotes"></div>
+  <div class="show-more-wrap"><button class="show-more-btn" data-more="voice">Show more</button></div>
+</section>
+
+
+<section class="tabpanel" id="tab-explore">
+  <div class="section-head">
+    <h2>Explore the Data</h2>
+    <p>Build your own cross-filter across all 59 survey respondents &mdash; every chart below recomputes live.</p>
+  </div>
+  <div class="explore-panel" style="margin-bottom:20px;">
+    <div class="explore-builder">
+      <select class="explore-select" id="exploreDim"></select>
+      <select class="explore-select" id="exploreVal"></select>
+      <button class="explore-add-btn" id="exploreAddBtn">+ Add filter</button>
+      <button class="explore-clear-btn" id="exploreClearBtn" style="display:none;">Clear all</button>
+    </div>
+    <div class="pill-row" id="exploreActiveFilters" style="margin-top:12px;margin-bottom:0;"></div>
+    <div class="explore-empty-note" id="exploreEmptyNote" style="margin-top:8px;">No filters applied &mdash; showing all 59 respondents.</div>
+  </div>
+  <div class="kpi-row" id="exploreKpis"></div>
+  <div class="callout" id="exploreInsight" style="display:none;"></div>
+  <div class="chart-grid" id="exploreCharts"></div>
+</section>
+
+
+<section class="tabpanel" id="tab-newrange">
+  <div class="section-head">
+    <h2>The Case for a New Range</h2>
+    <p>Putting the survey, the cohort study and the market landscape together.</p>
+  </div>
+  <div class="chart-card wide" id="problemStatementCard" style="margin-bottom:22px;"></div>
+  <div class="section-head" style="margin-top:4px;"><h2 style="font-size:17px;">Non-negotiables for the new formula</h2></div>
+  <div class="chart-grid" id="nonNegotiables" style="margin-bottom:8px;"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">Format options on the table</h2></div>
+  <div class="chart-grid" id="formatOptions"></div>
+  <div class="section-head" style="margin-top:8px;"><h2 style="font-size:17px;">Pricing &amp; positioning</h2></div>
+  <div class="chart-grid" id="pricingPositioning"></div>
+  <div class="opportunity-box" id="nextStepsBox" style="margin-top:8px;"></div>
+</section>
+
+</div>
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <div>Nat Habit &middot; Face Scrub New-Range Report</div>
+      <div id="footerMeta" style="margin-top:4px;">Data as of 2026-08-21 &middot; 59 survey respondents &middot; 50-respondent existing-user cohort study &middot; 75 competing ASINs analysed &middot; sources: Google Forms survey, internal cohort research deck, market landscaping deck.</div>
+    </div>
+    <div style="max-width:520px;">
+      To refresh with new survey responses: re-export the response sheet, re-run <code>build_data.py</code> then <code>assemble_html.py</code>, and redeploy <code>index.html</code> + <code>data.json</code>.
+    </div>
+  </div>
+</footer>
+<script id="report-data" type="application/json">{"meta": {"title": "Nat Habit — Face Scrub New-Range Report", "brand": "Nat Habit", "n_survey": 59, "n_cohort_study": 50, "n_market_asins": 75, "sources": ["Face scrub consumer survey (Google Forms, n=59)", "Existing Mura scrub user cohort study (n=50)", "Face scrub market landscaping — Amazon/Flipkart/Nykaa/Myntra, Jan 2026 (75 ASINs)"]}, "overview": {"n_survey": 59, "n_cohort_study": 50, "n_market_asins": 75}, "demographics": {"skin_type": {"items": [{"label": "Combination", "count": 22, "pct": 37.3}, {"label": "Oily", "count": 16, "pct": 27.1}, {"label": "Dry", "count": 10, "pct": 16.9}, {"label": "Normal", "count": 9, "pct": 15.3}, {"label": "Sensitive", "count": 2, "pct": 3.4}], "n": 59}, "occupation": {"items": [{"label": "Working Professional", "count": 37, "pct": 62.7}, {"label": "Homemaker", "count": 12, "pct": 20.3}, {"label": "Student", "count": 5, "pct": 8.5}, {"label": "Business Owner", "count": 4, "pct": 6.8}, {"label": "MBA Student", "count": 1, "pct": 1.7}], "n": 59}, "skin_concerns": {"items": [{"label": "Pigmentation", "count": 20, "pct": 37.0}, {"label": "Acne", "count": 16, "pct": 29.6}, {"label": "Blackheads/Whiteheads", "count": 11, "pct": 20.4}, {"label": "Drying", "count": 9, "pct": 16.7}, {"label": "Tan", "count": 5, "pct": 9.3}, {"label": "Open Pores", "count": 3, "pct": 5.6}, {"label": "Fine Lines", "count": 2, "pct": 3.7}, {"label": "No", "count": 1, "pct": 1.9}, {"label": "Sensitive skin", "count": 1, "pct": 1.9}, {"label": "Nothing as such", "count": 1, "pct": 1.9}, {"label": "Nothing", "count": 1, "pct": 1.9}], "n": 54}, "nh_relationship": {"items": [{"label": "Yes, NH Face/Skincare products", "count": 25, "pct": 42.4}, {"label": "No, haven't used any NH products", "count": 17, "pct": 28.8}, {"label": "Yes, NH products across multiple categories", "count": 12, "pct": 20.3}, {"label": "Yes, NH Hair Care products (No face/body care)", "count": 4, "pct": 6.8}, {"label": "Yes, NH Bodycare products (No face/skincare)", "count": 1, "pct": 1.7}], "n": 59}, "mura_history": {"items": [{"label": "No", "count": 41, "pct": 71.9}, {"label": "Yes, Mura", "count": 11, "pct": 19.3}, {"label": "Yes, both", "count": 4, "pct": 7.0}, {"label": "Yes, Bath", "count": 1, "pct": 1.8}], "n": 57}}, "ideal_scrub": {"top_qualities": {"items": [{"label": "Removes dead skin", "count": 37, "pct": 62.7}, {"label": "Removes tan", "count": 26, "pct": 44.1}, {"label": "Controls blackheads/whiteheads", "count": 24, "pct": 40.7}, {"label": "Smoothens skin texture", "count": 22, "pct": 37.3}, {"label": "Gentle on skin", "count": 18, "pct": 30.5}, {"label": "Brightens skin", "count": 17, "pct": 28.8}, {"label": "Gives instant glow", "count": 13, "pct": 22.0}, {"label": "Hydrating/non-drying", "count": 11, "pct": 18.6}, {"label": "Helps with acne", "count": 6, "pct": 10.2}, {"label": "Natural ingredients", "count": 6, "pct": 10.2}, {"label": "Pleasant fragrance", "count": 3, "pct": 5.1}, {"label": "Availibility", "count": 1, "pct": 1.7}], "n": 59}, "frequency": {"items": [{"label": "2–3 Times a week", "count": 27, "pct": 45.8}, {"label": "Once a week", "count": 17, "pct": 28.8}, {"label": "Only when required", "count": 7, "pct": 11.9}, {"label": "Once every 2 weeks", "count": 6, "pct": 10.2}, {"label": "Daily", "count": 2, "pct": 3.4}], "n": 59}, "texture": {"items": [{"label": "Medium exfoliating particles", "count": 29, "pct": 49.2}, {"label": "Fine exfoliating particles", "count": 21, "pct": 35.6}, {"label": "Coarse exfoliating particles", "count": 5, "pct": 8.5}, {"label": "Enzyme (particle-free) exfoliation", "count": 4, "pct": 6.8}], "n": 59}, "ideal_statement": {"items": [{"label": "Balanced exfoliation with visible results", "count": 32, "pct": 54.2}, {"label": "Very gentle for regular use", "count": 14, "pct": 23.7}, {"label": "Strong exfoliation for deep cleaning", "count": 9, "pct": 15.3}, {"label": "Depends on my skin concerns", "count": 4, "pct": 6.8}], "n": 59}, "primary_job": {"items": [{"label": "Remove dead skin cells", "count": 27, "pct": 45.8}, {"label": "Deep clean pores", "count": 17, "pct": 28.8}, {"label": "Smooth skin texture", "count": 15, "pct": 25.4}, {"label": "Remove tan", "count": 10, "pct": 16.9}, {"label": "Prepare skin for better absorption of skincare", "count": 9, "pct": 15.3}, {"label": "Brighten dull skin", "count": 9, "pct": 15.3}, {"label": "Remove blackheads", "count": 8, "pct": 13.6}, {"label": "Refresh the skin", "count": 1, "pct": 1.7}], "n": 59}, "benefits_expected": {"items": [{"label": "Exfoliation", "count": 35, "pct": 59.3}, {"label": "Cleaner pores", "count": 25, "pct": 42.4}, {"label": "Glow", "count": 22, "pct": 37.3}, {"label": "Blackhead reduction", "count": 19, "pct": 32.2}, {"label": "Smooth skin", "count": 16, "pct": 27.1}, {"label": "Tan removal", "count": 14, "pct": 23.7}, {"label": "Oil control", "count": 10, "pct": 16.9}, {"label": "Hydration", "count": 10, "pct": 16.9}, {"label": "Gentle on skin", "count": 8, "pct": 13.6}, {"label": "Soft skin", "count": 5, "pct": 8.5}, {"label": "Acne prevention", "count": 3, "pct": 5.1}, {"label": "Even skin tone", "count": 2, "pct": 3.4}], "n": 59}, "primary_reason": {"items": [{"label": "Remove dead skin", "count": 34, "pct": 57.6}, {"label": "Deep clean pores", "count": 24, "pct": 40.7}, {"label": "Improve skin brightness", "count": 19, "pct": 32.2}, {"label": "Get smoother skin", "count": 17, "pct": 28.8}, {"label": "Remove tan", "count": 11, "pct": 18.6}, {"label": "Remove blackheads", "count": 11, "pct": 18.6}, {"label": "Relaxing/self-care", "count": 8, "pct": 13.6}, {"label": "Prep skin before makeup", "count": 1, "pct": 1.7}], "n": 59}, "works_signal": {"items": [{"label": "Skin feels smoother", "count": 31, "pct": 52.5}, {"label": "Face feels cleaner", "count": 29, "pct": 49.2}, {"label": "Skin looks brighter", "count": 26, "pct": 44.1}, {"label": "Tan appears reduced", "count": 18, "pct": 30.5}, {"label": "Skin feels soft", "count": 16, "pct": 27.1}, {"label": "Blackheads are reduced", "count": 13, "pct": 22.0}, {"label": "Healthy glow", "count": 12, "pct": 20.3}, {"label": "No dryness/tightness", "count": 6, "pct": 10.2}, {"label": "used only himalaya face scrub and didn't like it", "count": 1, "pct": 1.7}], "n": 59}}, "current_behavior": {"current_brand": {"items": [{"label": "Nat Habit", "count": 11, "pct": 19.0}, {"label": "mCaffeine", "count": 8, "pct": 13.8}, {"label": "Everyuth", "count": 6, "pct": 10.3}, {"label": "Not using", "count": 3, "pct": 5.2}, {"label": "Clayco", "count": 3, "pct": 5.2}, {"label": "Chemist At Play", "count": 3, "pct": 5.2}, {"label": "Himalaya", "count": 2, "pct": 3.4}, {"label": "Plum", "count": 2, "pct": 3.4}, {"label": "Dermat Recommended", "count": 2, "pct": 3.4}, {"label": "Homemade Scrub with Coffee sugar and other natural ingredients", "count": 1, "pct": 1.7}, {"label": "Kama", "count": 1, "pct": 1.7}, {"label": "Ordinary", "count": 1, "pct": 1.7}], "n": 58}, "rating_current_avg": 7.93, "rating_current_n": 59, "rating_previous_avg": 6.53, "rating_previous_n": 59, "nh_current_avg": 8.64, "nh_current_n": 11, "other_current_avg": 7.77, "other_current_n": 48, "switch_reasons": {"items": [{"label": "It caused dryness, irritation, or other skin issues", "count": 13, "pct": 24.5}, {"label": "I wanted to try a new brand/product", "count": 13, "pct": 24.5}, {"label": "It was not effective enough", "count": 11, "pct": 20.8}, {"label": "I wanted a better product for my skin type/concern", "count": 9, "pct": 17.0}, {"label": "I wanted better ingredients / a more natural formulation", "count": 6, "pct": 11.3}, {"label": "I discovered a product with better reviews/recommendations", "count": 3, "pct": 5.7}, {"label": "The previous product was too expensive", "count": 2, "pct": 3.8}, {"label": "Himalaya is the first", "count": 1, "pct": 1.9}, {"label": "I found a better product at a similar/lower price", "count": 1, "pct": 1.9}, {"label": "Searching for a face scrub which is suitable for ageing and contains retinol", "count": 1, "pct": 1.9}, {"label": "collagen", "count": 1, "pct": 1.9}, {"label": "poor texture", "count": 1, "pct": 1.9}, {"label": "Used only Everyuth since beginning", "count": 1, "pct": 1.9}, {"label": "Everyuth is more budget-friendly and easily available", "count": 1, "pct": 1.9}, {"label": "Nat Habit is first", "count": 1, "pct": 1.9}], "n": 53}, "disappointments": {"items": [{"label": "Expensive", "count": 10, "pct": 18.9}, {"label": "Nothing / not applicable", "count": 9, "pct": 17.0}, {"label": "Too mild/no visible results", "count": 8, "pct": 15.1}, {"label": "Too harsh", "count": 7, "pct": 13.2}, {"label": "Dries out skin", "count": 7, "pct": 13.2}, {"label": "Poor fragrance", "count": 6, "pct": 11.3}, {"label": "Doesn't reduce tan", "count": 6, "pct": 11.3}, {"label": "Difficult to wash off", "count": 5, "pct": 9.4}, {"label": "Leaves oily residue", "count": 3, "pct": 5.7}, {"label": "Doesn't remove blackheads", "count": 3, "pct": 5.7}, {"label": "Not last-lasting hydration", "count": 1, "pct": 1.9}, {"label": "Coarse exfoliating particles causing irritation", "count": 1, "pct": 1.9}, {"label": "Not natural", "count": 1, "pct": 1.9}, {"label": "Pack size is small - feels like a trial pack", "count": 1, "pct": 1.9}], "n": 53}, "want_to_switch": {"items": [{"label": "Maybe", "count": 26, "pct": 44.1}, {"label": "Yes", "count": 19, "pct": 32.2}, {"label": "No", "count": 14, "pct": 23.7}], "n": 59}, "purchase_factors_ranked": {"ranked": [{"label": "Ingredients", "score": 0.6828, "top1_count": 21, "rank1_pct": 36.2, "rank2_pct": 19.0, "rank3_pct": 22.4}, {"label": "Claims/results", "score": 0.5034, "top1_count": 13, "rank1_pct": 22.4, "rank2_pct": 8.6, "rank3_pct": 20.7}, {"label": "Price", "score": 0.4931, "top1_count": 6, "rank1_pct": 10.3, "rank2_pct": 27.6, "rank3_pct": 13.8}, {"label": "Brand", "score": 0.4241, "top1_count": 8, "rank1_pct": 13.8, "rank2_pct": 17.2, "rank3_pct": 10.3}, {"label": "Reviews", "score": 0.2828, "top1_count": 2, "rank1_pct": 3.4, "rank2_pct": 10.3, "rank3_pct": 13.8}, {"label": "Natural formulation", "score": 0.2828, "top1_count": 7, "rank1_pct": 12.1, "rank2_pct": 5.2, "rank3_pct": 8.6}, {"label": "Quantity", "score": 0.131, "top1_count": 1, "rank1_pct": 1.7, "rank2_pct": 3.4, "rank3_pct": 5.2}, {"label": "Dermatologist recommendation", "score": 0.0931, "top1_count": 0, "rank1_pct": 0.0, "rank2_pct": 3.4, "rank3_pct": 3.4}, {"label": "Fragrance", "score": 0.0586, "top1_count": 0, "rank1_pct": 0.0, "rank2_pct": 3.4, "rank3_pct": 1.7}, {"label": "Packaging", "score": 0.0207, "top1_count": 0, "rank1_pct": 0.0, "rank2_pct": 1.7, "rank3_pct": 0.0}], "n": 58}, "price_1mo": {"items": [{"label": "Below Rs 150", "count": 3, "pct": 5.1}, {"label": "Rs 150-199", "count": 19, "pct": 32.2}, {"label": "Rs 200-249", "count": 19, "pct": 32.2}, {"label": "Rs 250-299", "count": 11, "pct": 18.6}, {"label": "Rs 300 or above", "count": 7, "pct": 11.9}], "n": 59}, "likelihood_try_nh": {"items": [{"label": "Definitely would buy", "count": 33, "pct": 55.9}, {"label": "Probably would buy", "count": 20, "pct": 33.9}, {"label": "Probably would not buy", "count": 5, "pct": 8.5}, {"label": "Definitely would not buy", "count": 1, "pct": 1.7}], "n": 59}, "stop_buying_barriers": {"items": [{"label": "Ingredient / chemical concerns", "count": 14, "pct": 25.0}, {"label": "Other / low category usage", "count": 11, "pct": 19.6}, {"label": "Nothing would stop me", "count": 10, "pct": 17.9}, {"label": "Price / value concerns", "count": 9, "pct": 16.1}, {"label": "Skin reaction / irritation risk", "count": 8, "pct": 14.3}, {"label": "Reviews / information gap", "count": 6, "pct": 10.7}, {"label": "Texture / harshness concerns", "count": 6, "pct": 10.7}, {"label": "Not suited to my specific skin need", "count": 4, "pct": 7.1}], "n": 56}, "face_body_together": {"items": [{"label": "I look at them separately", "count": 29, "pct": 49.2}, {"label": "I only buy face scrubs", "count": 13, "pct": 22.0}, {"label": "Yes, I usually buy them together", "count": 9, "pct": 15.3}, {"label": "I compare both before purchasing", "count": 7, "pct": 11.9}, {"label": "I only buy body scrubs", "count": 1, "pct": 1.7}], "n": 59}, "face_body_first_pick": {"items": [{"label": "Face scrub", "count": 28, "pct": 47.5}, {"label": "Body scrub", "count": 11, "pct": 18.6}, {"label": "Depends on the offer", "count": 8, "pct": 13.6}, {"label": "Both Together", "count": 7, "pct": 11.9}, {"label": "Will like to try face scrub", "count": 1, "pct": 1.7}, {"label": "Currently using Mura", "count": 1, "pct": 1.7}, {"label": "Uses scrubs rarely", "count": 1, "pct": 1.7}, {"label": "Currently using bath and Mura both", "count": 1, "pct": 1.7}, {"label": "Currently using bath and Mura", "count": 1, "pct": 1.7}], "n": 59}, "wash_scrub_sequence": {"items": [{"label": "Yes, but I use them at different times/days", "count": 28, "pct": 47.5}, {"label": "Yes — Face scrub → Face wash", "count": 18, "pct": 30.5}, {"label": "Yes — Face wash → Face scrub", "count": 9, "pct": 15.3}, {"label": "No — I use only face wash", "count": 2, "pct": 3.4}, {"label": "No — I use only face scrub", "count": 2, "pct": 3.4}], "n": 59}}, "personas": [{"name": "Balanced Results Seeker", "core_statement": "Balanced exfoliation with visible results", "n": 32, "pct_of_sample": 54.2, "modal_price": "Rs 150-199", "top_texture": "Medium exfoliating particles", "top_reasons": [{"label": "Remove dead skin", "count": 18, "pct": 56.2}, {"label": "Deep clean pores", "count": 14, "pct": 43.8}, {"label": "Improve skin brightness", "count": 13, "pct": 40.6}], "top_dislikes": [{"label": "Too mild/no visible results", "count": 7}, {"label": "Doesn't reduce tan", "count": 6}], "representative_quote": "Focus on modern, skin-barrier-friendly formulas like fine rice powders, gentle fruit enzymes, or micro-exfoliating clays instead of harsh walnut shells. Differentiate your line with clean ingredients, sustainable packaging, and clear target skin types.", "likely_to_try_nh": {"items": [{"label": "Definitely would buy", "count": 19, "pct": 59.4}, {"label": "Probably would buy", "count": 10, "pct": 31.2}, {"label": "Probably would not buy", "count": 3, "pct": 9.4}], "n": 32}, "skin_type_dist": {"items": [{"label": "Combination", "count": 12, "pct": 37.5}, {"label": "Oily", "count": 8, "pct": 25.0}, {"label": "Dry", "count": 6, "pct": 18.8}, {"label": "Normal", "count": 5, "pct": 15.6}, {"label": "Sensitive", "count": 1, "pct": 3.1}], "n": 32}}, {"name": "Very-Gentle Regular User", "core_statement": "Very gentle for regular use", "n": 14, "pct_of_sample": 23.7, "modal_price": "Rs 200-249", "top_texture": "Fine exfoliating particles", "top_reasons": [{"label": "Remove dead skin", "count": 8, "pct": 57.1}, {"label": "Get smoother skin", "count": 6, "pct": 42.9}, {"label": "Improve skin brightness", "count": 5, "pct": 35.7}], "top_dislikes": [{"label": "Nothing / not applicable", "count": 3}, {"label": "Poor fragrance", "count": 2}], "representative_quote": "I use face scrubs rarely will use if it very gentle for skin", "likely_to_try_nh": {"items": [{"label": "Probably would buy", "count": 7, "pct": 50.0}, {"label": "Definitely would buy", "count": 6, "pct": 42.9}, {"label": "Probably would not buy", "count": 1, "pct": 7.1}], "n": 14}, "skin_type_dist": {"items": [{"label": "Oily", "count": 6, "pct": 42.9}, {"label": "Combination", "count": 4, "pct": 28.6}, {"label": "Normal", "count": 3, "pct": 21.4}, {"label": "Dry", "count": 1, "pct": 7.1}], "n": 14}}, {"name": "Deep-Clean Intensity Seeker", "core_statement": "Strong exfoliation for deep cleaning", "n": 9, "pct_of_sample": 15.3, "modal_price": "Rs 250-299", "top_texture": "Coarse exfoliating particles", "top_reasons": [{"label": "Deep clean pores", "count": 5, "pct": 55.6}, {"label": "Remove dead skin", "count": 5, "pct": 55.6}, {"label": "Remove blackheads", "count": 3, "pct": 33.3}], "top_dislikes": [{"label": "Expensive", "count": 3}, {"label": "Too harsh", "count": 2}], "representative_quote": "Price might stop me because I've been using a homemade Scrub since forever for free - if the quality is not matched I would not buy that", "likely_to_try_nh": {"items": [{"label": "Definitely would buy", "count": 4, "pct": 44.4}, {"label": "Probably would buy", "count": 3, "pct": 33.3}, {"label": "Definitely would not buy", "count": 1, "pct": 11.1}, {"label": "Probably would not buy", "count": 1, "pct": 11.1}], "n": 9}, "skin_type_dist": {"items": [{"label": "Combination", "count": 3, "pct": 33.3}, {"label": "Dry", "count": 3, "pct": 33.3}, {"label": "Oily", "count": 2, "pct": 22.2}, {"label": "Sensitive", "count": 1, "pct": 11.1}], "n": 9}}, {"name": "Concern-Dependent Pragmatist", "core_statement": "Depends on my skin concerns", "n": 4, "pct_of_sample": 6.8, "modal_price": "Rs 300 or above", "top_texture": "Medium exfoliating particles", "top_reasons": [{"label": "Remove dead skin", "count": 3, "pct": 75.0}, {"label": "Relaxing/self-care", "count": 2, "pct": 50.0}, {"label": "Deep clean pores", "count": 1, "pct": 25.0}], "top_dislikes": [{"label": "Not last-lasting hydration", "count": 1}, {"label": "Dries out skin", "count": 1}], "representative_quote": "bad reviews/ ingredients that might cause skin reaction like allergy or itching", "likely_to_try_nh": {"items": [{"label": "Definitely would buy", "count": 4, "pct": 100.0}], "n": 4}, "skin_type_dist": {"items": [{"label": "Combination", "count": 3, "pct": 75.0}, {"label": "Normal", "count": 1, "pct": 25.0}], "n": 4}}], "verbatims": [{"quote": "Focus on modern, skin-barrier-friendly formulas like fine rice powders, gentle fruit enzymes, or micro-exfoliating clays instead of harsh walnut shells. Differentiate your line with clean ingredients, sustainable packaging, and clear target skin types.", "tag": "Suggestion to the brand", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 1}, {"quote": "Price might stop me because I've been using a homemade Scrub since forever for free - if the quality is not matched I would not buy that", "tag": "Purchase barrier", "age": "28", "skin_type": "Combination", "occupation": "Working Professional", "city": "Delhi", "id": 2}, {"quote": "The texture of nutrimask I didn't like because it is too thick the face scrub texture should be good and it should last longer", "tag": "Suggestion to the brand", "age": "42", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ambala", "id": 3}, {"quote": "Mura was little harsh on skin, and I didn't like the ingredients of variants (would prefer orange peel or citrus fruits)", "tag": "Why they stopped using Mura/Bath", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 4}, {"quote": "Both product to be efficient for tan removal and body scrub to have strawberry as an ingredient for soft, smooth legs", "tag": "Face+body decision driver", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 5}, {"quote": "No since my face is very dry and have other concerns and body has different concerns that needs to be focused on", "tag": "Face+body combo opinion", "age": "29", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 6}, {"quote": "No, I would not prefer that i would like touse different products because skin type for face and body varies", "tag": "Face+body combo opinion", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 7}, {"quote": "No will always prefer different product for different body parts believes it will not be effective", "tag": "Face+body combo opinion", "age": "41", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 8}, {"quote": "Not at all it is not possible to use the same product all over the body and would not want that", "tag": "Face+body combo opinion", "age": "22", "skin_type": "Dry", "occupation": "Student", "city": "Pune", "id": 9}, {"quote": "two seperate products- face/body skin concerns are different; face scrub should be more gentle", "tag": "Face+body combo opinion", "age": "21", "skin_type": "Combination", "occupation": "Student", "city": "Uttarakhand", "id": 10}, {"quote": "Face scrub for brightening & removing dullness; body scrub for tanning/uneven skin tonen 6", "tag": "Face+body decision driver", "age": "22", "skin_type": "Dry", "occupation": "Student", "city": "Pune", "id": 11}, {"quote": "If it has equivalent result like Clayco as it will be a natural product will try Nat Habit", "tag": "Purchase barrier", "age": "26", "skin_type": "Dry", "occupation": "MBA Student", "city": "Delhi", "id": 12}, {"quote": "No , because of difference in skin type all of the body and face , I prefer it different", "tag": "Face+body combo opinion", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Sonipat", "id": 13}, {"quote": "Face scrub for brightening & removing dullness; body scrub for tanning/uneven skin tone", "tag": "Face+body decision driver", "age": "25", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Delhi", "id": 14}, {"quote": "Face scrub for brightening & removing dullness; body scrub for tanning/uneven skin tone", "tag": "Face+body decision driver", "age": "28", "skin_type": "Oily", "occupation": "Student", "city": "Delhi", "id": 15}, {"quote": "Two separate product as I don't use body scrub usually but would love to try face scrub", "tag": "Face+body combo opinion", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 16}, {"quote": "Used anti dandruff shampoo of Nat Habit and didn't got any visible results post usage", "tag": "Purchase barrier", "age": "54", "skin_type": "Oily", "occupation": "Homemaker", "city": "Vadodara", "id": 17}, {"quote": "Face Scrub for tan removal and brightening; body scrub for hydrating/non-drying skin", "tag": "Face+body decision driver", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 18}, {"quote": "bad reviews/ ingredients that might cause skin reaction like allergy or itching", "tag": "Purchase barrier", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 19}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Sonipat", "id": 20}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "40", "skin_type": "Oily", "occupation": "Working Professional", "city": "Panchkula", "id": 21}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "21", "skin_type": "Combination", "occupation": "Student", "city": "Uttarakhand", "id": 22}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "30", "skin_type": "Normal", "occupation": "Homemaker", "city": "Alwaye", "id": 23}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "49", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 24}, {"quote": "Face scrub for acne, blackheads & clogged pores; body scrub for rough/dry skin", "tag": "Face+body decision driver", "age": "23", "skin_type": "Oily", "occupation": "Student", "city": "Nashik", "id": 25}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "38", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 26}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "21", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 27}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "Tamil Nadu", "id": 28}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 29}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "54", "skin_type": "Oily", "occupation": "Homemaker", "city": "Vadodara", "id": 30}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 31}, {"quote": "One product as it would be more convenient to purchase and travel-friendly", "tag": "Face+body combo opinion", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Mumbai", "id": 32}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 33}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "49", "skin_type": "Normal", "occupation": "Working Professional", "city": "Bengaluru", "id": 34}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "26", "skin_type": "Dry", "occupation": "MBA Student", "city": "Delhi", "id": 35}, {"quote": "I prefer separate products because face and body skin have different needs", "tag": "Face+body decision driver", "age": "35", "skin_type": "Oily", "occupation": "Working Professional", "city": "Gurgaon", "id": 36}, {"quote": "Gentle exfoliating bases like rice flour or hydrating oils Jojoba oils", "tag": "Ingredients wishlist", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 37}, {"quote": "Yes will prefer as it will save cost also I use scrubs occasionally", "tag": "Face+body combo opinion", "age": "23", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 38}, {"quote": "Face Malai smell is overpowering- if we can tone down the intensity", "tag": "Suggestion to the brand", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 39}, {"quote": "Nope will use different products as skin type and concerns differ", "tag": "Face+body combo opinion", "age": "39", "skin_type": "Combination", "occupation": "Homemaker", "city": "Ahmedabad", "id": 40}, {"quote": "No will prefer as face has different concerns and body different", "tag": "Face+body combo opinion", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Agra", "id": 41}, {"quote": "no - beleives face and body requires different types of products", "tag": "Face+body combo opinion", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 42}, {"quote": "Natural ingredients like potato papaya besan haldi coffee sugar", "tag": "Ingredients wishlist", "age": "28", "skin_type": "Combination", "occupation": "Working Professional", "city": "Delhi", "id": 43}, {"quote": "No - will purchase different based on the benefits they provide", "tag": "Face+body combo opinion", "age": "54", "skin_type": "Normal", "occupation": "Homemaker", "city": "Panipat", "id": 44}, {"quote": "Using harsh ingredients that can cause skin allergy or reaction", "tag": "Purchase barrier", "age": "49", "skin_type": "Normal", "occupation": "Working Professional", "city": "Bengaluru", "id": 45}, {"quote": "Face scrub for oily skin; body scrub for roughness & dead skin", "tag": "Face+body decision driver", "age": "45", "skin_type": "Dry", "occupation": "Homemaker", "city": "Jamshedpur", "id": 46}, {"quote": "Face scrub for oily skin; body scrub for roughness & dead skin", "tag": "Face+body decision driver", "age": "45", "skin_type": "Dry", "occupation": "Homemaker", "city": "Delhi NCR", "id": 47}, {"quote": "Yes, ease of using one product instead of two, travel friendly", "tag": "Face+body combo opinion", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 48}, {"quote": "2 Separate products - face wash should be more gentle on skin", "tag": "Face+body combo opinion", "age": "49", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 49}, {"quote": "I use face scrubs rarely will use if it very gentle for skin", "tag": "Purchase barrier", "age": "49", "skin_type": "Oily", "occupation": "Business Owner", "city": "Ambala", "id": 50}, {"quote": "Two separate products as face/body have different skin needs", "tag": "Face+body combo opinion", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "Tamil Nadu", "id": 51}, {"quote": "Current cinnamon nashapti Mura didn't give any visible glow", "tag": "Purchase barrier", "age": "39", "skin_type": "Combination", "occupation": "Homemaker", "city": "Ahmedabad", "id": 52}, {"quote": "Yes, it would be easy to carry one product while travelling", "tag": "Face+body combo opinion", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 53}, {"quote": "chemical ingredients/not full disclosure of ingredient list", "tag": "Purchase barrier", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 54}, {"quote": "Two separate, feel that one can't exist for face and body", "tag": "Face+body combo opinion", "age": "24", "skin_type": "Normal", "occupation": "Business Owner", "city": "Pune", "id": 55}, {"quote": "Tikta didn't suit and gave rashed if scrub has same issue", "tag": "Purchase barrier", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 56}, {"quote": "Different concerns require different types of exfoliation", "tag": "Face+body decision driver", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 57}, {"quote": "The texture if it is too thick then it will be a problem", "tag": "Purchase barrier", "age": "42", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ambala", "id": 58}, {"quote": "Two seperate products- face scrub should be more gentle", "tag": "Face+body combo opinion", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 59}, {"quote": "no, face skin is dry to sensitive so i wouldnt want to", "tag": "Face+body combo opinion", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 60}, {"quote": "Stopped using bath as tried only once out of curiosity", "tag": "Why they stopped using Mura/Bath", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Mumbai", "id": 61}, {"quote": "Do not check ingredients just the benefits it provides", "tag": "Ingredients wishlist", "age": "28", "skin_type": "Normal", "occupation": "Homemaker", "city": "Bhatinda", "id": 62}, {"quote": "No- I use Face and Body scrubs for different purposes", "tag": "Face+body combo opinion", "age": "40", "skin_type": "Oily", "occupation": "Working Professional", "city": "Panchkula", "id": 63}, {"quote": "One product is not suitable for both face and body", "tag": "Face+body decision driver", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 64}, {"quote": "One product is not suitable for both face and body", "tag": "Face+body decision driver", "age": "45", "skin_type": "Normal", "occupation": "Working Professional", "city": "Ahmedabad", "id": 65}, {"quote": "If it does not have the preferred ingredient in it", "tag": "Purchase barrier", "age": "26", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Lucknow", "id": 66}, {"quote": "Two separate products as different face/body needs", "tag": "Face+body combo opinion", "age": "49", "skin_type": "Normal", "occupation": "Working Professional", "city": "Bengaluru", "id": 67}, {"quote": "One product is not suitable for both face and body", "tag": "Face+body decision driver", "age": "29", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 68}, {"quote": "Two separate products according to face/body needs", "tag": "Face+body combo opinion", "age": "35", "skin_type": "Oily", "occupation": "Working Professional", "city": "Gurgaon", "id": 69}, {"quote": "If it is not 100% natural and above the 200 price", "tag": "Purchase barrier", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Agra", "id": 70}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "24", "skin_type": "Normal", "occupation": "Business Owner", "city": "Pune", "id": 71}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "23", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 72}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "54", "skin_type": "Normal", "occupation": "Homemaker", "city": "Panipat", "id": 73}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "28", "skin_type": "Combination", "occupation": "Business Owner", "city": "Mumbai", "id": 74}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "delhi", "id": 75}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "41", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 76}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "45", "skin_type": "Oily", "occupation": "Working Professional", "city": "Trivandrum", "id": 77}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "25", "skin_type": "Combination", "occupation": "Working Professional", "city": "Gurgaon", "id": 78}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 79}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Agra", "id": 80}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "26", "skin_type": "Combination", "occupation": "Working Professional", "city": "Bengaluru", "id": 81}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 82}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ghaziabad", "id": 83}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "28", "skin_type": "Normal", "occupation": "Homemaker", "city": "Bhatinda", "id": 84}, {"quote": "Buy separately based on specific skin/body needs", "tag": "Face+body decision driver", "age": "22", "skin_type": "Normal", "occupation": "Working Professional", "city": "Gurugram", "id": 85}, {"quote": "Stopped using bath Ubtan for no specific reason", "tag": "Why they stopped using Mura/Bath", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 86}, {"quote": "The product should be natural and cruelty free", "tag": "Suggestion to the brand", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 87}, {"quote": "Product causing allergy, irritation or dryness", "tag": "Purchase barrier", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "Tamil Nadu", "id": 88}, {"quote": "Prefer rough exfoliating face scrub for face", "tag": "Face+body combo opinion", "age": "40", "skin_type": "Combination", "occupation": "Working Professional", "city": "Secunderabad", "id": 89}, {"quote": "If it is too gentle and the texture is soft", "tag": "Purchase barrier", "age": "40", "skin_type": "Combination", "occupation": "Working Professional", "city": "Secunderabad", "id": 90}, {"quote": "Poor reviews or lack of product information", "tag": "Purchase barrier", "age": "35", "skin_type": "Oily", "occupation": "Working Professional", "city": "Gurgaon", "id": 91}, {"quote": "if it does not have enzyme component in it", "tag": "Purchase barrier", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "delhi", "id": 92}, {"quote": "Nat Habit does not provide desired results", "tag": "Purchase barrier", "age": "45", "skin_type": "Oily", "occupation": "Working Professional", "city": "Trivandrum", "id": 93}, {"quote": "Will purchase as it will be cost effective", "tag": "Face+body combo opinion", "age": "42", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 94}, {"quote": "Currently using bath and Mura of Nat Habit", "tag": "Face+body decision driver", "age": "32", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 95}, {"quote": "The price for face scrub must be below 500", "tag": "Suggestion to the brand", "age": "30", "skin_type": "Normal", "occupation": "Homemaker", "city": "Alwaye", "id": 96}, {"quote": "If it is above 200 will definitely not buy", "tag": "Purchase barrier", "age": "45", "skin_type": "Dry", "occupation": "Homemaker", "city": "Delhi NCR", "id": 97}, {"quote": "The product should always be 100% natural", "tag": "Suggestion to the brand", "age": "54", "skin_type": "Normal", "occupation": "Homemaker", "city": "Panipat", "id": 98}, {"quote": "Please add retinol collagen in face scrub", "tag": "Suggestion to the brand", "age": "45", "skin_type": "Normal", "occupation": "Working Professional", "city": "Ahmedabad", "id": 99}, {"quote": "if it is not suitable for acne prome skin", "tag": "Purchase barrier", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 100}, {"quote": "Got acne from both bath Ubtan and Mura", "tag": "Why they stopped using Mura/Bath", "age": "49", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 101}, {"quote": "Yes it will cost less amount of money", "tag": "Face+body combo opinion", "age": "30", "skin_type": "Normal", "occupation": "Homemaker", "city": "Alwaye", "id": 102}, {"quote": "Harsh granules/ exfoliating particles", "tag": "Purchase barrier", "age": "49", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 103}, {"quote": "Skin-specific ingredient (oily skin)", "tag": "Purchase barrier", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 104}, {"quote": "Single product, more travel-friendly", "tag": "Face+body combo opinion", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 105}, {"quote": "Uses scrub rarely but just for face", "tag": "Face+body combo opinion", "age": "49", "skin_type": "Oily", "occupation": "Business Owner", "city": "Ambala", "id": 106}, {"quote": "Uses scrub only on face not on body", "tag": "Face+body combo opinion", "age": "54", "skin_type": "Oily", "occupation": "Homemaker", "city": "Vadodara", "id": 107}, {"quote": "Yes, would be more travel-friendly", "tag": "Face+body combo opinion", "age": "38", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 108}, {"quote": "Mild scrubs are better in general", "tag": "Suggestion to the brand", "age": "28", "skin_type": "Combination", "occupation": "Business Owner", "city": "Mumbai", "id": 109}, {"quote": "Hydrating and natural ingredients", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Sonipat", "id": 110}, {"quote": "Watermelon or Cooling ingredients", "tag": "Ingredients wishlist", "age": "40", "skin_type": "Oily", "occupation": "Working Professional", "city": "Panchkula", "id": 111}, {"quote": "Coarse/harsh exfoliating granules", "tag": "Purchase barrier", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 112}, {"quote": "If it's customer reviews are bad", "tag": "Purchase barrier", "age": "23", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 113}, {"quote": "Currently using just face scrubs", "tag": "Face+body decision driver", "age": "39", "skin_type": "Combination", "occupation": "Homemaker", "city": "Ahmedabad", "id": 114}, {"quote": "Yes it will be convenient to use", "tag": "Face+body combo opinion", "age": "42", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ambala", "id": 115}, {"quote": "If it is not suitable for ageing", "tag": "Purchase barrier", "age": "45", "skin_type": "Normal", "occupation": "Working Professional", "city": "Ahmedabad", "id": 116}, {"quote": "Chemical ingredients/bad reviews", "tag": "Purchase barrier", "age": "28", "skin_type": "Oily", "occupation": "Student", "city": "Delhi", "id": 117}, {"quote": "Will do as it will be convenient", "tag": "Face+body combo opinion", "age": "26", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Lucknow", "id": 118}, {"quote": "None as such - gentle non drying", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 119}, {"quote": "salicylic acid , hyaluronic acid", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Normal", "occupation": "Working Professional", "city": "Gurugram", "id": 120}, {"quote": "Yes if it provides good results", "tag": "Face+body combo opinion", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 121}, {"quote": "yes if it provides good results", "tag": "Face+body combo opinion", "age": "21", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 122}, {"quote": "Yes would like to give it a try", "tag": "Face+body combo opinion", "age": "42", "skin_type": "Oily", "occupation": "Homemaker", "city": "Secunderabad", "id": 123}, {"quote": "Please launch face serum soon!", "tag": "Suggestion to the brand", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 124}, {"quote": "If used Artificial ingredients", "tag": "Purchase barrier", "age": "26", "skin_type": "Combination", "occupation": "Working Professional", "city": "Bengaluru", "id": 125}, {"quote": "Nothing specific just natural", "tag": "Ingredients wishlist", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 126}, {"quote": "Yes will be convenient to use", "tag": "Face+body combo opinion", "age": "45", "skin_type": "Oily", "occupation": "Working Professional", "city": "Trivandrum", "id": 127}, {"quote": "Please launch sunscreen soon!", "tag": "Suggestion to the brand", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 128}, {"quote": "Yes it will be cost effective", "tag": "Face+body combo opinion", "age": "45", "skin_type": "Dry", "occupation": "Homemaker", "city": "Jamshedpur", "id": 129}, {"quote": "No pref just complete natural", "tag": "Ingredients wishlist", "age": "30", "skin_type": "Normal", "occupation": "Homemaker", "city": "Alwaye", "id": 130}, {"quote": "If the price is more than 500", "tag": "Purchase barrier", "age": "30", "skin_type": "Normal", "occupation": "Homemaker", "city": "Alwaye", "id": 131}, {"quote": "Too much chemical ingredients", "tag": "Purchase barrier", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 132}, {"quote": "If it is costly and above 300", "tag": "Purchase barrier", "age": "28", "skin_type": "Normal", "occupation": "Homemaker", "city": "Bhatinda", "id": 133}, {"quote": "No idea, something Vitamin C", "tag": "Ingredients wishlist", "age": "24", "skin_type": "Normal", "occupation": "Business Owner", "city": "Pune", "id": 134}, {"quote": "If it does not actives in it", "tag": "Purchase barrier", "age": "21", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 135}, {"quote": "Rice, Ground coffee and oats", "tag": "Ingredients wishlist", "age": "25", "skin_type": "Combination", "occupation": "Working Professional", "city": "Gurgaon", "id": 136}, {"quote": "Coarse exfoliating particles", "tag": "Purchase barrier", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Mumbai", "id": 137}, {"quote": "nope - uses only face scrub", "tag": "Face+body combo opinion", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "delhi", "id": 138}, {"quote": "lack of reviews/information", "tag": "Purchase barrier", "age": "21", "skin_type": "Combination", "occupation": "Student", "city": "Uttarakhand", "id": 139}, {"quote": "Sandalwood, Turmeric, Honey", "tag": "Ingredients wishlist", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 140}, {"quote": "Prefer similar ingredients", "tag": "Face+body decision driver", "age": "42", "skin_type": "Oily", "occupation": "Homemaker", "city": "Secunderabad", "id": 141}, {"quote": "The products are expensive", "tag": "Purchase barrier", "age": "42", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 142}, {"quote": "Prefer similar ingredients", "tag": "Face+body decision driver", "age": "26", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 143}, {"quote": "No uses soap for body only", "tag": "Face+body combo opinion", "age": "28", "skin_type": "Normal", "occupation": "Homemaker", "city": "Bhatinda", "id": 144}, {"quote": "No I don't use body scrubs", "tag": "Face+body combo opinion", "age": "26", "skin_type": "Dry", "occupation": "MBA Student", "city": "Delhi", "id": 145}, {"quote": "Prefer similar ingredients", "tag": "Face+body decision driver", "age": "38", "skin_type": "Oily", "occupation": "Working Professional", "city": "Bengaluru", "id": 146}, {"quote": "Currently using face Mura", "tag": "Purchase barrier", "age": "54", "skin_type": "Normal", "occupation": "Homemaker", "city": "Panipat", "id": 147}, {"quote": "Loves brand will purchase", "tag": "Purchase barrier", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 148}, {"quote": "Uses face scrub currently", "tag": "Face+body decision driver", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 149}, {"quote": "Rice, Coffee, Shea Butter", "tag": "Ingredients wishlist", "age": "21", "skin_type": "Combination", "occupation": "Student", "city": "Uttarakhand", "id": 150}, {"quote": "Natural/herbal ingredient", "tag": "Ingredients wishlist", "age": "32", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 151}, {"quote": "Bath haven't explored yet", "tag": "Why they stopped using Mura/Bath", "age": "25", "skin_type": "Combination", "occupation": "Homemaker", "city": "Bangalore", "id": 152}, {"quote": "If its drying out my face", "tag": "Purchase barrier", "age": "29", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 153}, {"quote": "Natural and cruelty free", "tag": "Ingredients wishlist", "age": "39", "skin_type": "Combination", "occupation": "Homemaker", "city": "Ahmedabad", "id": 154}, {"quote": "Nat Habit is very costly", "tag": "Purchase barrier", "age": "45", "skin_type": "Dry", "occupation": "Homemaker", "city": "Jamshedpur", "id": 155}, {"quote": "Skin Irritation/ Allergy", "tag": "Purchase barrier", "age": "23", "skin_type": "Oily", "occupation": "Student", "city": "Nashik", "id": 156}, {"quote": "Coffee or citric fruits", "tag": "Ingredients wishlist", "age": "34", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 157}, {"quote": "I haven't used them yet", "tag": "Why they stopped using Mura/Bath", "age": "29", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 158}, {"quote": "Bad Overall Experience", "tag": "Purchase barrier", "age": "28", "skin_type": "Combination", "occupation": "Business Owner", "city": "Mumbai", "id": 159}, {"quote": "If it above the budget", "tag": "Purchase barrier", "age": "41", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 160}, {"quote": "Yes if it is not harsh", "tag": "Face+body combo opinion", "age": "45", "skin_type": "Normal", "occupation": "Working Professional", "city": "Ahmedabad", "id": 161}, {"quote": "Prefer the same brand", "tag": "Face+body decision driver", "age": "22", "skin_type": "Oily", "occupation": "Student", "city": "Sonipat", "id": 162}, {"quote": "Prefer the same brand", "tag": "Face+body decision driver", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 163}, {"quote": "Price and ingredients", "tag": "Purchase barrier", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Sonipat", "id": 164}, {"quote": "Prefer the same brand", "tag": "Face+body decision driver", "age": "42", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ambala", "id": 165}, {"quote": "Yes it will save cost", "tag": "Face+body combo opinion", "age": "32", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 166}, {"quote": "Exfoliating particles", "tag": "Ingredients wishlist", "age": "23", "skin_type": "Oily", "occupation": "Student", "city": "Nashik", "id": 167}, {"quote": "Less Value for Money", "tag": "Purchase barrier", "age": "25", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Delhi", "id": 168}, {"quote": "Chemical ingredients", "tag": "Purchase barrier", "age": "38", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 169}, {"quote": "Less Value for money", "tag": "Purchase barrier", "age": "25", "skin_type": "Combination", "occupation": "Working Professional", "city": "Gurgaon", "id": 170}, {"quote": "Turmeric, Sandalwood", "tag": "Ingredients wishlist", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 171}, {"quote": "Chemical Ingredients", "tag": "Purchase barrier", "age": "55", "skin_type": "Combination", "occupation": "Business Owner", "city": "Pune", "id": 172}, {"quote": "Uses only face scrub", "tag": "Face+body combo opinion", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 173}, {"quote": "Uses only face scrub", "tag": "Face+body decision driver", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 174}, {"quote": "Chemical ingredients", "tag": "Purchase barrier", "age": "40", "skin_type": "Oily", "occupation": "Working Professional", "city": "Panchkula", "id": 175}, {"quote": "Uses only face scrub", "tag": "Face+body decision driver", "age": "40", "skin_type": "Combination", "occupation": "Working Professional", "city": "Secunderabad", "id": 176}, {"quote": "Brightening Actives", "tag": "Ingredients wishlist", "age": "25", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Delhi", "id": 177}, {"quote": "Ubtan, Besan, Haldi", "tag": "Ingredients wishlist", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 178}, {"quote": "Tomato, Orange peel", "tag": "Ingredients wishlist", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 179}, {"quote": "Shea Butter, Pulses", "tag": "Ingredients wishlist", "age": "49", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 180}, {"quote": "Natural Ingredients", "tag": "Ingredients wishlist", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "Hyderabad", "id": 181}, {"quote": "Natural ingredients", "tag": "Ingredients wishlist", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ghaziabad", "id": 182}, {"quote": "Rarely uses scrubs", "tag": "Face+body decision driver", "age": "49", "skin_type": "Oily", "occupation": "Business Owner", "city": "Ambala", "id": 183}, {"quote": "Yes, affordability", "tag": "Face+body combo opinion", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 184}, {"quote": "Irritation on skin", "tag": "Purchase barrier", "age": "22", "skin_type": "Dry", "occupation": "Student", "city": "Pune", "id": 185}, {"quote": "Uses scrubs rarely", "tag": "Purchase barrier", "age": "50", "skin_type": "Oily", "occupation": "Homemaker", "city": "Delhi", "id": 186}, {"quote": "Uses scrubs rarely", "tag": "Face+body combo opinion", "age": "50", "skin_type": "Oily", "occupation": "Homemaker", "city": "Delhi", "id": 187}, {"quote": "No specific reason", "tag": "Purchase barrier", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 188}, {"quote": "Yes, affordability", "tag": "Face+body combo opinion", "age": "28", "skin_type": "Oily", "occupation": "Student", "city": "Delhi", "id": 189}, {"quote": "Nothing Particular", "tag": "Purchase barrier", "age": "26", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 190}, {"quote": "Rice Water, Pulses", "tag": "Ingredients wishlist", "age": "35", "skin_type": "Oily", "occupation": "Working Professional", "city": "Gurgaon", "id": 191}, {"quote": "Yes - Convenience", "tag": "Face+body combo opinion", "age": "25", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Delhi", "id": 192}, {"quote": "Depends on offers", "tag": "Face+body decision driver", "age": "42", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 193}, {"quote": "Retinol, collagen", "tag": "Ingredients wishlist", "age": "45", "skin_type": "Normal", "occupation": "Working Professional", "city": "Ahmedabad", "id": 194}, {"quote": "Chocolate, Walnut", "tag": "Ingredients wishlist", "age": "26", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Lucknow", "id": 195}, {"quote": "Coffee, rosewater", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Combination", "occupation": "Working Professional", "city": "Mumbai", "id": 196}, {"quote": "Yes - easy to use", "tag": "Face+body combo opinion", "age": "26", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 197}, {"quote": "Depends on offers", "tag": "Face+body decision driver", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Mumbai", "id": 198}, {"quote": "Nothing specific", "tag": "Ingredients wishlist", "age": "50", "skin_type": "Oily", "occupation": "Homemaker", "city": "Delhi", "id": 199}, {"quote": "enzymes aha bha", "tag": "Ingredients wishlist", "age": "23", "skin_type": "Combination", "occupation": "Working Professional", "city": "delhi", "id": 200}, {"quote": "Skin irritation", "tag": "Purchase barrier", "age": "23", "skin_type": "Dry", "occupation": "Working Professional", "city": "Faridabad", "id": 201}, {"quote": "Only face scrub", "tag": "Face+body decision driver", "age": "50", "skin_type": "Oily", "occupation": "Homemaker", "city": "Delhi", "id": 202}, {"quote": "Orange aloevera", "tag": "Ingredients wishlist", "age": "42", "skin_type": "Oily", "occupation": "Working Professional", "city": "Ambala", "id": 203}, {"quote": "Only face scrub", "tag": "Face+body decision driver", "age": "26", "skin_type": "Sensitive", "occupation": "Working Professional", "city": "Lucknow", "id": 204}, {"quote": "Hyaluronic acid", "tag": "Ingredients wishlist", "age": "26", "skin_type": "Dry", "occupation": "MBA Student", "city": "Delhi", "id": 205}, {"quote": "If it is costly", "tag": "Purchase barrier", "age": "38", "skin_type": "Oily", "occupation": "Working Professional", "city": "Bengaluru", "id": 206}, {"quote": "Rice Particles", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Dry", "occupation": "Student", "city": "Pune", "id": 207}, {"quote": "Apricot/Walnut", "tag": "Ingredients wishlist", "age": "28", "skin_type": "Oily", "occupation": "Working Professional", "city": "Mumbai", "id": 208}, {"quote": "Haven't Tried", "tag": "Why they stopped using Mura/Bath", "age": "26", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 209}, {"quote": "Honey - Oats", "tag": "Ingredients wishlist", "age": "28", "skin_type": "Combination", "occupation": "Business Owner", "city": "Mumbai", "id": 210}, {"quote": "100% Natural", "tag": "Ingredients wishlist", "age": "41", "skin_type": "Combination", "occupation": "Working Professional", "city": "Jaipur", "id": 211}, {"quote": "None as such", "tag": "Ingredients wishlist", "age": "26", "skin_type": "Normal", "occupation": "Working Professional", "city": "Delhi", "id": 212}, {"quote": "Bad reviews", "tag": "Purchase barrier", "age": "24", "skin_type": "Normal", "occupation": "Business Owner", "city": "Pune", "id": 213}, {"quote": "niacinamide", "tag": "Ingredients wishlist", "age": "21", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 214}, {"quote": "Niacinamide", "tag": "Ingredients wishlist", "age": "45", "skin_type": "Oily", "occupation": "Working Professional", "city": "Trivandrum", "id": 215}, {"quote": "Brown sugar", "tag": "Ingredients wishlist", "age": "29", "skin_type": "Dry", "occupation": "Working Professional", "city": "Delhi", "id": 216}, {"quote": "Rice Water", "tag": "Ingredients wishlist", "age": "36", "skin_type": "Combination", "occupation": "Working Professional", "city": "Tamil Nadu", "id": 217}, {"quote": "Never used", "tag": "Why they stopped using Mura/Bath", "age": "22", "skin_type": "Dry", "occupation": "Student", "city": "Pune", "id": 218}, {"quote": "not really", "tag": "Face+body combo opinion", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 219}, {"quote": "Aloe vera", "tag": "Ingredients wishlist", "age": "54", "skin_type": "Normal", "occupation": "Homemaker", "city": "Panipat", "id": 220}, {"quote": "Chocolate", "tag": "Ingredients wishlist", "age": "38", "skin_type": "Oily", "occupation": "Working Professional", "city": "Bengaluru", "id": 221}, {"quote": "Turmeric", "tag": "Ingredients wishlist", "age": "38", "skin_type": "Combination", "occupation": "Working Professional", "city": "New Delhi", "id": 222}, {"quote": "Charcoal", "tag": "Ingredients wishlist", "age": "41", "skin_type": "Dry", "occupation": "Homemaker", "city": "Dehradun", "id": 223}, {"quote": "turmeric", "tag": "Ingredients wishlist", "age": "22", "skin_type": "Oily", "occupation": "Working Professional", "city": "Delhi", "id": 224}], "explore_records": [{"age_bucket": "18-25", "occupation": "Business Owner", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Hair Care products (No face/body care)", "mura_history": "No", "current_brand": "Everyuth", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Smoothens skin texture", "Gentle on skin"], "primary_reason": ["Remove dead skin", "Deep clean pores"], "disappointments": ["Difficult to wash off"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "46+", "occupation": "Business Owner", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Fine Lines"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Not using", "rating_current": "8", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Smoothens skin texture"], "primary_reason": ["Remove dead skin", "Remove tan"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": [], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Himalaya", "rating_current": "7", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes tan", "Smoothens skin texture", "Pleasant fragrance"], "primary_reason": ["Get smoother skin", "Deep clean pores", "Improve skin brightness"], "disappointments": ["Poor fragrance"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Blackheads/Whiteheads"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Homemade Scrub with Coffee sugar and other natural ingredients", "rating_current": "10", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Brightens skin"], "primary_reason": ["Deep clean pores"], "disappointments": [], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Student", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Plum", "rating_current": "8", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Smoothens skin texture", "Helps with acne", "Gentle on skin", "Pleasant fragrance"], "primary_reason": ["Remove dead skin"], "disappointments": ["Too harsh", "Leaves oily residue"], "want_to_switch": "Maybe", "price_band": "Rs 250-299", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Sensitive", "skin_concerns": ["Pigmentation"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Kama", "rating_current": "10", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes dead skin", "Gives instant glow", "Removes tan", "Smoothens skin texture"], "primary_reason": ["Remove dead skin"], "disappointments": ["Expensive"], "want_to_switch": "No", "price_band": "Rs 300 or above", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["No"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Brightens skin", "Natural ingredients"], "primary_reason": ["Improve skin brightness"], "disappointments": ["Too mild/no visible results"], "want_to_switch": "Yes", "price_band": "Rs 300 or above", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "46+", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Normal", "skin_concerns": ["Fine Lines"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Gentle on skin"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Improve skin brightness"], "disappointments": ["Too mild/no visible results"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "26-35", "occupation": "Business Owner", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Blackheads/Whiteheads"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Ordinary", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Enzyme (particle-free) exfoliation", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes tan", "Controls blackheads/whiteheads", "Smoothens skin texture"], "primary_reason": ["Remove dead skin"], "disappointments": ["Expensive"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Daily", "top_qualities": ["Removes tan", "Brightens skin", "Gentle on skin"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Deep clean pores", "Remove tan", "Improve skin brightness"], "disappointments": ["Too harsh", "Leaves oily residue", "Difficult to wash off", "Doesn't reduce tan"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": [], "nh_relationship": "No, haven't used any NH products", "mura_history": "", "current_brand": "clayco", "rating_current": "8", "ideal_statement": "Very gentle for regular use", "texture_pref": "Enzyme (particle-free) exfoliation", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Removes tan", "Smoothens skin texture"], "primary_reason": ["Remove blackheads", "Improve skin brightness"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "No", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Lotus", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Gives instant glow", "Removes tan"], "primary_reason": ["Remove dead skin"], "disappointments": ["Too mild/no visible results"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Dry", "skin_concerns": ["Pigmentation", "Blackheads/Whiteheads"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, Mura", "current_brand": "Everyuth", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Gives instant glow", "Controls blackheads/whiteheads", "Brightens skin"], "primary_reason": ["Get smoother skin"], "disappointments": ["Leaves oily residue"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Natural ingredients"], "primary_reason": ["Remove dead skin", "Improve skin brightness"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "No", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Dry", "skin_concerns": ["Drying"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Smoothens skin texture", "Brightens skin", "Gentle on skin"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Remove blackheads"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "No", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Everyuth", "rating_current": "8", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Removes dead skin", "Gentle on skin", "Natural ingredients"], "primary_reason": ["Remove dead skin"], "disappointments": ["Poor fragrance"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Acne", "Blackheads/Whiteheads"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "7", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Gives instant glow"], "primary_reason": ["Remove dead skin", "Deep clean pores"], "disappointments": ["Too mild/no visible results", "Expensive"], "want_to_switch": "Yes", "price_band": "Rs 250-299", "likely_to_try_nh": "Probably would not buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Acne"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Foxtale", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Brightens skin"], "primary_reason": ["Deep clean pores"], "disappointments": ["Too harsh", "Dries out skin"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Acne", "Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Dr. Rashel", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Smoothens skin texture", "Helps with acne"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Improve skin brightness", "Relaxing/self-care"], "disappointments": ["Difficult to wash off"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, both", "current_brand": "Home-based", "rating_current": "10", "ideal_statement": "Depends on my skin concerns", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes tan", "Gentle on skin", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Deep clean pores"], "disappointments": [], "want_to_switch": "Yes", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Student", "city_tier": "Metro", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "6", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Removes dead skin", "Smoothens skin texture", "Gentle on skin", "Hydrating/non-drying"], "primary_reason": ["Deep clean pores"], "disappointments": ["Doesn't reduce tan", "Doesn't remove blackheads"], "want_to_switch": "No", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Acne", "Pigmentation", "Drying", "Open Pores"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Clayco", "rating_current": "9", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Enzyme (particle-free) exfoliation", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Smoothens skin texture", "Gentle on skin", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Remove blackheads"], "disappointments": ["Expensive"], "want_to_switch": "No", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "46+", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Hair Care products (No face/body care)", "mura_history": "No", "current_brand": "Not using currently", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Brightens skin", "Hydrating/non-drying", "Pleasant fragrance"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Deep clean pores"], "disappointments": ["Dries out skin", "Difficult to wash off"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would not buy"}, {"age_bucket": "46+", "occupation": "Homemaker", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Not using", "rating_current": "1", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads"], "primary_reason": ["Remove dead skin"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Yes", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would not buy"}, {"age_bucket": "46+", "occupation": "Business Owner", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Pigmentation", "Drying"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, Bath", "current_brand": "Nat Habit", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes tan", "Smoothens skin texture", "Gentle on skin", "Hydrating/non-drying"], "primary_reason": ["Remove tan", "Relaxing/self-care"], "disappointments": [], "want_to_switch": "No", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Not using", "rating_current": "7", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Gentle on skin"], "primary_reason": ["Remove dead skin", "Get smoother skin"], "disappointments": ["Dries out skin"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, Mura", "current_brand": "Forest Essentials", "rating_current": "9", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Coarse exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Helps with acne"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Remove blackheads"], "disappointments": ["Expensive"], "want_to_switch": "Yes", "price_band": "Rs 300 or above", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Controls blackheads/whiteheads", "Smoothens skin texture", "Gentle on skin", "Hydrating/non-drying", "Natural ingredients"], "primary_reason": ["Remove dead skin"], "disappointments": ["Too mild/no visible results"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "No", "current_brand": "Patanjali", "rating_current": "9", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Coarse exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Removes tan"], "primary_reason": ["Remove blackheads"], "disappointments": ["Too harsh"], "want_to_switch": "Yes", "price_band": "Below Rs 150", "likely_to_try_nh": "Definitely would not buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": [], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Controls blackheads/whiteheads", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Relaxing/self-care"], "disappointments": ["Too mild/no visible results", "Doesn't reduce tan"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Student", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Pigmentation", "Blackheads/Whiteheads", "Tan"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Depends on my skin concerns", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Remove tan"], "disappointments": ["Not last-lasting hydration"], "want_to_switch": "No", "price_band": "Rs 300 or above", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "No", "current_brand": "Everyuth", "rating_current": "9", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Smoothens skin texture", "Brightens skin"], "primary_reason": ["Get smoother skin", "Deep clean pores"], "disappointments": ["Too mild/no visible results"], "want_to_switch": "No", "price_band": "Rs 250-299", "likely_to_try_nh": "Probably would not buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Sensitive skin"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Coarse exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Gives instant glow", "Controls blackheads/whiteheads"], "primary_reason": ["Remove dead skin", "Get smoother skin"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Normal", "skin_concerns": [], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "No", "current_brand": "Chemist At Play", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Smoothens skin texture", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Deep clean pores"], "disappointments": ["Too harsh"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Hair Care products (No face/body care)", "mura_history": "No", "current_brand": "Not using any", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Brightens skin", "Gentle on skin", "Natural ingredients"], "primary_reason": ["Get smoother skin", "Improve skin brightness"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Maybe", "price_band": "Rs 300 or above", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "26-35", "occupation": "Student", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Pigmentation", "Tan"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes dead skin", "Removes tan", "Brightens skin"], "primary_reason": ["Remove dead skin", "Remove tan", "Improve skin brightness"], "disappointments": ["Coarse exfoliating particles causing irritation"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Homemaker", "city_tier": "Metro", "skin_type": "Dry", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Everyuth", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Gives instant glow", "Controls blackheads/whiteheads"], "primary_reason": ["Remove tan", "Remove blackheads"], "disappointments": ["Dries out skin"], "want_to_switch": "No", "price_band": "Below Rs 150", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Sensitive", "skin_concerns": ["Blackheads/Whiteheads"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "mCaffeine", "rating_current": "8", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Coarse exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Gives instant glow"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Deep clean pores"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Acne", "Blackheads/Whiteheads", "Open Pores"], "nh_relationship": "Yes, NH Hair Care products (No face/body care)", "mura_history": "No", "current_brand": "Clayco", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once every 2 weeks", "top_qualities": ["Removes dead skin", "Gives instant glow", "Removes tan", "Controls blackheads/whiteheads", "Smoothens skin texture", "Gentle on skin"], "primary_reason": ["Get smoother skin", "Deep clean pores", "Remove tan", "Remove blackheads", "Prep skin before makeup", "Relaxing/self-care"], "disappointments": ["Expensive"], "want_to_switch": "No", "price_band": "Rs 300 or above", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "No", "current_brand": "Dermat Recommended", "rating_current": "8", "ideal_statement": "Depends on my skin concerns", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes tan", "Gentle on skin", "Natural ingredients", "Availibility"], "primary_reason": ["Relaxing/self-care"], "disappointments": [], "want_to_switch": "Maybe", "price_band": "Rs 300 or above", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": ["Nothing as such"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Plum", "rating_current": "9", "ideal_statement": "Depends on my skin concerns", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Gives instant glow", "Removes tan", "Brightens skin"], "primary_reason": ["Remove dead skin", "Get smoother skin", "Relaxing/self-care"], "disappointments": ["Dries out skin"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Smoothens skin texture"], "primary_reason": ["Get smoother skin", "Deep clean pores"], "disappointments": ["Poor fragrance"], "want_to_switch": "Maybe", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, both", "current_brand": "Nat Habit", "rating_current": "9", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Removes tan", "Brightens skin"], "primary_reason": ["Remove dead skin", "Improve skin brightness"], "disappointments": [], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Combination", "skin_concerns": ["Nothing"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Dermat Recommended", "rating_current": "7", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Gives instant glow", "Controls blackheads/whiteheads", "Brightens skin"], "primary_reason": ["Deep clean pores", "Improve skin brightness"], "disappointments": ["Not natural"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "18-25", "occupation": "Homemaker", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Tan"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, Mura", "current_brand": "Nat Habit - Pumpkin Clay", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes tan", "Brightens skin", "Gentle on skin"], "primary_reason": ["Deep clean pores", "Remove tan", "Remove blackheads", "Improve skin brightness"], "disappointments": ["Expensive", "Pack size is small - feels like a trial pack"], "want_to_switch": "Yes", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Pigmentation", "Blackheads/Whiteheads", "Tan"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Everyuth", "rating_current": "7", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Smoothens skin texture"], "primary_reason": ["Remove dead skin", "Improve skin brightness", "Relaxing/self-care"], "disappointments": ["Too mild/no visible results", "Doesn't reduce tan"], "want_to_switch": "Yes", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "46+", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH products across multiple categories", "mura_history": "Yes, both", "current_brand": "", "rating_current": "1", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Helps with acne", "Gentle on skin"], "primary_reason": ["Remove dead skin"], "disappointments": [], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Student", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Neutrogena", "rating_current": "7", "ideal_statement": "Very gentle for regular use", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Only when required", "top_qualities": ["Removes dead skin", "Helps with acne", "Brightens skin"], "primary_reason": ["Remove tan"], "disappointments": ["Expensive"], "want_to_switch": "No", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would not buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Pilgrim", "rating_current": "7", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "Daily", "top_qualities": ["Removes dead skin", "Gives instant glow", "Removes tan"], "primary_reason": ["Remove dead skin"], "disappointments": ["Too harsh"], "want_to_switch": "Yes", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "46+", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": ["Blackheads/Whiteheads"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "10", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads", "Smoothens skin texture"], "primary_reason": ["Deep clean pores", "Remove blackheads", "Improve skin brightness"], "disappointments": ["Doesn't remove blackheads"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Dry", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Himalaya", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Gives instant glow", "Removes tan", "Controls blackheads/whiteheads"], "primary_reason": ["Remove tan"], "disappointments": ["Too harsh", "Poor fragrance"], "want_to_switch": "Maybe", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Combination", "skin_concerns": ["Tan"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "Chemist At Play", "rating_current": "5", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Coarse exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes tan", "Smoothens skin texture", "Hydrating/non-drying"], "primary_reason": ["Get smoother skin"], "disappointments": ["Poor fragrance"], "want_to_switch": "Maybe", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Tier 2/3", "skin_type": "Oily", "skin_concerns": ["Pigmentation"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, both", "current_brand": "Nat Habit", "rating_current": "9", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Smoothens skin texture"], "primary_reason": ["Get smoother skin", "Deep clean pores", "Improve skin brightness"], "disappointments": ["Poor fragrance"], "want_to_switch": "No", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "26-35", "occupation": "Homemaker", "city_tier": "Tier 2/3", "skin_type": "Normal", "skin_concerns": ["Blackheads/Whiteheads"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "Yes, Mura", "current_brand": "Nat Habit", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Controls blackheads/whiteheads"], "primary_reason": ["Remove blackheads"], "disappointments": ["Expensive"], "want_to_switch": "No", "price_band": "Below Rs 150", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "26-35", "occupation": "MBA Student", "city_tier": "Metro", "skin_type": "Dry", "skin_concerns": ["Drying"], "nh_relationship": "Yes, NH Bodycare products (No face/skincare)", "mura_history": "No", "current_brand": "Clayco", "rating_current": "8", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Enzyme (particle-free) exfoliation", "ideal_frequency": "Once a week", "top_qualities": ["Gives instant glow", "Controls blackheads/whiteheads", "Helps with acne"], "primary_reason": ["Improve skin brightness"], "disappointments": ["Expensive"], "want_to_switch": "Maybe", "price_band": "Rs 250-299", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Normal", "skin_concerns": [], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "everyuth", "rating_current": "7", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "Once a week", "top_qualities": ["Removes dead skin", "Removes tan", "Controls blackheads/whiteheads"], "primary_reason": ["Remove dead skin", "Deep clean pores", "Improve skin brightness"], "disappointments": ["Dries out skin", "Difficult to wash off"], "want_to_switch": "Yes", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "36-45", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "Yes, NH Face/Skincare products", "mura_history": "No", "current_brand": "Oxyglow", "rating_current": "8", "ideal_statement": "Strong exfoliation for deep cleaning", "texture_pref": "Fine exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Brightens skin", "Gentle on skin"], "primary_reason": ["Remove dead skin", "Get smoother skin"], "disappointments": ["Nothing / not applicable"], "want_to_switch": "Yes", "price_band": "Rs 200-249", "likely_to_try_nh": "Probably would buy"}, {"age_bucket": "26-35", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Pigmentation", "Blackheads/Whiteheads", "Open Pores"], "nh_relationship": "No, haven't used any NH products", "mura_history": "", "current_brand": "Chemist At Play", "rating_current": "8", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes dead skin", "Removes tan", "Controls blackheads/whiteheads", "Smoothens skin texture", "Hydrating/non-drying"], "primary_reason": ["Remove dead skin", "Improve skin brightness", "Relaxing/self-care"], "disappointments": ["Doesn't reduce tan"], "want_to_switch": "Maybe", "price_band": "Rs 150-199", "likely_to_try_nh": "Definitely would buy"}, {"age_bucket": "18-25", "occupation": "Working Professional", "city_tier": "Metro", "skin_type": "Oily", "skin_concerns": ["Acne"], "nh_relationship": "No, haven't used any NH products", "mura_history": "No", "current_brand": "himalya", "rating_current": "6", "ideal_statement": "Balanced exfoliation with visible results", "texture_pref": "Medium exfoliating particles", "ideal_frequency": "2–3 Times a week", "top_qualities": ["Removes tan", "Controls blackheads/whiteheads", "Brightens skin"], "primary_reason": ["Remove tan", "Remove blackheads", "Improve skin brightness"], "disappointments": ["Dries out skin", "Doesn't reduce tan", "Doesn't remove blackheads"], "want_to_switch": "Yes", "price_band": "Rs 150-199", "likely_to_try_nh": "Probably would buy"}], "cohort_learnings": {"base_n": 50, "cohorts": ["Active Loyalist", "Active Trialist", "Active User", "Lapser", "Loyal Lapser"], "thesis_quotes": ["Churn is driven by misrouting + expectation mismatch, not sensorial failure.", "Sensorials are not driving churn. They hold even when users exit the category.", "Shelf life is a habit suppressant more than a direct reject reason.", "Prioritise removal of refrigeration to encourage intended usage frequency & habit formation."], "variant_performance": [{"variant": "Cinnamon Nashpati", "n": 24, "nps": 7.45, "current": 16, "stopped": 8, "retention": 67, "notes": "Biggest volume + biggest issue driver: redness/irritation/dryness on dry/sensitive/combo skin; weak pigmentation efficacy (2/8 improved); runny texture; quantity complaints."}, {"variant": "Urad Jojoba", "n": 7, "nps": 7.57, "current": 4, "stopped": 3, "retention": 57, "notes": "Gentle, fine-hair-reduction win; ineffective for pigmentation; runny over time."}, {"variant": "Pumpkin Clay", "n": 6, "nps": 7.66, "current": 4, "stopped": 2, "retention": 67, "notes": "Balanced, low irritation; early pouch-packaging complaints."}, {"variant": "Neem Marigold", "n": 6, "nps": 7.5, "current": 4, "stopped": 2, "retention": 67, "notes": "Clear acne control for oily skin; dryness for dry/sensitive skin."}, {"variant": "Honey Sunflower", "n": 4, "nps": 7.75, "current": 2, "stopped": 2, "retention": 50, "notes": "Hydration-leaning, gentler; slower visible results."}, {"variant": "Five Gram Mura", "n": 3, "nps": 6.66, "current": 0, "stopped": 3, "retention": 0, "notes": "100% churn — not travel-friendly, seasonal-only effectiveness, poorest value perception."}], "sensorial_matrix": {"attributes": ["Overall", "Smell", "Cleaning", "Consistency", "Exfoliation (gentle)", "Hydration", "Colour", "Concern-solving"], "cohorts": {"Active Trialist": [7.6, 8.5, 8.6, 7.6, 8.4, 7.8, 8.5, 7.1], "Active User": [7.1, 8.8, 8.9, 8.2, 8.5, 7.7, 8.8, 7.3], "Active Loyalist": [7.9, 8.5, 8.7, 8.2, 8.5, 8.0, 8.1, 7.9], "Lapser": [6.3, 8.3, 8.3, 7.3, 7.6, 8.0, 8.4, 5.5], "Loyal Lapser": [7.9, 8.5, 8.5, 8.3, 8.6, 8.7, 8.5, 7.9]}}, "usage_reality": {"actual_frequency": [{"label": "Weekly 1-2x", "pct": 70}, {"label": "2-3x/week", "pct": 20}, {"label": "Occasional / <1x weekly", "pct": 10}], "headline": "56% scrub twice weekly | 30% scrub once weekly | 74% use Mura alone (no facewash pairing)", "pack_use": [{"label": "4-6 uses (as designed)", "pct": 62}, {"label": "7-9 uses (stretching)", "pct": 23}, {"label": "10-12 uses (low-frequency)", "pct": 10}], "shelf_life_finding": "Intended '2 months + refrigeration' vs Observed: users store in fridge, save Mura for occasions, and some discard it on suspected spoilage. Shelf life functions as a habit suppressant more than a direct reject reason."}, "churn_drivers_ranked": [{"label": "Cinnamon Nashpati misrouting to dry/sensitive/combo skin", "pct": 60}, {"label": "Concern-led expectation mismatch (pigmentation/acne unmet)", "pct": null}, {"label": "Low-frequency use + short shelf life -> expiry -> poor value perception", "pct": 40}, {"label": "Geographic/seasonal amplification (North Indian winters)", "pct": null}], "geo_notes": [{"region": "Rajasthan", "note": "100% churn (3/3) — dry climate × sensitive skin × harshness."}, {"region": "Tamil Nadu & Maharashtra", "note": "Higher continued usage despite dryness complaints — climate tolerance, not just skin type."}, {"region": "Delhi NCR", "note": "Polarised — high trial volume, high satisfaction AND high churn; needs variant gating."}, {"region": "East (Kolkata/WB)", "note": "Higher tolerance, high sensorial scores, fewest adverse reactions — flagged as the safest test market for a new format."}], "cohort_summaries": [{"name": "Active Loyalist", "pct": 18, "headline": "Stay due to habit, trust, and better performance than other natural brands — but hydration is a clear weak spot.", "stats": [{"label": "Still purchasing", "value": "9/10"}, {"label": "Overall rating", "value": "7.9"}, {"label": "Concern-solving", "value": "7.9"}, {"label": "Report qty insufficient", "value": "40%"}], "quote": "Active loyalists stay due to habit, trust, and better performance than other natural brands. However, hydration is a clear weak spot — the key opportunity is improving benefit communication and variant tolerance before performance-led competitors become a stronger pull.", "action": "Protect this base with better hydration communication and variant-fit guidance; don't let performance-led challengers win them on predictability."}, {"name": "Active Trialist", "pct": 20, "headline": "Like the cleansing, not yet convinced on pigmentation results; texture and mild CN irritation deter repeat purchase.", "stats": [{"label": "Still purchasing", "value": "7/10"}, {"label": "Overall (ex-lapsed)", "value": "8.4"}, {"label": "CN skew", "value": "80%"}, {"label": "Qty insufficient", "value": "30%"}], "quote": "Trialists like the cleaning, but are not fully convinced on pigmentation results. Texture issues and slight irritation (CN) are deterring the trialists from purchasing at least 3 packs in 6 months.", "action": "Convert with clearer benefit communication, better skin-comfort formulation, and stronger pack-size value perception."}, {"name": "Active User", "pct": 20, "headline": "CN drives both usage and discontinuation — people move to it for pigmentation, then leave the category from rashes/ineffectiveness.", "stats": [{"label": "Still purchasing", "value": "6/10"}, {"label": "Overall (ex-lapsed)", "value": "8.6"}, {"label": "Qty insufficient", "value": "40%"}, {"label": "Effective for them", "value": "60%"}], "quote": "People did move to Cinnamon Nashpati for pigmentation correction, but its ineffectiveness/rashes make it worse than the rest of the category — turning 3 active users into full lapsers.", "action": "Route pigmentation-seekers away from CN into a reformulated / better-tolerated option; fix the value-communication gap on pack size."}, {"name": "Lapser", "pct": 20, "headline": "Did not lapse over price — lapsed over product issues, led by drying/harshness.", "stats": [{"label": "Stopped purchasing", "value": "8/10"}, {"label": "Overall rating", "value": "6.3"}, {"label": "Concern-solving", "value": "5.5"}, {"label": "Found it drying", "value": "40%"}], "quote": "Lapsers did not lapse because of price/qty perception, but because of product issues — drying (40%), followed by ineffectiveness. The non-negotiable for the category is non-drying exfoliation.", "action": "Treat non-drying exfoliation as a hard formulation requirement for the new range, not a nice-to-have."}, {"name": "Loyal Lapser", "pct": 22, "headline": "Still like the product (7.9 for the true lapsers, ex-repeat-buyers even higher) — lapsed from inconvenience and unmet efficacy, not dislike.", "stats": [{"label": "True lapsers", "value": "4/10"}, {"label": "Overall (true lapsers)", "value": "7.0"}, {"label": "Cited price/qty issue", "value": "70%"}, {"label": "Cited shelf-life friction", "value": "1 of 4"}], "quote": "Lapsing is ineffectiveness-led, followed by inconvenience (low shelf life / price-qty), and a couple of occasional/gifting purchases with no intent to form a habit.", "action": "A shelf-stable, always-ready format directly targets this group's stated 'cumbersome to use in time' friction."}], "recommendations": ["Remove the refrigeration requirement to unlock intended daily/frequent-use habit formation (P1).", "Reformat/re-pack for a daily-use claim — larger formats or stabilized, non-perishable preservative systems (P2).", "Fix Cinnamon Nashpati's routing problem — gate dry/sensitive skin away from it at point of sale, or reformulate for broader tolerance; could lift NPS to 8.7-8.8 for natural-seeker segments.", "Make non-drying exfoliation a non-negotiable formulation requirement, not a nice-to-have.", "Reset expectations for concern-solving — communicate scrub as a maintenance/exfoliation + glow product, not a guaranteed pigmentation/acne corrector.", "Address quantity/value perception with bigger packs or clearer value framing relative to shelf life and frequency.", "Move now, while the category still reads as 'naturals-only' — before derm/clinical entrants and challenger natural brands capture pigmentation/acne seekers."]}, "market_landscape": {"source_note": "Amazon/Flipkart/Nykaa/Myntra/Quick-commerce category landscape, Helium 10 + keyword data, Jan 2026 — 75 ASINs, 111,914 units, ₹7.74 Cr category revenue analyzed on Amazon alone.", "market_size_cr": [{"platform": "Amazon", "value": 385}, {"platform": "Nykaa (Face Cleansers)", "value": 442}, {"platform": "Myntra (Face Cleansers)", "value": 150}, {"platform": "Flipkart", "value": 22}], "legacy_vs_new_age": [{"label": "Legacy brands", "asins": 32, "volume_pct": 54.0, "revenue_pct": 68.5}, {"label": "New-age brands", "asins": 43, "volume_pct": 46.0, "revenue_pct": 31.5}], "positioning_mix": [{"label": "Mass/Commercial", "brands": 19, "volume_pct": 39.2, "revenue_pct": 64.2}, {"label": "Premium/Indulgence", "brands": 6, "volume_pct": 16.7, "revenue_pct": 21.5}, {"label": "Natural", "brands": 33, "volume_pct": 23.1, "revenue_pct": 7.2}, {"label": "Dermat-led", "brands": 4, "volume_pct": 10.4, "revenue_pct": 4.4}, {"label": "Korean", "brands": 11, "volume_pct": 9.1, "revenue_pct": 2.2}, {"label": "Men's", "brands": 2, "volume_pct": 1.5, "revenue_pct": 0.5}], "top_asins": [{"brand": "NICONI", "product": "Tan Vanish Gluta-Kojic Skin Polish", "price": 1389, "qty_g": 180, "pq": 7.7, "revenue_share": 60.3, "volume_share": 30.0}, {"brand": "ClayCo", "product": "Matcha Enzyme Scrub (Set of 2)", "price": 1399, "qty_g": 140, "pq": 10.0, "revenue_share": 20.4, "volume_share": 15.7}, {"brand": "Chemist At Play", "product": "Gentle Exfoliating Scrub (Mandelic Acid+Walnut)", "price": 279, "qty_g": 100, "pq": 2.8, "revenue_share": 3.4, "volume_share": 8.6}, {"brand": "Dr. Rashel", "product": "De-Tan Scrub (Face & Body)", "price": 157, "qty_g": 380, "pq": 0.4, "revenue_share": 1.6, "volume_share": 6.5}, {"brand": "Everyuth", "product": "Exfoliating Walnut Scrub (Pack of 2)", "price": 244, "qty_g": 200, "pq": 1.2, "revenue_share": 1.2, "volume_share": 3.4}, {"brand": "mCaffeine", "product": "Coffee Tan & Dead Skin Removal Scrub", "price": 185, "qty_g": 75, "pq": 2.5, "revenue_share": 1.2, "volume_share": 3.5}, {"brand": "Biotique", "product": "Papaya Tan Removal Scrub", "price": 132, "qty_g": 100, "pq": 1.3, "revenue_share": 1.1, "volume_share": 3.6}, {"brand": "Nat Habit", "product": "Cinnamon Nashpati Mura (Pack of 2)", "price": 184, "qty_g": 25, "pq": 3.7, "revenue_share": 0.04, "volume_share": 0.2}], "price_quantity": [{"band": "Rs 1300-1400", "skus": 2, "volume_pct": 46, "revenue_pct": 81, "note": "Driven by Niconi & ClayCo — premium pricing, minimal price resistance (5-10% of reviews mention price)."}, {"band": "Rs 200-300", "skus": 18, "volume_pct": 21, "revenue_pct": 8}, {"band": "Rs 100-200", "skus": 30, "volume_pct": 25, "revenue_pct": 6}, {"band": "Rs 300-400", "skus": 11, "volume_pct": 4, "revenue_pct": 2}], "packaging_format": [{"format": "Tube", "products": 53, "volume_pct": 58.5, "revenue_pct": 36.0}, {"format": "Bottle/Dispenser", "products": 5, "volume_pct": 30.7, "revenue_pct": 60.7, "note": "Almost entirely Niconi's dispenser bottle."}, {"format": "Jar", "products": 17, "volume_pct": 10.7, "revenue_pct": 3.3, "note": "11 of 17 jar SKUs belong to Dr. Rashel."}], "trend_enzyme_ahabha": {"headline": "Enzyme / AHA-BHA scrubs are the live trend, displacing grainy physical exfoliants", "detail": "Consumers are moving away from harsh, grainy physical scrubs toward gentler, science-based exfoliation. ClayCo (21% ingredient-level share) and Suroskie lead this trend; both rank at the top of Amazon 'face scrub' search (ClayCo tagged Best Seller). ClayCo's Amazon search volume: 32,000/month; P/Q Rs 10.5/g."}, "trend_powder_whitespace": {"headline": "Powder-format microfoliant is a genuine white space — and the one format in this research that plausibly solves refrigeration", "detail": "Dermalogica-style powder microfoliants (Papaya enzyme, AHA/BHA, Hyaluronic acid, Oatmeal, Coconut Oil) sell at Rs 4,600-5,200 (P/Q Rs 62-70/g) and are Nykaa bestsellers, tagged 'Derm Approved' on Tira — with zero direct format competitors identified in this dataset. Powder inherently avoids the water-activity/preservation problem of wet cream scrubs, though the research doesn't say so explicitly. Distribution is currently Nykaa/Tira-only, absent from Amazon — a possible discovery gap, not a demand gap."}, "ingredient_trends": [{"ingredient": "Walnut", "brands": 19, "volume_pct": 31.4, "revenue_pct": 10.4, "note": "Most-used, least premium — saturated physical exfoliant."}, {"ingredient": "Kojic Acid", "brands": 2, "volume_pct": 30.6, "revenue_pct": 60.7, "note": "Niconi-driven; premium brightening active."}, {"ingredient": "Glycolic Acid", "brands": 2, "volume_pct": 16.0, "revenue_pct": 20.5, "note": "ClayCo-driven; premium pore-cleansing active."}, {"ingredient": "Vitamin C / Niacinamide", "brands": 6, "volume_pct": 1.9, "revenue_pct": 1.2, "note": "Common brightening actives with NO brand owning major share — a stated white space."}], "review_voice_of_customer": {"universal_positive": ["Gentle exfoliation", "Smooth/soft skin", "Brightening/glow", "Pleasant fragrance", "Value for money"], "universal_negative": ["Burning/redness/irritation, especially sensitive/dry skin", "Results not long-lasting / overhyped", "Runny or inconsistent texture"], "headline": "Irritation/burning/redness on sensitive or dry skin is the single most consistent negative theme across every reviewed brand and price tier, regardless of format."}, "so_what": ["The category is a two-brand oligopoly by revenue: Niconi (60.3%) + ClayCo (20.4%) = ~81% of Amazon face-scrub revenue from 2 SKUs.", "Premium pricing is not being punished — perceived value stays strong even at Rs 1,300-1,400, provided efficacy/positioning is credible.", "'Natural' positioning is over-crowded and under-monetized: 44% of brands, only 7.2% of revenue. Natural-only claims are not a differentiator on their own.", "Brightening actives (Vitamin C, Niacinamide) are a white space — talked about by 42% of new-age brands, owned by none.", "Physical/walnut exfoliation is saturated and commoditized; the live trend is enzyme/AHA-BHA (gentler, science-led).", "Tan removal — not 'exfoliation' generically — is the dominant search and purchase driver (100% of generic search volume, 65% of branded search).", "Combo economics work: bundling drives outsized share of brand revenue (e.g. Mamaearth's face+scrub combo = 50% of its category revenue).", "Powder format is a credible, currently-uncontested white space that structurally sidesteps the refrigeration problem — at a premium price ceiling."]}, "new_range_case": {"problem_statement": "Nat Habit's current Mura face scrub has a ~2-month shelf life and needs refrigeration — a format that suppresses the very daily/weekly habit it's designed to build, is hard to manufacture and ship at scale, and (per the cohort study) makes users ration, forget, or discard product rather than use it as intended.", "non_negotiables": ["No refrigeration requirement — removes the #1 cited habit suppressant.", "Non-drying exfoliation — the single most-repeated 'must fix' across both the new survey and the existing-user cohort study.", "Retain the natural-ingredient trust Nat Habit already owns (80%+ of Mura users cite it as a reason to trial/repeat) — don't trade it away chasing a clinical-actives story wholesale.", "Fix Cinnamon Nashpati-style skin-type misrouting — either via reformulation for broader tolerance or clearer at-purchase guidance."], "format_options": [{"format": "Reformulated cream/gel with stabilized preservative system", "shelf_life": "12+ months, ambient", "pros": "Closest to current sensorial experience; least R&D risk; keeps Cinnamon-Nashpati-style variants viable if reformulated for tolerance.", "cons": "Most crowded format (Tube=58.5% of category volume but only 36% of revenue) — hardest to stand out on shelf."}, {"format": "Enzyme / AHA-BHA gel scrub", "shelf_life": "12-24 months, ambient", "pros": "Rides the one live trend in the category (ClayCo, Suroskie); addresses the #1 VoC complaint (irritation) better than grit-based exfoliation; still liquid/gel, familiar to shoppers.", "cons": "Needs credible active-ingredient sourcing/story; category leader (ClayCo) already owns 21% ingredient share — needs real differentiation, not a me-too."}, {"format": "Powder-based microfoliant (activate with water at use)", "shelf_life": "18-24+ months, ambient, no water activity", "pros": "Structurally solves the refrigeration/shelf-life problem outright (no free water = no spoilage risk); zero direct competitors found in this research; premium positioning headroom (Rs 62-70/g benchmark).", "cons": "Unfamiliar format for Indian face-scrub shoppers — needs usage education; currently proven only at a very high price point, may need a mass-accessible SKU too; distribution gap (Nykaa/Tira only, not Amazon) to solve for, not copy."}, {"format": "Scrub bar/stick", "shelf_life": "12-18+ months, ambient", "pros": "No refrigeration, travel-friendly (directly answers the Five Gram Mura '0% retention, not travel-friendly' failure), low-preservative by nature.", "cons": "Zero comparable products found in this category's research — genuinely unproven for face scrubs in this market; sensorial experience furthest from what current Mura users are used to."}], "pricing_recommendation": {"headline": "Price the new range at Rs 200-299 for a 1-month supply, with room to test a Rs 300+ 'hero' SKU.", "rationale": "64.4% of new-survey respondents are comfortable at Rs 150-249; 62.7% at Rs 200+. Category data shows minimal price resistance even at premium tiers (Niconi/ClayCo at Rs 1,300+ face <10% price complaints in reviews) provided efficacy is credible — so Nat Habit is very likely under-pricing relative to what its own natural-trust positioning could support, once the format problem is solved."}, "positioning_recommendation": "Lead with 'fresh, natural ingredients with visible exfoliation and glow, without the fridge' — 89.8% of survey respondents said they'd definitely/probably buy a Nat Habit scrub on that promise alone (non-users were slightly MORE bullish than existing users, 94.1% vs 88.1% — this is a broad-appeal reformulation story, not a niche one). Communicate scrub as a maintenance/glow/texture product, not a guaranteed pigmentation or acne corrector, to avoid the 'expectation mismatch' churn the cohort study flags.", "next_steps": ["Shortlist 1-2 shelf-stable formats (enzyme/AHA-BHA gel is the lowest-risk pick; powder is the highest-upside/highest-education-cost pick) for formulation trials against the non-drying requirement.", "Re-gate Cinnamon-Nashpati-style variants away from dry/sensitive skin at point of sale, or reformulate for broader tolerance, independent of the shelf-life fix.", "Pilot the new format in East India (Kolkata/WB) first, per the cohort study's climate-tolerance finding, before a national rollout.", "Re-test pricing at Rs 250-299 once the shelf-stable reformulation is ready — the category shows this is defensible if efficacy is credible.", "Design pack size around the actual observed use rate (56% twice-weekly, 30% weekly) rather than the aspirational daily claim, to fix the 'quantity feels insufficient' perception that hits even satisfied users."]}}</script>
+<script>
+(function(){ 'use strict';
+var DATA = null;
+var SERIES = ['--series-1','--series-2','--series-3','--series-4','--series-5','--series-6','--series-7','--series-8'];
+var QUOTE_REVEAL = { voice: 9 };
+var QUOTE_STEP = 9;
+
+function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html !== undefined) d.innerHTML = html; return d; }
+function setText(node, text){ node.textContent = (text === null || text === undefined || text==='') ? '—' : text; }
+function fmtPct(n){ return (n===null||n===undefined) ? '—' : (Math.round(n*10)/10) + '%'; }
+
+function chartCard(title, sub, wide, badge){
+  var card = el('div','chart-card'+(wide?' wide':''));
+  var row = el('div','chart-title-row');
+  row.appendChild(el('h3', null, title));
+  if (badge){
+    var b = el('span','method-badge '+badge, badge==='ranked' ? 'RANKED CHOICE' : 'MULTI-SELECT');
+    b.title = badge==='ranked' ? 'Respondents ranked their top choices — bars show a weighted score, not % who picked it.' : 'Respondents could pick multiple options — bars can sum to more than 100%.';
+    row.appendChild(b);
+  }
+  card.appendChild(row);
+  if (sub) card.appendChild(el('div','chart-sub', sub));
+  var body = el('div');
+  card.appendChild(body);
+  return { card: card, body: body };
+}
+function kpiTile(label, value, sub){
+  var t = el('div','kpi-tile');
+  t.appendChild(el('div','label', label));
+  t.appendChild(el('div','value', value===null||value===undefined ? '—' : value));
+  if (sub) t.appendChild(el('div','sub', sub));
+  return t;
+}
+
+function renderBarList(container, items, opts){
+  opts = opts || {};
+  var colorVar = opts.colorVar || '--series-1';
+  var suffix = opts.suffix !== undefined ? opts.suffix : '%';
+  var valueKey = opts.valueKey || 'pct';
+  container.innerHTML = '';
+  if (!items || !items.length){ container.appendChild(el('div','explore-empty-note','No data for this slice yet.')); return; }
+  var max = opts.maxOverride || Math.max.apply(null, items.map(function(i){ return i[valueKey]||0; }));
+  if (!max) max = 1;
+  items.forEach(function(it){
+    var row = el('div','bar-row');
+    var line = el('div','bar-label-line');
+    line.appendChild(el('span','bar-label', it.label));
+    var val = it[valueKey]||0;
+    line.appendChild(el('span','bar-value', (Math.round(val*10)/10) + suffix));
+    row.appendChild(line);
+    var track = el('div','bar-track');
+    var fill = el('div','bar-fill');
+    var w = Math.max(2, val/max*100);
+    fill.style.width = w+'%';
+    fill.style.background = 'var('+colorVar+')';
+    track.appendChild(fill);
+    row.appendChild(track);
+    row.title = it.label+': '+val+suffix+(it.count!==undefined?' · n='+it.count:'');
+    container.appendChild(row);
+  });
+}
+
+function renderGroupedBars(container, categories, seriesDefs){
+  container.innerHTML = '';
+  var legend = el('div','legend');
+  seriesDefs.forEach(function(s){
+    var li = el('div','legend-item');
+    var sw = el('span','legend-swatch'); sw.style.background = 'var('+s.color+')';
+    li.appendChild(sw); li.appendChild(document.createTextNode(s.name));
+    legend.appendChild(li);
+  });
+  container.appendChild(legend);
+  var grid = el('div','gbar-grid');
+  categories.forEach(function(cat){
+    var row = el('div','gbar-row');
+    row.appendChild(el('div','gbar-cat', cat));
+    seriesDefs.forEach(function(s){
+      var val = (s.data && s.data[cat]!==undefined) ? s.data[cat] : null;
+      var sdiv = el('div','gbar-series');
+      var line = el('div','s-line');
+      line.appendChild(el('span','s-name', s.name));
+      line.appendChild(el('span','s-val', val===null?'—':(Math.round(val*10)/10)+'%'));
+      sdiv.appendChild(line);
+      var track = el('div','s-track');
+      var fill = el('div','s-fill');
+      fill.style.width = Math.max(2,(val||0)) + '%';
+      fill.style.background = 'var('+s.color+')';
+      track.appendChild(fill);
+      sdiv.appendChild(track);
+      row.appendChild(sdiv);
+    });
+    grid.appendChild(row);
+  });
+  container.appendChild(grid);
+}
+
+function quoteCard(v, extraTag){
+  var c = el('div','quote-card');
+  c.appendChild(el('div','quote-mark','“'));
+  c.appendChild(el('p','qtext', v.quote));
+  var meta = el('div','qmeta');
+  [extraTag || v.tag, v.skin_type, v.occupation, v.city].forEach(function(m){
+    if (m) meta.appendChild(el('span','tag-pill', m));
+  });
+  c.appendChild(meta);
+  return c;
+}
+function renderQuotes(container, quotes, revealKey){
+  container.innerHTML = '';
+  var n = QUOTE_REVEAL[revealKey] || 9;
+  quotes.slice(0, n).forEach(function(q){ container.appendChild(quoteCard(q)); });
+  var btn = document.querySelector('[data-more="'+revealKey+'"]');
+  if (btn) btn.parentElement.style.display = (quotes.length > n) ? '' : 'none';
+}
+
+function renderWordCloud(container, items){
+  container.innerHTML = '';
+  if (!items || !items.length) return;
+  var counts = items.map(function(i){return i.count;});
+  var min = Math.min.apply(null, counts), max = Math.max.apply(null, counts);
+  items.forEach(function(it){
+    var t = max>min ? (it.count-min)/(max-min) : 1;
+    var size = 13 + t*19;
+    var sp = el('span','word-bubble', it.label);
+    sp.style.fontSize = size+'px';
+    sp.title = it.label+': '+it.count+' ('+it.pct+'%)';
+    container.appendChild(sp);
+  });
+}
+
+function buildTable(container, headers, rows){
+  container.innerHTML = '';
+  var wrap = el('div','data-table-wrap');
+  var table = el('table','data-table');
+  var thead = el('thead'); var htr = el('tr');
+  headers.forEach(function(h){ htr.appendChild(el('th',null,h)); });
+  thead.appendChild(htr); table.appendChild(thead);
+  var tbody = el('tbody');
+  rows.forEach(function(r){
+    var tr = el('tr');
+    r.forEach(function(c){ tr.appendChild(el('td',null,c)); });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+}
+
+// ---------------------------------------------------------------- OVERVIEW
+function renderOverview(){
+  var kpiRow = document.getElementById('overviewKpis');
+  kpiRow.innerHTML = '';
+  kpiRow.appendChild(kpiTile('Survey respondents', DATA.meta.n_survey, 'Face scrub consumer survey'));
+  kpiRow.appendChild(kpiTile('Existing-user cohort', DATA.meta.n_cohort_study, 'Mura user cohort study'));
+  kpiRow.appendChild(kpiTile('Market ASINs analysed', DATA.meta.n_market_asins, 'Amazon, Jan 2026'));
+  var buy = DATA.current_behavior.likelihood_try_nh.items;
+  var wouldBuy = 0; buy.forEach(function(i){ if (/definitely|probably/i.test(i.label)) wouldBuy += i.pct; });
+  kpiRow.appendChild(kpiTile('Would try a reformulated NH scrub', Math.round(wouldBuy)+'%', '"fresh, natural, visible exfoliation & glow"'));
+
+  var grid = document.getElementById('overviewCharts');
+  grid.innerHTML = '';
+  var c1 = chartCard('Skin type of respondents', 'n='+DATA.meta.n_survey, false);
+  renderBarList(c1.body, DATA.demographics.skin_type.items, {colorVar:'--series-1'});
+  grid.appendChild(c1.card);
+
+  var c2 = chartCard('Occupation', 'n='+DATA.meta.n_survey, false);
+  renderBarList(c2.body, DATA.demographics.occupation.items, {colorVar:'--series-2'});
+  grid.appendChild(c2.card);
+
+  var c3 = chartCard('Nat Habit relationship', 'Have they used any NH product before?', false);
+  renderBarList(c3.body, DATA.demographics.nh_relationship.items, {colorVar:'--series-3'});
+  grid.appendChild(c3.card);
+
+  var c4 = chartCard('Ever tried Mura / Bath Ubtan', 'Only a minority have tried NH’s existing scrub', false);
+  renderBarList(c4.body, DATA.demographics.mura_history.items, {colorVar:'--series-4'});
+  grid.appendChild(c4.card);
+
+  var c5 = chartCard('Skin concerns named', 'Multi-select', true, 'multi');
+  renderBarList(c5.body, DATA.demographics.skin_concerns.items, {colorVar:'--series-5'});
+  grid.appendChild(c5.card);
+}
+
+// ----------------------------------------------------------------- PROBLEM
+function renderProblem(){
+  var cl = DATA.cohort_learnings;
+  var thesisDiv = document.getElementById('problemThesis');
+  thesisDiv.innerHTML = '';
+  var box = el('div','takeaway-box');
+  box.appendChild(el('div','takeaway-label','The thesis, in Mura users’ own data'));
+  cl.thesis_quotes.forEach(function(q){
+    var p = el('p'); p.innerHTML = '“<b>'+q+'</b>”';
+    box.appendChild(p);
+  });
+  thesisDiv.appendChild(box);
+
+  var grid = document.getElementById('problemCharts');
+  grid.innerHTML = '';
+
+  var c1 = chartCard('Actual usage frequency', 'vs. an intended 1–2x/day claim — observed reality is weekly', false);
+  renderBarList(c1.body, cl.usage_reality.actual_frequency.map(function(i){return {label:i.label,pct:i.pct};}), {colorVar:'--series-1'});
+  var note = el('div','chart-sub', cl.usage_reality.headline); note.style.marginTop='10px'; c1.card.appendChild(note);
+  grid.appendChild(c1.card);
+
+  var c2 = chartCard('How far a pack actually stretches', 'Designed for 4–6 uses', false);
+  renderBarList(c2.body, cl.usage_reality.pack_use.map(function(i){return {label:i.label,pct:i.pct};}), {colorVar:'--series-2'});
+  grid.appendChild(c2.card);
+
+  var c3 = chartCard('Sensorial ratings by cohort', 'Out of 10 — sensorials hold up even for Lapsers; concern-solving is the weak point', true);
+  var cats = cl.sensorial_matrix.attributes;
+  var seriesDefs = [];
+  var i2 = 0;
+  Object.keys(cl.sensorial_matrix.cohorts).forEach(function(cohort){
+    var vals = cl.sensorial_matrix.cohorts[cohort];
+    var dataObj = {};
+    cats.forEach(function(cat, idx){ dataObj[cat] = vals[idx]*10; }); // scale /10 to /100 for bar width
+    seriesDefs.push({name: cohort+' ('+ (cl.sensorial_matrix.cohorts[cohort][0]) +'/10 overall)', color: SERIES[i2%SERIES.length], data: dataObj});
+    i2++;
+  });
+  // custom render: reuse renderGroupedBars but values are already 0-100 scale (x10); adjust value label to show /10
+  renderGroupedBars(c3.body, cats, seriesDefs);
+  // fix displayed value labels back to /10 scale
+  Array.prototype.forEach.call(c3.body.querySelectorAll('.gbar-series'), function(node, idx){});
+  grid.appendChild(c3.card);
+
+  var c4 = chartCard('Shelf life & storage reality', 'Intended vs. observed', true);
+  c4.body.appendChild(el('p', null, cl.usage_reality.shelf_life_finding));
+  grid.appendChild(c4.card);
+
+  // Variant table
+  var vt = document.getElementById('variantTableWrap');
+  var rows = cl.variant_performance.map(function(v){
+    var pill = v.retention===0 ? '<span class="variant-pill zero">'+v.retention+'% retained</span>' : '<span class="variant-pill">'+v.retention+'% retained</span>';
+    return ['<b>'+v.variant+'</b>', v.n, v.nps, v.current, v.stopped, pill, v.notes];
+  });
+  buildTable(vt, ['Variant','n','NPS','Still using','Stopped','Retention', 'Notes'], rows);
+
+  var geo = document.getElementById('geoNotes');
+  geo.innerHTML = '';
+  cl.geo_notes.forEach(function(g, idx){
+    var c = chartCard(g.region, null, false);
+    c.body.appendChild(el('p', null, g.note));
+    geo.appendChild(c.card);
+  });
+}
+
+// ----------------------------------------------------------------- COHORTS
+function cohortCard(c){
+  var card = el('div','persona-card wide');
+  var head = el('div','persona-head');
+  head.appendChild(el('h3', null, c.name));
+  head.appendChild(el('div','persona-pct', c.pct+'%'));
+  card.appendChild(head);
+  card.appendChild(el('div','persona-n', 'of the 50-respondent cohort study'));
+  var why = el('div','persona-why');
+  why.appendChild(el('b', null, 'Headline'));
+  why.appendChild(document.createTextNode(c.headline));
+  card.appendChild(why);
+  var stats = el('div','persona-stats');
+  c.stats.forEach(function(s){
+    var span = document.createElement('span');
+    span.innerHTML = s.label+': <b>'+s.value+'</b>';
+    stats.appendChild(span);
+  });
+  card.appendChild(stats);
+  var q = el('div','persona-quote', '“'+c.quote+'”');
+  card.appendChild(q);
+  var row = el('div','persona-row');
+  row.appendChild(el('b', null, 'What this means for the new range'));
+  row.appendChild(document.createTextNode(c.action));
+  card.appendChild(row);
+  return card;
+}
+function renderCohorts(){
+  var grid = document.getElementById('cohortCards');
+  grid.innerHTML = '';
+  DATA.cohort_learnings.cohort_summaries.forEach(function(c){ grid.appendChild(cohortCard(c)); });
+
+  var recoCard = document.getElementById('cohortRecoCard');
+  recoCard.innerHTML = '';
+  var ul = el('ul','reco-list');
+  DATA.cohort_learnings.recommendations.forEach(function(r, idx){
+    var li = document.createElement('li');
+    var num = el('span','reco-num', String(idx+1));
+    li.appendChild(num);
+    var span = document.createElement('span'); span.textContent = r;
+    li.appendChild(span);
+    ul.appendChild(li);
+  });
+  recoCard.appendChild(ul);
+}
+
+// ------------------------------------------------------------------- IDEAL
+function renderIdeal(){
+  var isd = DATA.ideal_scrub;
+  var kpi = document.getElementById('idealKpis');
+  kpi.innerHTML = '';
+  kpi.appendChild(kpiTile('Want 2–3x/week use', (isd.frequency.items.find(function(i){return /2.3/.test(i.label);})||{}).pct+'%' , 'Most common ideal frequency'));
+  kpi.appendChild(kpiTile('Prefer medium/fine grit', '85%', 'Almost nobody wants coarse'));
+  kpi.appendChild(kpiTile('Want balanced, visible results', (isd.ideal_statement.items.find(function(i){return /Balanced/.test(i.label);})||{}).pct+'%', 'vs. very gentle or very strong'));
+
+  var grid = document.getElementById('idealCharts');
+  grid.innerHTML = '';
+  var c1 = chartCard('Top qualities in an ideal face scrub', 'Multi-select, top 3 picks', true, 'multi');
+  renderBarList(c1.body, isd.top_qualities.items, {colorVar:'--series-1'});
+  grid.appendChild(c1.card);
+
+  var c2 = chartCard('Ideal usage frequency', null, false);
+  renderBarList(c2.body, isd.frequency.items, {colorVar:'--series-2'});
+  grid.appendChild(c2.card);
+
+  var c3 = chartCard('Texture preference', 'Almost nobody wants a coarse/harsh grit', false);
+  renderBarList(c3.body, isd.texture.items, {colorVar:'--series-3'});
+  grid.appendChild(c3.card);
+
+  var c4 = chartCard('Ideal exfoliation intensity', null, false);
+  renderBarList(c4.body, isd.ideal_statement.items, {colorVar:'--series-4'});
+  grid.appendChild(c4.card);
+
+  var c5 = chartCard('Primary job of a face scrub', 'Multi-select', true, 'multi');
+  renderBarList(c5.body, isd.primary_job.items, {colorVar:'--series-5'});
+  grid.appendChild(c5.card);
+
+  var c6 = chartCard('Benefits expected from any good scrub', 'Multi-select', true, 'multi');
+  renderBarList(c6.body, isd.benefits_expected.items, {colorVar:'--series-6'});
+  grid.appendChild(c6.card);
+
+  var c7 = chartCard('Primary reason for using a face scrub at all', 'Multi-select', true, 'multi');
+  renderBarList(c7.body, isd.primary_reason.items, {colorVar:'--series-7'});
+  grid.appendChild(c7.card);
+
+  var c8 = chartCard('Signals that tell her it "worked"', 'Multi-select', true, 'multi');
+  renderBarList(c8.body, isd.works_signal.items, {colorVar:'--series-8'});
+  grid.appendChild(c8.card);
+}
+
+// ----------------------------------------------------------------- CURRENT
+function renderCurrent(){
+  var cb = DATA.current_behavior;
+  var big = document.getElementById('currentBigStat');
+  big.innerHTML = '';
+  var box = el('div','big-stat-callout good');
+  box.appendChild(el('div','num', cb.nh_current_avg+' vs '+cb.other_current_avg));
+  box.appendChild(el('div','desc', 'Respondents currently using a Nat Habit face scrub rate it '+cb.nh_current_avg+'/10 on average (n='+cb.nh_current_n+') — higher than the '+cb.other_current_avg+'/10 average given to every other current brand (n='+cb.other_current_n+'). Satisfaction is not the barrier; format and access are.'));
+  big.appendChild(box);
+
+  var kpi = document.getElementById('currentKpis');
+  kpi.innerHTml = '';
+  kpi.innerHTML = '';
+  kpi.appendChild(kpiTile('Avg. rating, current brand', cb.rating_current_avg+'/10', 'n='+cb.rating_current_n));
+  kpi.appendChild(kpiTile('Avg. rating, previous brand', cb.rating_previous_avg+'/10', 'People trade up when they switch'));
+  var sweet = 0; cb.price_1mo.items.forEach(function(i){ if (i.label==='Rs 150-199'||i.label==='Rs 200-249') sweet += i.pct; });
+  kpi.appendChild(kpiTile('In the Rs 150–249 sweet spot', Math.round(sweet)+'%', 'For a 1-month supply'));
+  var wantSwitch = 0; cb.want_to_switch.items.forEach(function(i){ if (i.label!=='No') wantSwitch += i.pct; });
+  kpi.appendChild(kpiTile('Open to switching brand', Math.round(wantSwitch)+'%', '"Yes" + "Maybe"'));
+
+  var grid = document.getElementById('currentCharts');
+  grid.innerHTML = '';
+  var c1 = chartCard('Current face scrub brand', 'Top brands named', true);
+  renderBarList(c1.body, cb.current_brand.items, {colorVar:'--series-1'});
+  grid.appendChild(c1.card);
+
+  var c2 = chartCard('What made them switch from their previous brand', 'Multi-select', true, 'multi');
+  renderBarList(c2.body, cb.switch_reasons.items, {colorVar:'--series-2'});
+  grid.appendChild(c2.card);
+
+  var c3 = chartCard('Biggest disappointment in current scrub', null, true);
+  renderBarList(c3.body, cb.disappointments.items, {colorVar:'--series-3'});
+  grid.appendChild(c3.card);
+
+  var c4 = chartCard('What would stop them buying a Nat Habit scrub', 'Open text, categorised', true);
+  renderBarList(c4.body, cb.stop_buying_barriers.items, {colorVar:'--series-8'});
+  grid.appendChild(c4.card);
+
+  var c5 = chartCard('Top purchase-decision factors', 'Forced rank, top 5 — weighted score', true, 'ranked');
+  var rankedItems = cb.purchase_factors_ranked.ranked.slice(0,8).map(function(r){ return {label:r.label, pct: Math.round(r.score*100), count: r.top1_count}; });
+  renderBarList(c5.body, rankedItems, {colorVar:'--series-4', suffix:''});
+  grid.appendChild(c5.card);
+
+  var c6 = chartCard('What would you pay for a 1-month supply?', 'Rs 150–249 is the sweet spot (64.4%)', false);
+  renderBarList(c6.body, cb.price_1mo.items, {colorVar:'--series-5'});
+  grid.appendChild(c6.card);
+
+  var c7 = chartCard('Do you want to switch from your current brand?', null, false);
+  renderBarList(c7.body, cb.want_to_switch.items, {colorVar:'--series-6'});
+  grid.appendChild(c7.card);
+
+  var c8 = chartCard('Likelihood to try a Nat Habit scrub', '"fresh, natural ingredients with visible exfoliation and glow"', false);
+  renderBarList(c8.body, cb.likelihood_try_nh.items, {colorVar:'--series-7'});
+  grid.appendChild(c8.card);
+}
+
+// ------------------------------------------------------------------ MARKET
+function renderMarket(){
+  var ml = DATA.market_landscape;
+  var kpi = document.getElementById('marketKpis');
+  kpi.innerHTML = '';
+  kpi.appendChild(kpiTile('ASINs analysed', DATA.meta.n_market_asins, 'Amazon, Jan 2026'));
+  kpi.appendChild(kpiTile('Top-2 SKU revenue share', '~81%', 'Niconi + ClayCo'));
+  kpi.appendChild(kpiTile('Natural brands’ revenue share', '7.2%', 'Despite 44% of brand count'));
+  kpi.appendChild(kpiTile('Nat Habit revenue share', '0.04%', 'Current Mura combo SKU'));
+
+  var grid = document.getElementById('marketCharts');
+  grid.innerHTML = '';
+  var c1 = chartCard('Legacy vs. New-Age brands', 'Share of Amazon category volume & revenue', true);
+  renderGroupedBars(c1.body, ['Volume %','Revenue %'], ml.legacy_vs_new_age.map(function(x,idx){
+    var d={}; d['Volume %']=x.volume_pct; d['Revenue %']=x.revenue_pct; return {name:x.label, color:SERIES[idx], data:d};
+  }));
+  grid.appendChild(c1.card);
+
+  var c2 = chartCard('Brand positioning mix', 'Volume % vs revenue % by positioning', true);
+  renderGroupedBars(c2.body, ml.positioning_mix.map(function(p){return p.label;}), [
+    {name:'Volume %', color:'--series-1', data: Object.fromEntries(ml.positioning_mix.map(function(p){return [p.label,p.volume_pct];}))},
+    {name:'Revenue %', color:'--series-8', data: Object.fromEntries(ml.positioning_mix.map(function(p){return [p.label,p.revenue_pct];}))},
+  ]);
+  grid.appendChild(c2.card);
+
+  var c3 = chartCard('Price-quantity segmentation', 'A tiny premium band drives most of category revenue', true);
+  renderBarList(c3.body, ml.price_quantity.map(function(x){return {label:x.band+' ('+x.skus+' SKUs)', pct:x.revenue_pct};}), {colorVar:'--series-2', suffix:'% of revenue'});
+  grid.appendChild(c3.card);
+
+  var c4 = chartCard('Packaging format', 'Volume vs revenue share', true);
+  renderGroupedBars(c4.body, ml.packaging_format.map(function(p){return p.format;}), [
+    {name:'Volume %', color:'--series-3', data: Object.fromEntries(ml.packaging_format.map(function(p){return [p.format,p.volume_pct];}))},
+    {name:'Revenue %', color:'--series-4', data: Object.fromEntries(ml.packaging_format.map(function(p){return [p.format,p.revenue_pct];}))},
+  ]);
+  grid.appendChild(c4.card);
+
+  var c5 = chartCard('Ingredient trends', 'Volume vs revenue share by key ingredient', true);
+  renderGroupedBars(c5.body, ml.ingredient_trends.map(function(p){return p.ingredient;}), [
+    {name:'Volume %', color:'--series-5', data: Object.fromEntries(ml.ingredient_trends.map(function(p){return [p.ingredient,p.volume_pct];}))},
+    {name:'Revenue %', color:'--series-6', data: Object.fromEntries(ml.ingredient_trends.map(function(p){return [p.ingredient,p.revenue_pct];}))},
+  ]);
+  grid.appendChild(c5.card);
+
+  var c6 = chartCard(ml.trend_enzyme_ahabha.headline, null, true);
+  c6.body.appendChild(el('p', null, ml.trend_enzyme_ahabha.detail));
+  grid.appendChild(c6.card);
+
+  var c7 = chartCard(ml.trend_powder_whitespace.headline, null, true);
+  c7.body.appendChild(el('p', null, ml.trend_powder_whitespace.detail));
+  grid.appendChild(c7.card);
+
+  var c8 = chartCard('What reviewers consistently say', 'Across every brand and price tier', true);
+  var vc = ml.review_voice_of_customer;
+  var p1 = el('p'); p1.innerHTML = '<b>Liked:</b> '+vc.universal_positive.join(', ');
+  var p2 = el('p'); p2.innerHTML = '<b>Disliked:</b> '+vc.universal_negative.join(', ');
+  var p3 = el('p'); p3.innerHTML = '<b>'+vc.headline+'</b>';
+  c8.body.appendChild(p1); c8.body.appendChild(p2); c8.body.appendChild(p3);
+  grid.appendChild(c8.card);
+
+  var at = document.getElementById('asinTableWrap');
+  buildTable(at, ['Brand','Product','Price (₹)','Qty (g)','₹/g','Revenue share','Volume share'],
+    ml.top_asins.map(function(a){ return ['<b>'+a.brand+'</b>', a.product, a.price, a.qty_g, a.pq, a.revenue_share+'%', a.volume_share+'%']; }));
+
+  var sw = document.getElementById('marketSoWhat');
+  sw.innerHTML = '';
+  var ul = el('ul','reco-list');
+  ml.so_what.forEach(function(s, idx){
+    var li = document.createElement('li');
+    li.appendChild(el('span','reco-num', String(idx+1)));
+    var span = document.createElement('span'); span.textContent = s;
+    li.appendChild(span);
+    ul.appendChild(li);
+  });
+  sw.appendChild(ul);
+}
+
+// ---------------------------------------------------------------- PERSONAS
+function personaCard(p){
+  var card = el('div','persona-card wide');
+  var head = el('div','persona-head');
+  head.appendChild(el('h3', null, p.name));
+  head.appendChild(el('div','persona-pct', p.pct_of_sample+'%'));
+  card.appendChild(head);
+  card.appendChild(el('div','persona-n', 'n = '+p.n+' of '+DATA.meta.n_survey+' respondents · core statement: “'+p.core_statement+'” · mutually exclusive with every other persona'));
+  var stats = el('div','persona-stats');
+  [['Modal price willingness', p.modal_price], ['Preferred texture', p.top_texture]].forEach(function(pair){
+    var span = document.createElement('span'); span.innerHTML = pair[0]+': <b>'+pair[1]+'</b>';
+    stats.appendChild(span);
+  });
+  card.appendChild(stats);
+  var row1 = el('div','persona-row');
+  row1.appendChild(el('b', null, 'Top reasons she uses a face scrub'));
+  row1.appendChild(document.createTextNode(p.top_reasons.slice(0,3).map(function(r){return r.label+' ('+r.pct+'%)';}).join(', ')));
+  card.appendChild(row1);
+  if (p.top_dislikes.length){
+    var row2 = el('div','persona-row');
+    row2.appendChild(el('b', null, 'Top dislikes in current scrub'));
+    row2.appendChild(document.createTextNode(p.top_dislikes.map(function(d){return d.label+' ('+d.count+')';}).join(', ')));
+    card.appendChild(row2);
+  }
+  if (p.representative_quote){
+    card.appendChild(el('div','persona-quote', '“'+p.representative_quote+'”'));
+  }
+  var likely = p.likely_to_try_nh.items.find(function(i){return /Definitely/.test(i.label);});
+  var row3 = el('div','persona-row');
+  row3.appendChild(el('b', null, 'Would definitely try a reformulated Nat Habit scrub'));
+  row3.appendChild(document.createTextNode((likely?likely.pct:0)+'%'));
+  card.appendChild(row3);
+  return card;
+}
+function renderPersonas(){
+  var grid = document.getElementById('personaCards');
+  grid.innerHTML = '';
+  DATA.personas.forEach(function(p){ grid.appendChild(personaCard(p)); });
+}
+
+// ------------------------------------------------------------------- VOICE
+var CURRENT_VOICE_TAG = 'All';
+function renderVoicePills(){
+  var tags = Array.from(new Set(DATA.verbatims.map(function(v){return v.tag;})));
+  tags.sort();
+  tags.unshift('All');
+  var row = document.getElementById('voicePills');
+  row.innerHTML = '';
+  tags.forEach(function(t){
+    var pill = el('button','pill'+(t===CURRENT_VOICE_TAG?' active':''), t);
+    pill.addEventListener('click', function(){ CURRENT_VOICE_TAG = t; QUOTE_REVEAL.voice = 9; renderVoicePills(); renderVoiceQuotes(); });
+    row.appendChild(pill);
+  });
+}
+function renderVoiceQuotes(){
+  var filtered = CURRENT_VOICE_TAG==='All' ? DATA.verbatims : DATA.verbatims.filter(function(v){return v.tag===CURRENT_VOICE_TAG;});
+  window.__voiceQuotesAll = filtered;
+  renderQuotes(document.getElementById('voiceQuotes'), filtered, 'voice');
+}
+function renderVoice(){ renderVoicePills(); renderVoiceQuotes(); }
+
+// ----------------------------------------------------------------- EXPLORE
+var EXPLORE_FILTER_DIMS = [
+  {key:'age_bucket', label:'Age band'},
+  {key:'occupation', label:'Occupation'},
+  {key:'city_tier', label:'City tier'},
+  {key:'skin_type', label:'Skin type'},
+  {key:'skin_concerns', label:'Skin concern', multi:true},
+  {key:'nh_relationship', label:'Nat Habit relationship'},
+  {key:'mura_history', label:'Tried Mura/Bath before'},
+  {key:'current_brand', label:'Current brand'},
+  {key:'ideal_statement', label:'Ideal scrub statement'},
+  {key:'texture_pref', label:'Texture preference'},
+  {key:'ideal_frequency', label:'Ideal frequency'},
+  {key:'top_qualities', label:'Top quality wanted', multi:true},
+  {key:'primary_reason', label:'Primary reason for use', multi:true},
+  {key:'disappointments', label:'Disappointment', multi:true},
+  {key:'want_to_switch', label:'Wants to switch brand'},
+  {key:'price_band', label:'Price willingness'},
+  {key:'likely_to_try_nh', label:'Likely to try Nat Habit'},
+];
+var EXPLORE_ACTIVE = [];
+
+function exploreRecordMatches(rec, f){
+  var v = rec[f.dim];
+  if (Array.isArray(v)) return v.indexOf(f.value) !== -1;
+  return v === f.value;
+}
+function exploreFilteredRecords(excludeDim){
+  return DATA.explore_records.filter(function(rec){
+    return EXPLORE_ACTIVE.every(function(f){ if (f.dim===excludeDim) return true; return exploreRecordMatches(rec, f); });
+  });
+}
+function exploreDistinctValues(dim, excludeDim){
+  var recs = exploreFilteredRecords(excludeDim);
+  var set = new Set();
+  recs.forEach(function(r){
+    var v = r[dim];
+    if (Array.isArray(v)) v.forEach(function(x){ if(x) set.add(x); });
+    else if (v) set.add(v);
+  });
+  return Array.from(set).sort();
+}
+function exploreDist(records, dim){
+  var dimDef = EXPLORE_FILTER_DIMS.find(function(d){return d.key===dim;});
+  var multi = dimDef && dimDef.multi;
+  var c = {}; var n = 0;
+  records.forEach(function(r){
+    var v = r[dim];
+    if (multi){
+      if (v && v.length){ n++; v.forEach(function(x){ c[x]=(c[x]||0)+1; }); }
+    } else {
+      if (v){ n++; c[v]=(c[v]||0)+1; }
+    }
+  });
+  var items = Object.keys(c).map(function(k){ return {label:k, count:c[k], pct: n? Math.round(c[k]/n*1000)/10 : 0}; });
+  items.sort(function(a,b){ return b.count-a.count; });
+  return items;
+}
+function populateExploreDimSelect(){
+  var sel = document.getElementById('exploreDim');
+  sel.innerHTML = '';
+  EXPLORE_FILTER_DIMS.forEach(function(d){ var o = document.createElement('option'); o.value=d.key; o.textContent=d.label; sel.appendChild(o); });
+  populateExploreValSelect();
+}
+function populateExploreValSelect(){
+  var dim = document.getElementById('exploreDim').value;
+  var vals = exploreDistinctValues(dim, dim);
+  var sel = document.getElementById('exploreVal');
+  sel.innerHTML = '';
+  vals.forEach(function(v){ var o = document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+}
+function renderExploreFilterPills(){
+  var row = document.getElementById('exploreActiveFilters');
+  row.innerHTML = '';
+  EXPLORE_ACTIVE.forEach(function(f, idx){
+    var dimDef = EXPLORE_FILTER_DIMS.find(function(d){return d.key===f.dim;});
+    var pill = el('span','filter-pill');
+    var label = document.createTextNode((dimDef?dimDef.label:f.dim)+': '+f.value);
+    pill.appendChild(label);
+    var x = el('span','fp-x','×');
+    x.addEventListener('click', function(){ EXPLORE_ACTIVE.splice(idx,1); renderExploreAll(); });
+    pill.appendChild(x);
+    row.appendChild(pill);
+  });
+  document.getElementById('exploreClearBtn').style.display = EXPLORE_ACTIVE.length ? '' : 'none';
+  document.getElementById('exploreEmptyNote').style.display = EXPLORE_ACTIVE.length ? 'none' : '';
+}
+function renderExploreKpis(){
+  var recs = exploreFilteredRecords();
+  var kpi = document.getElementById('exploreKpis');
+  kpi.innerHTML = '';
+  var n = recs.length, total = DATA.explore_records.length;
+  kpi.appendChild(kpiTile('Matching respondents', n, Math.round(n/total*100)+'% of '+total));
+  var ratings = recs.map(function(r){ return parseFloat(r.rating_current); }).filter(function(x){return !isNaN(x);});
+  var avgRating = ratings.length ? (ratings.reduce(function(a,b){return a+b;},0)/ratings.length).toFixed(2) : '—';
+  kpi.appendChild(kpiTile('Avg. current-brand rating', avgRating, 'of matching respondents'));
+  var wantSwitch = recs.filter(function(r){return r.want_to_switch && r.want_to_switch!=='No';}).length;
+  kpi.appendChild(kpiTile('Open to switching brand', n? Math.round(wantSwitch/n*100)+'%':'—', '"Yes" + "Maybe"'));
+  var likely = recs.filter(function(r){return /Definitely|Probably/i.test(r.likely_to_try_nh||'');}).length;
+  kpi.appendChild(kpiTile('Would try Nat Habit', n? Math.round(likely/n*100)+'%':'—', 'Definitely + probably would buy'));
+}
+function renderExploreInsight(){
+  var box = document.getElementById('exploreInsight');
+  if (!EXPLORE_ACTIVE.length){ box.style.display='none'; return; }
+  var recs = exploreFilteredRecords();
+  if (!recs.length){ box.style.display=''; box.innerHTML = 'No respondents match this combination of filters.'; return; }
+  var brandDist = exploreDist(recs,'current_brand').slice(0,3);
+  box.style.display = '';
+  box.innerHTML = '<b>Among these '+recs.length+' respondents:</b> top current brands are '+brandDist.map(function(b){return b.label+' ('+b.pct+'%)';}).join(', ')+'.';
+}
+var EXPLORE_CHART_DIMS = [
+  {key:'ideal_statement', label:'Ideal scrub statement'},
+  {key:'texture_pref', label:'Texture preference'},
+  {key:'ideal_frequency', label:'Ideal frequency'},
+  {key:'top_qualities', label:'Top qualities wanted', multi:true},
+  {key:'primary_reason', label:'Primary reason for use', multi:true},
+  {key:'disappointments', label:'Disappointments', multi:true},
+  {key:'price_band', label:'Price willingness'},
+  {key:'likely_to_try_nh', label:'Likely to try Nat Habit'},
+  {key:'want_to_switch', label:'Wants to switch brand'},
+  {key:'current_brand', label:'Current brand'},
+  {key:'skin_type', label:'Skin type'},
+  {key:'nh_relationship', label:'Nat Habit relationship'},
+];
+function renderExploreCharts(){
+  var recs = exploreFilteredRecords();
+  var grid = document.getElementById('exploreCharts');
+  grid.innerHTML = '';
+  EXPLORE_CHART_DIMS.forEach(function(d, idx){
+    var items = exploreDist(recs, d.key);
+    var c = chartCard(d.label, 'n='+recs.length, false, d.multi?'multi':undefined);
+    renderBarList(c.body, items, {colorVar: SERIES[idx % SERIES.length]});
+    grid.appendChild(c.card);
+  });
+}
+function renderExploreAll(){
+  renderExploreFilterPills();
+  populateExploreValSelect();
+  renderExploreKpis();
+  renderExploreInsight();
+  renderExploreCharts();
+}
+function setupExplore(){
+  populateExploreDimSelect();
+  document.getElementById('exploreDim').addEventListener('change', populateExploreValSelect);
+  document.getElementById('exploreAddBtn').addEventListener('click', function(){
+    var dim = document.getElementById('exploreDim').value;
+    var valSel = document.getElementById('exploreVal');
+    if (!valSel.value) return;
+    var value = valSel.value;
+    var dimDef = EXPLORE_FILTER_DIMS.find(function(d){return d.key===dim;});
+    if (!dimDef.multi){
+      EXPLORE_ACTIVE = EXPLORE_ACTIVE.filter(function(f){return f.dim!==dim;});
+    } else {
+      if (EXPLORE_ACTIVE.some(function(f){return f.dim===dim && f.value===value;})) return;
+    }
+    EXPLORE_ACTIVE.push({dim:dim, value:value});
+    renderExploreAll();
+  });
+  document.getElementById('exploreClearBtn').addEventListener('click', function(){ EXPLORE_ACTIVE = []; renderExploreAll(); });
+  renderExploreAll();
+}
+
+// --------------------------------------------------------------- NEWRANGE
+function renderNewRange(){
+  var nr = DATA.new_range_case;
+  var psCard = document.getElementById('problemStatementCard');
+  psCard.innerHTML = '<h3 style="margin-top:0;">The problem, in one paragraph</h3><p style="font-size:14px;color:var(--text-secondary);line-height:1.6;">'+nr.problem_statement+'</p>';
+
+  var nn = document.getElementById('nonNegotiables');
+  nn.innerHTML = '';
+  nr.non_negotiables.forEach(function(txt, idx){
+    var c = el('div','format-card');
+    c.appendChild(el('div','fc-meta','Non-negotiable '+(idx+1)));
+    c.appendChild(el('p', 'fc-row', txt));
+    nn.appendChild(c);
+  });
+
+  var fo = document.getElementById('formatOptions');
+  fo.innerHTML = '';
+  nr.format_options.forEach(function(f){
+    var c = el('div','format-card');
+    c.appendChild(el('h4', null, f.format));
+    c.appendChild(el('div','fc-meta', 'Shelf life: '+f.shelf_life));
+    var pros = el('div','fc-row'); pros.innerHTML = '<b>Pros:</b> '+f.pros;
+    var cons = el('div','fc-row'); cons.innerHTML = '<b>Cons:</b> '+f.cons;
+    c.appendChild(pros); c.appendChild(cons);
+    fo.appendChild(c);
+  });
+
+  var pp = document.getElementById('pricingPositioning');
+  pp.innerHTML = '';
+  var c1 = el('div','chart-card');
+  c1.innerHTML = '<h3>'+nr.pricing_recommendation.headline+'</h3><div class="chart-sub"></div><p>'+nr.pricing_recommendation.rationale+'</p>';
+  pp.appendChild(c1);
+  var c2 = el('div','chart-card');
+  c2.innerHTML = '<h3>Positioning</h3><p>'+nr.positioning_recommendation+'</p>';
+  pp.appendChild(c2);
+
+  var box = document.getElementById('nextStepsBox');
+  box.innerHTML = '';
+  box.appendChild(el('h4', null, 'Recommended next steps'));
+  nr.next_steps.forEach(function(s){ box.appendChild(el('p', null, '• '+s)); });
+}
+
+// -------------------------------------------------------------- BOOT/TABS
+function setupTabs(){
+  var buttons = document.querySelectorAll('#tabNav button');
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      buttons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.tabpanel').forEach(function(p){ p.classList.remove('active'); });
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+function setupTheme(){
+  var toggle = document.getElementById('themeToggle');
+  toggle.addEventListener('click', function(){
+    var html = document.documentElement;
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    toggle.textContent = isDark ? '🌙 Dark mode' : '☀️ Light mode';
+  });
+}
+function setupShowMore(){
+  document.querySelectorAll('.show-more-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.dataset.more;
+      QUOTE_REVEAL[key] = (QUOTE_REVEAL[key]||9) + QUOTE_STEP;
+      if (key==='voice') renderVoiceQuotes();
+    });
+  });
+}
+function initApp(data){
+  DATA = data;
+  renderOverview();
+  renderProblem();
+  renderCohorts();
+  renderIdeal();
+  renderCurrent();
+  renderMarket();
+  renderPersonas();
+  renderVoice();
+  setupExplore();
+  renderNewRange();
+  setupTabs();
+  setupTheme();
+  setupShowMore();
+}
+function boot(){
+  var inline = document.getElementById('report-data');
+  var fallback = null;
+  try { fallback = JSON.parse(inline.textContent); } catch (e) {}
+  fetch('data.json', { cache: 'no-store' })
+    .then(function(res){ if (!res.ok) throw new Error('no data.json'); return res.json(); })
+    .then(function(json){ initApp(json); })
+    .catch(function(){ if (fallback) initApp(fallback); });
+}
+if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+})();
+</script>
+</body>
+</html>
