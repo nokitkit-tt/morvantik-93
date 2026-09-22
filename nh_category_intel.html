@@ -121,7 +121,7 @@ and blows out the grid track — and with it the card, and the page. Every
 grid layout in this report needs its direct children pinned to min-width:0
 (and min-height:0, same issue on rare tall content) so they respect the
 track width Grid assigns them instead of forcing it wider. */
-.grid2 > *, .grid3 > *, .kpirow > *, .twocol-kpi > *, .movers-row > *,
+.grid2 > *, .grid3 > *, .kpirow > *, .twocol-kpi > *, .fourcol-kpi > *, .movers-row > *,
 .subpanel-bar > *, .geo-mix-row > *, #distKpis > * { min-width:0; min-height:0; }
 .card{overflow:hidden;}
 .chartbox{position:relative; height:270px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
@@ -161,6 +161,9 @@ footer{margin-top:30px; font-size:11.5px; color:var(--text-muted); text-align:ce
 footer a{color:var(--text-muted);}
 .twocol-kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:10px;}
 @media (max-width:700px){.twocol-kpi{grid-template-columns:1fr;}}
+.fourcol-kpi{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+@media (max-width:800px){.fourcol-kpi{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:420px){.fourcol-kpi{grid-template-columns:1fr;}}
 #distKpis{grid-template-columns:repeat(4,1fr);}
 @media (max-width:900px){#distKpis{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:700px){#distKpis{grid-template-columns:1fr;}}
@@ -187,7 +190,8 @@ footer a{color:var(--text-muted);}
 .row-click{cursor:pointer;}
 .subpanel td{background:var(--surface-2); padding:12px 16px;}
 .subpanel-inner{display:flex; flex-direction:column; gap:6px;}
-.subpanel-bar{display:grid; grid-template-columns:120px 1fr 70px 60px; align-items:center; gap:8px; font-size:12px;}
+.subpanel-bar{display:grid; grid-template-columns:150px 1fr 70px 60px; align-items:center; gap:8px; font-size:12px;}
+.subpanel-bar > span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .subpanel-bar .sb-track{background:var(--gridline); border-radius:3px; height:10px; position:relative; overflow:hidden;}
 .subpanel-bar .sb-fill{display:block; height:100%; border-radius:3px;}
 .subpanel-title{font-size:11.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px;}
@@ -414,7 +418,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="twocol-kpi" id="geoKpis"></div>
 <div class="movers-row" id="geoMovers"></div>
 
-<div class="grid3" style="margin-top:14px;">
+<div class="grid2" style="margin-top:14px;">
 <div>
 <div class="sub" style="margin-bottom:6px;">Revenue by region <span style="color:var(--text-muted);">(from City Tier / Region cols in the source sheet)</span></div>
 <div id="regionMix"></div>
@@ -423,11 +427,10 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="sub" style="margin-bottom:6px;">Revenue by city tier</div>
 <div id="tierMix"></div>
 </div>
-<div>
-<div class="sub" style="margin-bottom:6px;">Top categories</div>
-<div id="geoCatMix"></div>
 </div>
-</div>
+<!-- "Top categories" mini-mix removed here — redundant with the Category
+Deep Dive and Product Explorer above, both of which can already be scoped
+to a state via the state filter, without a third copy of the same numbers. -->
 
 <div class="drillbar" id="geoBreadcrumb"></div>
 
@@ -466,21 +469,22 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <section>
 <div class="card">
 <div class="sectitle">
-<h2>SKU performance &amp; growth</h2>
-<span class="sub">Click a row to see where that SKU sells, by state &amp; city · trial-kit components tracked separately below</span>
+<h2>Product explorer</h2>
+<span class="sub">Every product, Super Category → Category → Short Name → Grammage — expand a row to drill in, expand a grammage row to see where it sells by state. Respects the filters above (date range, state, zone, tier, distributor search).</span>
 </div>
 <div class="ai-summary" id="summary-sku"></div>
-<div class="sub" style="margin:2px 0 8px;">3 auto-picked highlights for the selected period — click any to jump to that SKU's row</div>
+<div class="twocol-kpi" id="explorerTotals" style="margin-top:10px;"></div>
+<div class="sub" style="margin:14px 0 8px;">3 auto-picked highlights for the selected period — click any to jump to that product</div>
 <div class="movers-row" id="skuMovers"></div>
-<input type="text" class="searchbox" id="skuSearch" placeholder="Search SKU or product…">
-<div class="tablewrap">
+<input type="text" class="searchbox" id="skuSearch" placeholder="Search super category, category, product or grammage…">
+<div class="tablewrap" style="max-height:520px;">
 <table id="skuTable">
 <thead><tr>
-<th data-key="product">Product</th>
-<th data-key="category">Category</th>
-<th class="num" data-key="rev">Revenue (period)</th>
-<th class="num" data-key="growth">MoM growth</th>
-<th data-key="trend">Trend</th>
+<th>Product hierarchy</th>
+<th class="num">Revenue (period)</th>
+<th class="num">Units</th>
+<th class="num">Growth (CMGR)</th>
+<th>Trend</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -492,22 +496,10 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="card">
 <div class="sectitle">
 <h2>Gift boxes, combos &amp; sampling kits</h2>
-<span class="sub">Products your own SKU Mapping tags as Gift Boxes, Cross-Combos or Trial / Sampling — kept separate from the main SKU list above</span>
+<span class="sub">Products your own SKU Mapping tags as Gift Boxes, Cross-Combos or Trial / Sampling — component-level detail lives in the Product Explorer above; this section covers what's specific to sampling: the free-vs-paid trend and its geo split</span>
 </div>
 <div class="ai-summary" id="summary-trialkit"></div>
 <div class="twocol-kpi" id="trialKitKpis"></div>
-<div class="tablewrap" style="margin-top:12px;">
-<table id="trialKitTable">
-<thead><tr>
-<th>Component</th>
-<th>Category</th>
-<th class="num">Revenue (period)</th>
-<th class="num">Qty</th>
-<th class="num">% of kit total</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
 
 <div class="sectitle" style="margin-top:22px;">
 <h2 style="font-size:13.5px;">Free vs. paid sampling</h2>
@@ -516,21 +508,8 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="ai-summary" id="summary-sampling-fp"></div>
 <div class="chartbox tall"><canvas id="samplingFpChart"></canvas></div>
 
-<div class="grid2" style="margin-top:16px;">
-<div>
-<div class="sub" style="margin-bottom:6px;">Sampling revenue by region / tier</div>
+<div class="sub" style="margin:16px 0 6px;">Sampling revenue by region / tier</div>
 <div class="chartbox"><canvas id="samplingGeoChart"></canvas></div>
-</div>
-<div>
-<div class="sub" style="margin-bottom:6px;">Top distributors receiving sampling</div>
-<div class="tablewrap" style="max-height:270px;">
-<table id="samplingDistTable">
-<thead><tr><th>Distributor</th><th class="num">Free</th><th class="num">Paid</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
-</div>
 </div>
 </section>
 
@@ -550,7 +529,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="ai-summary" id="summary-launch"></div>
 <div class="chartbox tall"><canvas id="launchStackChart"></canvas></div>
 <div id="launchOtherBreakdown" style="display:none;"></div>
-<div class="sub" style="margin:14px 0 4px;">New SKUs launched per month, by category — count of launches</div>
+<div class="sub" style="margin:14px 0 4px;">New products launched per month — standalone launches vs. sampler/bundle assortments (see note below chart), category breakdown in the tooltip</div>
 <div class="chartbox" style="height:230px;"><canvas id="launchCadenceChart"></canvas></div>
 <div class="sub" style="margin:16px 0 4px;">What those launches actually did to the category — new SKUs' own volume &amp; revenue vs. the category's pre-existing (already-active) SKU volume that same month</div>
 <div class="ai-summary" id="summary-newskuimpact"></div>
@@ -582,7 +561,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <tbody></tbody>
 </table>
 </div>
-<div class="sub" style="margin:16px 0 4px;">Every SKU, ranked by all-time contribution — with growth across periods</div>
+<div class="sub" style="margin:16px 0 4px;">Every product, ranked by all-time contribution — with growth across periods. Sampler/bundle assortments appear as one expandable row (click to see what's inside).</div>
 <input type="text" class="searchbox" id="launchSearch" placeholder="Search SKU or product…">
 <div class="tablewrap">
 <table id="launchTable">
@@ -617,12 +596,11 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="sectitle" style="margin-top:22px;">
 <h2 style="font-size:13.5px;">Distributor growth by region &amp; tier</h2>
-<span class="sub">Pick a metric — same picker drives both charts, so region and tier always read the same way</span>
+<span class="sub">Month-by-month, one line per region/tier — growth reads directly off the slope. Same metric picker drives both charts.</span>
 </div>
 <div class="explore-controls">
 <label>Metric</label>
 <select id="distGeoMetric">
-<option value="growth">Growth % (CMGR)</option>
 <option value="revenue">Revenue</option>
 <option value="count">Active distributors</option>
 </select>
@@ -653,7 +631,8 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <span class="sub">A distributor not ordering this month may just not have sold through last month's stock — order frequency &amp; AOV by revenue tier (Top 1&ndash;10 / 11&ndash;25 / 26&ndash;50 / Rest) is a better read on inventory utilisation than active/churned</span>
 </div>
 <div class="ai-summary" id="summary-waterfall"></div>
-<div class="grid2">
+<div class="fourcol-kpi" id="distTierScorecard" style="margin-top:10px;"></div>
+<div class="grid2" style="margin-top:16px;">
 <div>
 <div class="sub" style="margin-bottom:6px;">Average order value, MoM</div>
 <div class="chartbox tall"><canvas id="distTierAovChart"></canvas></div>
@@ -686,9 +665,11 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="sectitle" style="margin-top:22px;">
 <h2 style="font-size:13.5px;">Top distributors</h2>
-<span class="sub">Ranked by revenue in the selected period</span>
+<span class="sub">Ranked by revenue in the selected period — what each buys by category, top 15 by revenue, shown below. Expand any row in the table for that distributor's full category split.</span>
 </div>
-<input type="text" class="searchbox" id="distSearch" placeholder="Search distributor…">
+<div class="ai-summary" id="summary-distcat"></div>
+<div class="chartbox tall"><canvas id="distCatChart"></canvas></div>
+<input type="text" class="searchbox" id="distSearch" placeholder="Search distributor…" style="margin-top:16px;">
 <div class="tablewrap">
 <table id="distTable">
 <thead><tr>
@@ -703,26 +684,6 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <th class="num" data-key="months">Active months</th>
 <th data-key="first">First order</th>
 <th data-key="status">Status</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Category split by distributor</h2>
-<span class="sub">What each distributor actually buys, by category — top 15 by revenue. Click any row below to expand its full split.</span>
-</div>
-<div class="ai-summary" id="summary-distcat"></div>
-<div class="chartbox tall"><canvas id="distCatChart"></canvas></div>
-<input type="text" class="searchbox" id="distCatSearch" placeholder="Search distributor…">
-<div class="tablewrap">
-<table id="distCatTable">
-<thead><tr>
-<th>Distributor</th>
-<th class="num">Revenue</th>
-<th>Top category</th>
-<th class="num">Top category share</th>
-<th class="num"># categories bought</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -743,8 +704,12 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <label>Group by</label>
 <select id="exploreDim">
 <option value="cat">My category tags</option>
+<option value="superCat">Super category</option>
+<option value="shortName">Product (short name)</option>
 <option value="region">Zone</option>
 <option value="tier">City tier</option>
+<option value="state">State</option>
+<option value="distributor">Distributor</option>
 <option value="quarter">Quarter (fiscal)</option>
 </select>
 </div>
@@ -823,11 +788,13 @@ assignCatColors();
 // entity, never its rank" rule as categories) — used anywhere region/tier
 // values are stacked or compared side-by-side (Explore MoM, distributor
 // category-split, etc.)
-const regionColorCache = {}, tierColorCache = {};
+const regionColorCache = {}, tierColorCache = {}, superCatColorCache = {};
 D.regions.forEach((r,i)=>{ regionColorCache[r] = CAT_COLOR_SEQ[i % CAT_COLOR_SEQ.length]; });
 D.tiers.forEach((t,i)=>{ tierColorCache[t] = CAT_COLOR_SEQ[i % CAT_COLOR_SEQ.length]; });
+D.superCategories.forEach((s,i)=>{ superCatColorCache[s] = CAT_COLOR_SEQ[i % CAT_COLOR_SEQ.length]; });
 function regionColor(r){ return cssVar(regionColorCache[r] || '--s7'); }
 function tierColor(t){ return cssVar(tierColorCache[t] || '--s7'); }
+function superCatColor(s){ return cssVar(superCatColorCache[s] || '--s7'); }
 
 function fmtINR(v, opts){
 opts = opts || {};
@@ -867,6 +834,62 @@ buyerQuery: ''
 
 function isKitSku(skuIdx){ return !!(D.skuIsKit && D.skuIsKit[skuIdx]); }
 function hasCatFilter(){ return !!(filters.cats && filters.cats.size>0); }
+
+// ============================================================
+// BUNDLE-CLUSTER DETECTION — some short-lived, non-"official-kit" products
+// are not real independent launches at all: they're components of informal
+// multi-item sampler/assortment orders that were never tagged as a Gift
+// Box / Combo / Sampling product in the SKU Mapping. Detected once, from
+// full-history voucher co-occurrence (every fact row already carries its
+// order/voucher id in F_VOUCHER): a product that has NEVER appeared alone
+// in an order (0% solo rate) and has a niche all-time footprint (<=10
+// orders) is a candidate; candidates that share a voucher together are
+// grouped into one cluster via union-find. Verified against this data:
+// 31 such products, every one at 0% solo rate, forming a handful of
+// clearly overlapping "sample everything" assortments. Used by the SKU
+// launch/cadence views to collapse each cluster into a single expandable
+// "launch batch" instead of drawing many one-off, unreadable launch blips.
+// ============================================================
+const bundleClusters = (function(){
+const voucherSkus = new Map(); // voucherIdx -> Set(skuIdx)
+for(const f of D.facts){
+if(isKitSku(f[F_SKU])) continue; // official kits/combos already tracked separately
+let s = voucherSkus.get(f[F_VOUCHER]);
+if(!s){ s = new Set(); voucherSkus.set(f[F_VOUCHER], s); }
+s.add(f[F_SKU]);
+}
+const orderCount = new Map(), soloCount = new Map();
+voucherSkus.forEach(skuSet=>{
+skuSet.forEach(sk=>{
+orderCount.set(sk, (orderCount.get(sk)||0)+1);
+if(skuSet.size===1) soloCount.set(sk, (soloCount.get(sk)||0)+1);
+});
+});
+const candidates = new Set();
+orderCount.forEach((n,sk)=>{ if((soloCount.get(sk)||0)===0 && n<=10) candidates.add(sk); });
+
+const parent = new Map(); candidates.forEach(sk=>parent.set(sk, sk));
+function find(x){ while(parent.get(x)!==x){ parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; }
+function union(a,b){ const ra=find(a), rb=find(b); if(ra!==rb) parent.set(ra, rb); }
+voucherSkus.forEach(skuSet=>{
+const members = [...skuSet].filter(sk=>candidates.has(sk));
+for(let i=1;i<members.length;i++) union(members[0], members[i]);
+});
+const groups = new Map(); // root -> [skuIdx,...]
+candidates.forEach(sk=>{ const r=find(sk); if(!groups.has(r)) groups.set(r, []); groups.get(r).push(sk); });
+
+const clusterOf = new Map(); // skuIdx -> clusterId
+const clusters = [];
+[...groups.values()].filter(m=>m.length>=2).forEach((members, i)=>{
+const id = 'bundle'+i;
+members.forEach(sk=>clusterOf.set(sk, id));
+const shortNames = [...new Set(members.map(sk=>D.skuShortName[sk]||D.skuNames[sk]))];
+const label = shortNames.length<=2 ? shortNames.join(' + ') : `${shortNames[0]} & ${members.length-1} related items`;
+clusters.push({ id, members, label: 'Sampler assortment — ' + label });
+});
+return { clusterOf, clusters };
+})();
+function bundleClusterIdOf(skuIdx){ return bundleClusters.clusterOf.get(skuIdx) || null; }
 // the "overall business" comparison baseline: same date/state/region/tier/buyer
 // scope, but ignores the category/variant/size drill-down entirely
 function dimsOverall(dims){
@@ -1573,11 +1596,16 @@ datasets[ci].data.push(s);
 });
 }
 destroyChart('cat');
+const catBaseOpts = baseLineOptions((ctx)=>fmtINR(ctx.parsed.y));
 charts.cat = new Chart(document.getElementById('catChart'), {
 type:'bar',
 data:{ labels:months, datasets },
 options:{
-...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
+...catBaseOpts,
+// only list categories that actually have a nonzero value in the
+// hovered month — a stacked bar with many categories otherwise pads
+// the tooltip with a long run of "Category: ₹0" lines
+plugins:{ ...catBaseOpts.plugins, tooltip:{ ...catBaseOpts.plugins.tooltip, filter:(item)=> Math.round(item.parsed.y*100)!==0 } },
 scales:{
 x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
 y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} }
@@ -1624,6 +1652,7 @@ renderCategoryDeepDive();
 // other filters: date range, state, region, tier, distributor search)
 // ============================================================
 const catDD = { catIdx: null, metric: 'rev' };
+const catDDExpanded = new Set();
 const catDDSel = document.getElementById('catDDSel');
 const catDDMetricSel = document.getElementById('catDDMetric');
 if(catDDSel){
@@ -1632,6 +1661,9 @@ catDDSel.addEventListener('change', ()=>{ catDD.catIdx = parseInt(catDDSel.value
 catDDMetricSel.addEventListener('change', ()=>{ catDD.metric = catDDMetricSel.value; renderCategoryDeepDive(); });
 }
 
+// Grouped by SHORT NAME (not raw SKU) — each row can then be expanded to
+// its own grammage/pack-size split, so the deep-dive reads at the product
+// level first and the exact size variant is a drill-down, not the headline.
 function renderCategoryDeepDive(){
 if(!catDDSel) return;
 if(catDD.catIdx===null){
@@ -1648,27 +1680,35 @@ const metric = catDD.metric;
 const valField = metric==='units' ? F_QTY : F_VAL;
 const catRows = factsInRange(filters.monthFrom, filters.monthTo, dimsForCat(ci));
 
-const skuTotals = new Map();
-for(const f of catRows) skuTotals.set(f[F_SKU], (skuTotals.get(f[F_SKU])||0) + f[valField]);
-const ranked = [...skuTotals.entries()].sort((a,b)=>b[1]-a[1]);
+const shortOf = (sk)=> D.skuShortName[sk] || D.skuNames[sk];
+const shortTotals = new Map();      // shortName -> value (rev or units, per metric)
+const shortMembers = new Map();     // shortName -> Set(skuIdx)
+for(const f of catRows){
+const sn = shortOf(f[F_SKU]);
+shortTotals.set(sn, (shortTotals.get(sn)||0) + f[valField]);
+if(!shortMembers.has(sn)) shortMembers.set(sn, new Set());
+shortMembers.get(sn).add(f[F_SKU]);
+}
+const ranked = [...shortTotals.entries()].sort((a,b)=>b[1]-a[1]);
 const TOP_N = 8;
-const topSet = new Set(ranked.slice(0, TOP_N).map(([sk])=>sk));
+const topSet = new Set(ranked.slice(0, TOP_N).map(([sn])=>sn));
 const otherCount = ranked.length - topSet.size;
 
 const months=[]; for(let m=filters.monthFrom;m<=filters.monthTo;m++) months.push(monthLabel(D.months[m]));
-const seriesFor = (skuIdx)=>{
+const seriesForShort = (sn)=>{
 const arr = new Array(months.length).fill(0);
-for(const f of catRows) if(f[F_SKU]===skuIdx) arr[f[F_MONTH]-filters.monthFrom]+=f[valField];
+const members = shortMembers.get(sn) || new Set();
+for(const f of catRows) if(members.has(f[F_SKU])) arr[f[F_MONTH]-filters.monthFrom]+=f[valField];
 return arr;
 };
 const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
-const datasets = ranked.filter(([sk])=>topSet.has(sk)).map(([sk],i)=>({
-label: D.skuNames[sk], data: seriesFor(sk), backgroundColor: cssVar(palette[i%palette.length]), borderRadius:2, maxBarThickness:26
+const datasets = ranked.filter(([sn])=>topSet.has(sn)).map(([sn],i)=>({
+label: sn, data: seriesForShort(sn), backgroundColor: cssVar(palette[i%palette.length]), borderRadius:2, maxBarThickness:26
 }));
 if(otherCount>0){
 const arr = new Array(months.length).fill(0);
-for(const f of catRows){ if(!topSet.has(f[F_SKU])) arr[f[F_MONTH]-filters.monthFrom]+=f[valField]; }
-datasets.push({ label:`Other SKUs in category (${otherCount})`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:2, maxBarThickness:26 });
+for(const f of catRows){ if(!topSet.has(shortOf(f[F_SKU]))) arr[f[F_MONTH]-filters.monthFrom]+=f[valField]; }
+datasets.push({ label:`Other products in category (${otherCount})`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:2, maxBarThickness:26 });
 }
 
 const grand = ranked.reduce((a,[,v])=>a+v,0) || 1;
@@ -1676,8 +1716,8 @@ setSummary('summary-catdd', (()=>{
 if(ranked.length===0) return null;
 const top = ranked[0];
 const label = metric==='units' ? 'units sold' : 'revenue';
-return `<b>${escapeHtml(D.categories[ci])}</b> has <b>${ranked.length}</b> active SKU${ranked.length===1?'':'s'} in the selected period. `+
-`<b>${escapeHtml(D.skuNames[top[0]])}</b> leads at <b>${(top[1]/grand*100).toFixed(1)}%</b> of the category's ${label}.`;
+return `<b>${escapeHtml(D.categories[ci])}</b> has <b>${ranked.length}</b> active product${ranked.length===1?'':'s'} (by short name) in the selected period. `+
+`<b>${escapeHtml(top[0])}</b> leads at <b>${(top[1]/grand*100).toFixed(1)}%</b> of the category's ${label}. Expand any row below for its grammage-level split.`;
 })());
 
 destroyChart('catDD');
@@ -1693,25 +1733,61 @@ y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, tic
 }
 });
 
-const revBySku = new Map(), unitsBySku = new Map();
+const revByShort = new Map(), unitsByShort = new Map(), revBySku = new Map(), unitsBySku = new Map();
 for(const f of catRows){
+const sn = shortOf(f[F_SKU]);
+revByShort.set(sn, (revByShort.get(sn)||0)+f[F_VAL]);
+unitsByShort.set(sn, (unitsByShort.get(sn)||0)+f[F_QTY]);
 revBySku.set(f[F_SKU], (revBySku.get(f[F_SKU])||0)+f[F_VAL]);
 unitsBySku.set(f[F_SKU], (unitsBySku.get(f[F_SKU])||0)+f[F_QTY]);
 }
+
+function grammagePanel(sn){
+const members = [...(shortMembers.get(sn)||[])];
+const memberRows = members.map(sk=>{
+const arr = new Array(months.length).fill(0);
+for(const f of catRows) if(f[F_SKU]===sk) arr[f[F_MONTH]-filters.monthFrom]+=f[valField];
+const v = arr.reduce((a,b)=>a+b,0);
+return { sk, size: D.skuSize[sk]||D.skuNames[sk], rev: revBySku.get(sk)||0, units: unitsBySku.get(sk)||0, val:v };
+}).sort((a,b)=>b.val-a.val);
+const maxV = Math.max(...memberRows.map(m=>m.val),1);
+const totalVal = memberRows.reduce((a,r)=>a+r.val,0) || 1;
+const bars = memberRows.map(r=>`<div class="subpanel-bar">
+<span title="${escapeHtml(r.size)}">${escapeHtml(r.size)}</span>
+<span class="sb-track"><span class="sb-fill" style="width:${Math.max(2,r.val/maxV*100)}%; background:${cssVar('--s1')}"></span></span>
+<span class="num">${metric==='units'?fmtNum(r.units)+' u':fmtINR(r.rev)}</span>
+<span class="num" style="color:var(--text-muted); font-size:11px;">${(r.val/totalVal*100).toFixed(1)}%</span>
+</div>`).join('') || '<div class="empty-state">No grammage-level data.</div>';
+return `<div class="subpanel-inner"><div class="subpanel-title">${escapeHtml(sn)} — by grammage / pack size</div>${bars}</div>`;
+}
+
 const tbody = document.querySelector('#catDDTable tbody'); tbody.innerHTML='';
 if(ranked.length===0){
 const tr=document.createElement('tr'); const t0=td('No data for this filter selection.','empty-state'); t0.colSpan=6; tr.appendChild(t0); tbody.appendChild(tr);
 } else {
-ranked.forEach(([sk,val])=>{
-const arr = seriesFor(sk);
+ranked.forEach(([sn,val])=>{
+const arr = seriesForShort(sn);
+const members = shortMembers.get(sn) || new Set();
+const multi = members.size>1;
 const tr=document.createElement('tr');
-tr.appendChild(td(D.skuNames[sk]));
-tr.appendChild(td(fmtINR(revBySku.get(sk)||0),'num'));
-tr.appendChild(td(fmtNum(unitsBySku.get(sk)||0),'num'));
+if(multi) tr.classList.add('row-click');
+const nameTd = document.createElement('td');
+const isOpen = catDDExpanded.has(sn);
+const caret = multi ? `<span class="caret${isOpen?' open':''}">▶</span>` : '<span style="display:inline-block; width:14px;"></span>';
+nameTd.innerHTML = `${caret}${escapeHtml(sn)}${multi?` <span style="color:var(--text-muted); font-size:11px;">(${members.size} sizes)</span>`:''}`;
+tr.appendChild(nameTd);
+tr.appendChild(td(fmtINR(revByShort.get(sn)||0),'num'));
+tr.appendChild(td(fmtNum(unitsByShort.get(sn)||0),'num'));
 tr.appendChild(td((val/grand*100).toFixed(1)+'%','num'));
 const gTd=document.createElement('td'); gTd.className='num'; gTd.innerHTML=growthBadge(periodGrowthPct(arr)); tr.appendChild(gTd);
 const trTd=document.createElement('td'); trTd.innerHTML=sparklineSVG(arr); tr.appendChild(trTd);
+if(multi) tr.addEventListener('click', ()=>{ if(catDDExpanded.has(sn)) catDDExpanded.delete(sn); else catDDExpanded.add(sn); renderCategoryDeepDive(); });
 tbody.appendChild(tr);
+if(multi && isOpen){
+const ptr=document.createElement('tr'); ptr.className='subpanel';
+const ptd=document.createElement('td'); ptd.colSpan=6; ptd.innerHTML=grammagePanel(sn);
+ptr.appendChild(ptd); tbody.appendChild(ptr);
+}
 });
 }
 }
@@ -1834,6 +1910,8 @@ y:{ stacked:true, min:0, max:100, grid:{color:cssVar('--gridline')}, border:{dis
 // ============================================================
 const geoDrill = { state: null };
 const geoSortState = { key:'rev', dir:-1 };
+const distTableSortState = { key:'rev', dir:-1 };
+const distCatExpanded = new Set();
 const skuSortState = { key:'rev', dir:-1 };
 const MIN_GEO_BASE = 15000; // ignore MoM% noise below this revenue in both months
 
@@ -1951,7 +2029,6 @@ document.getElementById('geoKpis').innerHTML = `
 const grand = sumVal(filtered) || 1;
 const regionSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
 const tierSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
-const catSeries = buildMonthlySeries(filtered, F_CAT);
 function rowsFor(names, seriesMap){
 return names.map((name,i)=>{
 const arr = seriesMap.get(i) || [];
@@ -1961,8 +2038,6 @@ return { name, rev, share: grand>0? rev/grand*100 : 0, growth: periodGrowthPct(a
 }
 document.getElementById('regionMix').innerHTML = stdTableHTML(rowsFor(D.regions, regionSeries), {nameHeader:'Region', maxHeight:230});
 document.getElementById('tierMix').innerHTML = stdTableHTML(rowsFor(D.tiers, tierSeries), {nameHeader:'Tier', maxHeight:230});
-const catMixEl = document.getElementById('geoCatMix');
-if(catMixEl) catMixEl.innerHTML = stdTableHTML(rowsFor(D.categories, catSeries), {nameHeader:'Category', maxHeight:230, dotColor:(r)=>catColor(r.name)});
 })();
 
 // ---- movers, always at state grain (business headline) ----
@@ -2137,121 +2212,199 @@ redraw();
 }
 
 // ============================================================
-// SKU — performance & growth, with per-SKU geo cross-drill
+// PRODUCT EXPLORER — ONE expandable hierarchy for every product (incl.
+// gift boxes / sampling, which simply land under their own super
+// category), replacing the old flat "SKU performance" table AND its
+// per-SKU "top states" panel: Super Category → Category → Short Name →
+// Grammage. A top row of absolute totals (revenue & units, vs. the prior
+// period) sits above the table; every row respects the global filters
+// (date range, state, zone, tier, distributor search). Expanding a
+// grammage (leaf) row reveals where THAT exact size sells, by state —
+// folding what used to be its own separate "category SKUs by state"
+// feature into this one list instead of a redundant standalone section.
 // ============================================================
 const MIN_SKU_BASE = 8000;
-const skuExpanded = new Set();
+const explorerExpanded = new Set();
 
-function renderSku(){
+function renderProductExplorer(){
 const filteredAll = getFiltered();
-// main SKU performance view excludes "Temp" tags — those are trial/sampler-kit
-// components sold in bulk, not standalone retail SKUs; see Trial Kit section below
-const filtered = filteredAll.filter(f=>!isKitSku(f[F_SKU]));
-const series = buildMonthlySeries(filtered, F_SKU);
+const searchEl = document.getElementById('skuSearch');
+
+// ---- movers, at grammage (leaf SKU) grain ----
+const skuSeriesForMovers = buildMonthlySeries(filteredAll, F_SKU);
 const skuFirst = skuFirstMonth(filters);
-
-const agg = new Map();
-for(const f of filtered){
-const k=f[F_SKU];
-if(!agg.has(k)) agg.set(k, {rev:0, catIdx:f[F_CAT]});
-agg.get(k).rev += f[F_VAL];
-}
-const rows = [...agg.entries()].map(([k,o])=>{
-const arr = series.get(k)||[];
-return { idx:k, product:D.skuNames[k], sku:D.skus[k], category:D.categories[o.catIdx], rev:o.rev, growth: momGrowth(arr), trend: arr };
-});
-
-// movers
-const {gainer, decliner} = computeGrowthMovers(series, MIN_SKU_BASE);
-const newestSku = [...skuFirst.entries()].filter(([sk,fm])=>fm===filters.monthTo && !isKitSku(sk))
-.map(([sk])=>({sk, rev:(series.get(sk)||[]).slice(-1)[0]||0})).sort((a,b)=>b.rev-a.rev)[0];
+const {gainer, decliner} = computeGrowthMovers(skuSeriesForMovers, MIN_SKU_BASE);
+const newestSku = [...skuFirst.entries()].filter(([sk,fm])=>fm===filters.monthTo)
+.map(([sk])=>({sk, rev:(skuSeriesForMovers.get(sk)||[]).slice(-1)[0]||0})).sort((a,b)=>b.rev-a.rev)[0];
 const skuLabel = (i)=> D.skuNames[i] + ' (' + D.skus[i] + ')';
+function jumpToSku(sk){
+const supI = D.skuSuperCategory[sk], catI = D.skuCategory[sk], sn = D.skuShortName[sk]||D.skuNames[sk];
+const supKey='S'+supI, catKey=supKey+'>C'+catI, snKey=catKey+'>N'+sn;
+explorerExpanded.add(supKey); explorerExpanded.add(catKey); explorerExpanded.add(snKey);
+if(searchEl) searchEl.value='';
+redrawExplorer();
+document.getElementById('row-'+snKey.replace(/[^a-zA-Z0-9]/g,'_'))?.scrollIntoView({behavior:'smooth', block:'center'});
+}
 renderMovers('skuMovers', [
-gainer ? {label:'Fastest growing SKU', name:skuLabel(gainer.key), growth:gainer.growth, curr:gainer.curr, onClick:()=>toggleSkuRow(gainer.key)} : null,
-decliner && decliner.growth<0 ? {label:'Steepest decline', name:skuLabel(decliner.key), growth:decliner.growth, curr:decliner.curr, onClick:()=>toggleSkuRow(decliner.key)} : null,
-newestSku ? {label:'New SKU this month', name:skuLabel(newestSku.sk), growth:null, curr:newestSku.rev, onClick:()=>toggleSkuRow(newestSku.sk)} : null,
+gainer ? {label:'Fastest growing product', name:skuLabel(gainer.key), growth:gainer.growth, curr:gainer.curr, onClick:()=>jumpToSku(gainer.key)} : null,
+decliner && decliner.growth<0 ? {label:'Steepest decline', name:skuLabel(decliner.key), growth:decliner.growth, curr:decliner.curr, onClick:()=>jumpToSku(decliner.key)} : null,
+newestSku ? {label:'New product this month', name:skuLabel(newestSku.sk), growth:null, curr:newestSku.rev, onClick:()=>jumpToSku(newestSku.sk)} : null,
 ]);
 
+// ---- top row: absolute totals for the selected period, vs. the prior
+// period of equal length — same delta pattern as the KPI row up top ----
+const netRev = sumVal(filteredAll);
+const totalUnits = filteredAll.reduce((a,f)=>a+f[F_QTY],0);
+const liveProducts = distinctCount(filteredAll, F_SKU);
+const periodLen = filters.monthTo - filters.monthFrom + 1;
+const prevTo = filters.monthFrom - 1, prevFrom = prevTo - periodLen + 1;
+let prevAgg = null;
+if(prevFrom>=0){
+const prevRows = factsInRange(prevFrom, prevTo, filters);
+prevAgg = { rev: sumVal(prevRows), units: prevRows.reduce((a,f)=>a+f[F_QTY],0), live: distinctCount(prevRows, F_SKU) };
+}
+function deltaFor(curr, prev){
+if(prevAgg===null) return {text:'vs prior period n/a', cls:'flat'};
+if(prev===0 && curr===0) return {text:'flat', cls:'flat'};
+const d = prev!==0 ? (curr-prev)/Math.abs(prev)*100 : 100;
+const cls = Math.abs(d)<0.05?'flat':(d>=0?'up':'down');
+const arrow = d>0?'▲':(d<0?'▼':'—');
+return {text:`${arrow} ${Math.abs(d).toFixed(1)}% vs prior period`, cls};
+}
+const totalsEl = document.getElementById('explorerTotals');
+if(totalsEl){
+const dRev = deltaFor(netRev, prevAgg&&prevAgg.rev), dUnits = deltaFor(totalUnits, prevAgg&&prevAgg.units), dLive = deltaFor(liveProducts, prevAgg&&prevAgg.live);
+totalsEl.innerHTML = `
+<div class="mini-tile"><div class="label">Total revenue (period)</div><div class="value">${fmtINR(netRev)}</div><div class="delta ${dRev.cls}">${dRev.text}</div></div>
+<div class="mini-tile"><div class="label">Total units (period)</div><div class="value">${fmtNum(totalUnits)}</div><div class="delta ${dUnits.cls}">${dUnits.text}</div></div>
+<div class="mini-tile"><div class="label">Products live (grammage level)</div><div class="value">${fmtNum(liveProducts)}</div><div class="delta ${dLive.cls}">${dLive.text}</div></div>
+`;
+}
+
 setSummary('summary-sku', (()=>{
-const activeSkus = rows.filter(r=>r.rev!==0).length;
-const top = rows.slice().sort((a,b)=>b.rev-a.rev)[0];
-let s = `<b>${activeSkus}</b> SKUs moved in the selected period`;
-if(top) s += `, led by <b>${escapeHtml(top.product)}</b> (${fmtINR(top.rev)}).`; else s += '.';
+const revBySku = new Map();
+for(const f of filteredAll) revBySku.set(f[F_SKU], (revBySku.get(f[F_SKU])||0)+f[F_VAL]);
+const top = [...revBySku.entries()].sort((a,b)=>b[1]-a[1])[0];
+let s = `<b>${fmtNum(liveProducts)}</b> grammage-level products moved in the selected period across <b>${D.superCategories.length}</b> super categories`;
+if(top) s += `, led by <b>${escapeHtml(D.skuNames[top[0]])}</b> (${fmtINR(top[1])}).`; else s += '.';
 if(gainer) s += ` <b>${escapeHtml(D.skuNames[gainer.key])}</b> is the top mover (${fmtPct(gainer.growth,1)} MoM).`;
-const newCount = [...skuFirst.entries()].filter(([sk,fm])=>fm>=filters.monthFrom && fm<=filters.monthTo && !isKitSku(sk)).length;
-if(newCount>0) s += ` <b>${newCount}</b> new SKU${newCount===1?'':'s'} launched this period.`;
 return s;
 })());
 
-function toggleSkuRow(idx){
-if(skuExpanded.has(idx)) skuExpanded.delete(idx); else skuExpanded.add(idx);
-redraw();
-document.getElementById('sku-row-'+idx)?.scrollIntoView({behavior:'smooth', block:'center'});
-}
+function toggleExplorer(key){ if(explorerExpanded.has(key)) explorerExpanded.delete(key); else explorerExpanded.add(key); redrawExplorer(); }
 
-function buildGeoPanel(skuIdx){
-const rowsForSku = filtered.filter(f=>f[F_SKU]===skuIdx);
+function statesPanelRow(sk, rows){
+const rowsForSku = rows.filter(f=>f[F_SKU]===sk);
 const byState = new Map();
-for(const f of rowsForSku){ byState.set(f[F_STATE], (byState.get(f[F_STATE])||0)+f[F_VAL]); }
+for(const f of rowsForSku) byState.set(f[F_STATE], (byState.get(f[F_STATE])||0)+f[F_VAL]);
 const top = [...byState.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
 const maxV = top.length? Math.max(...top.map(t=>t[1]),1) : 1;
-// top city overall for this sku, as a cohesive cross-link detail
-const byCity = new Map();
-for(const f of rowsForSku){ byCity.set(f[F_CITY], (byCity.get(f[F_CITY])||0)+f[F_VAL]); }
-const topCity = [...byCity.entries()].sort((a,b)=>b[1]-a[1])[0];
-const bars = top.map(([sIdx,v])=>{
-const pct = Math.max(2, v/maxV*100);
-return `<div class="subpanel-bar">
-<span>${escapeHtml(D.states[sIdx])}</span>
-<span class="sb-track"><span class="sb-fill" style="width:${pct}%; background:${cssVar('--s1')}"></span></span>
-<span class="num">${fmtINR(v)}</span>
-<span></span>
-</div>`;
-}).join('') || '<div class="empty-state">No state-level sales in this period.</div>';
-return `<div class="subpanel-inner">
-<div class="subpanel-title">Where this SKU sells — top states (selected period)</div>
-${bars}
-${topCity ? `<div style="margin-top:6px; font-size:12px; color:var(--text-secondary);">Single best city: <strong style="color:var(--text-primary)">${escapeHtml(D.cities[topCity[0]])}</strong> (${fmtINR(topCity[1])})</div>` : ''}
-</div>`;
-}
-
-function renderRow(r){
-const tr=document.createElement('tr'); tr.id='sku-row-'+r.idx; tr.classList.add('row-click');
-const nameTd = document.createElement('td');
-const isOpen = skuExpanded.has(r.idx);
-nameTd.innerHTML = `<span class="caret${isOpen?' open':''}">▶</span>${escapeHtml(r.product)}<br><span style="color:var(--text-muted); font-size:11px; margin-left:16px;">${escapeHtml(r.sku)}</span>`;
-tr.appendChild(nameTd);
-const catTd = document.createElement('td');
-catTd.innerHTML = `<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`;
-tr.appendChild(catTd);
-tr.appendChild(td(fmtINR(r.rev),'num'));
-const gTd=document.createElement('td'); gTd.className='num'; gTd.innerHTML=growthBadge(r.growth); tr.appendChild(gTd);
-const trTd=document.createElement('td'); trTd.innerHTML = sparklineSVG(r.trend); tr.appendChild(trTd);
-tr.addEventListener('click', ()=>toggleSkuRow(r.idx));
-return tr;
-}
-function renderPanelRow(r){
+const bars = top.map(([sIdx,v])=>`<div class="subpanel-bar">
+<span title="${escapeHtml(D.states[sIdx])}">${escapeHtml(D.states[sIdx])}</span>
+<span class="sb-track"><span class="sb-fill" style="width:${Math.max(2,v/maxV*100)}%; background:${cssVar('--s1')}"></span></span>
+<span class="num">${fmtINR(v)}</span><span></span>
+</div>`).join('') || '<div class="empty-state">No state-level sales in this period.</div>';
 const tr=document.createElement('tr'); tr.className='subpanel';
-const tdEl=document.createElement('td'); tdEl.colSpan=5; tdEl.innerHTML=buildGeoPanel(r.idx);
+const tdEl=document.createElement('td'); tdEl.colSpan=5;
+tdEl.innerHTML = `<div class="subpanel-inner"><div class="subpanel-title">Where this grammage sells — top states (selected period)</div>${bars}</div>`;
 tr.appendChild(tdEl);
 return tr;
 }
 
-const searchEl = document.getElementById('skuSearch');
-function redraw(){
+function makeRow(depth, key, label, node, hasChildren, isLeaf, skuIdx, dotColor){
+const isOpen = node._forceOpen || explorerExpanded.has(key);
+const tr=document.createElement('tr'); tr.id = 'row-'+key.replace(/[^a-zA-Z0-9]/g,'_');
+const nameTd=document.createElement('td');
+const caret = hasChildren ? `<span class="caret${isOpen?' open':''}">▶</span>` : '<span style="display:inline-block; width:14px;"></span>';
+const dot = dotColor ? `<span class="catdot" style="background:${dotColor}"></span>` : '';
+const sub = isLeaf ? ` <span style="color:var(--text-muted); font-size:11px;">${escapeHtml(D.skus[skuIdx]||'')}</span>` : '';
+nameTd.innerHTML = `<span style="padding-left:${depth*18}px; display:inline-flex; align-items:center; gap:2px;">${caret}${dot}${escapeHtml(String(label))}${sub}</span>`;
+tr.appendChild(nameTd);
+tr.appendChild(td(fmtINR(node.rev),'num'));
+tr.appendChild(td(fmtNum(node.qty),'num'));
+const gTd=document.createElement('td'); gTd.className='num'; gTd.innerHTML=growthBadge(periodGrowthPct(node.trend||[])); tr.appendChild(gTd);
+const trTd=document.createElement('td'); trTd.innerHTML = (node.trend&&node.trend.length)?sparklineSVG(node.trend):''; tr.appendChild(trTd);
+if(hasChildren){ tr.classList.add('row-click'); tr.addEventListener('click', ()=>toggleExplorer(key)); }
+return { tr, isOpen };
+}
+
+function redrawExplorer(){
 const q = searchEl.value.trim().toLowerCase();
-const currentRows = genericSort(rows.filter(r=> r.product.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q)), skuSortState);
-const tbody = document.querySelector('#skuTable tbody'); tbody.innerHTML='';
-if(currentRows.length===0){ const tr=document.createElement('tr'); const t0=td('No matching SKUs.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr); return; }
-currentRows.forEach(r=>{
-tbody.appendChild(renderRow(r));
-if(skuExpanded.has(r.idx)) tbody.appendChild(renderPanelRow(r));
+let rows = filteredAll;
+if(q){
+rows = filteredAll.filter(f=>{
+const sk=f[F_SKU];
+const hay = (D.superCategories[D.skuSuperCategory[sk]]+' '+D.categories[D.skuCategory[sk]]+' '+(D.skuShortName[sk]||'')+' '+D.skuNames[sk]+' '+(D.skuSize[sk]||'')+' '+(D.skus[sk]||'')).toLowerCase();
+return hay.includes(q);
 });
 }
-searchEl.oninput = redraw;
-searchEl.value='';
-wireHeaderSort('skuTable', skuSortState, redraw);
-redraw();
+const forceOpen = !!q;
+
+// key'd derived monthly series at every grain, so trend/growth are cheap
+// lookups while walking the tree below
+const supSeries = buildDerivedMonthlySeries(rows, f=>'S'+D.skuSuperCategory[f[F_SKU]]);
+const catSeries = buildDerivedMonthlySeries(rows, f=>'S'+D.skuSuperCategory[f[F_SKU]]+'>C'+D.skuCategory[f[F_SKU]]);
+const snSeries = buildDerivedMonthlySeries(rows, f=>'S'+D.skuSuperCategory[f[F_SKU]]+'>C'+D.skuCategory[f[F_SKU]]+'>N'+(D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]]));
+const skSeries = buildDerivedMonthlySeries(rows, f=>'S'+D.skuSuperCategory[f[F_SKU]]+'>C'+D.skuCategory[f[F_SKU]]+'>N'+(D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]])+'>K'+f[F_SKU]);
+
+const tree = new Map();
+for(const f of rows){
+const sk=f[F_SKU];
+const supI=D.skuSuperCategory[sk], catI=D.skuCategory[sk], sn=D.skuShortName[sk]||D.skuNames[sk];
+const supKey='S'+supI, catKey=supKey+'>C'+catI, snKey=catKey+'>N'+sn, skKey=snKey+'>K'+sk;
+if(!tree.has(supI)) tree.set(supI, {rev:0, qty:0, trend:supSeries.get(supKey)||[], _forceOpen:forceOpen, cats:new Map()});
+const supNode=tree.get(supI); supNode.rev+=f[F_VAL]; supNode.qty+=f[F_QTY];
+if(!supNode.cats.has(catI)) supNode.cats.set(catI, {rev:0, qty:0, trend:catSeries.get(catKey)||[], _forceOpen:forceOpen, shorts:new Map()});
+const catNode=supNode.cats.get(catI); catNode.rev+=f[F_VAL]; catNode.qty+=f[F_QTY];
+if(!catNode.shorts.has(sn)) catNode.shorts.set(sn, {rev:0, qty:0, trend:snSeries.get(snKey)||[], _forceOpen:forceOpen, skus:new Map()});
+const snNode=catNode.shorts.get(sn); snNode.rev+=f[F_VAL]; snNode.qty+=f[F_QTY];
+if(!snNode.skus.has(sk)) snNode.skus.set(sk, {rev:0, qty:0, trend:skSeries.get(skKey)||[]});
+const skNode=snNode.skus.get(sk); skNode.rev+=f[F_VAL]; skNode.qty+=f[F_QTY];
+}
+
+const tbody = document.querySelector('#skuTable tbody');
+tbody.innerHTML='';
+const supIdxs = [...tree.keys()].sort((a,b)=> tree.get(b).rev - tree.get(a).rev);
+if(supIdxs.length===0){
+const tr=document.createElement('tr'); const t0=td('No matching products.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr);
+return;
+}
+supIdxs.forEach(supI=>{
+const supNode = tree.get(supI);
+const supKey='S'+supI;
+const {tr:supTr, isOpen:supOpen} = makeRow(0, supKey, D.superCategories[supI], supNode, true, false);
+tbody.appendChild(supTr);
+if(!supOpen) return;
+const catIdxs = [...supNode.cats.keys()].sort((a,b)=> supNode.cats.get(b).rev - supNode.cats.get(a).rev);
+catIdxs.forEach(catI=>{
+const catNode = supNode.cats.get(catI);
+const catKey = supKey+'>C'+catI;
+const {tr:catTr, isOpen:catOpen} = makeRow(1, catKey, D.categories[catI], catNode, true, false, null, catColor(D.categories[catI]));
+tbody.appendChild(catTr);
+if(!catOpen) return;
+const shortNames = [...catNode.shorts.keys()].sort((a,b)=> catNode.shorts.get(b).rev - catNode.shorts.get(a).rev);
+shortNames.forEach(sn=>{
+const snNode = catNode.shorts.get(sn);
+const snKey = catKey+'>N'+sn;
+const multi = snNode.skus.size>1;
+const {tr:snTr, isOpen:snOpen} = makeRow(2, snKey, sn, snNode, multi, false);
+tbody.appendChild(snTr);
+if(multi && !snOpen) return;
+const skuIdxs = [...snNode.skus.keys()].sort((a,b)=> snNode.skus.get(b).rev - snNode.skus.get(a).rev);
+skuIdxs.forEach(sk=>{
+const skNode = snNode.skus.get(sk);
+const skKey = snKey+'>K'+sk;
+const { tr:skTr, isOpen:skOpen } = makeRow(3, skKey, D.skuSize[sk]||D.skuNames[sk], skNode, true, true, sk);
+tbody.appendChild(skTr);
+if(skOpen) tbody.appendChild(statesPanelRow(sk, rows));
+});
+});
+});
+});
+}
+
+searchEl.oninput = redrawExplorer;
+redrawExplorer();
 }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
@@ -2282,38 +2435,10 @@ document.getElementById('trialKitKpis').innerHTML = `
 setSummary('summary-trialkit', (()=>{
 if(filtered.length===0) return null;
 return `These <b>${components}</b> products are tagged in your SKU Mapping as <b>${kitSuperCats.map(escapeHtml).join(', ')}</b> — `+
-`gift boxes, cross-category combos and trial/sampling jars — rather than standalone retail SKUs, so they're kept in their own `+
-`bucket here instead of the main SKU list above, where a bulky combo or a near-zero-revenue free sample would otherwise skew `+
-`per-SKU movers and the launch timeline. Combined they're worth <b>${fmtINR(rev)}</b> in the selected period.`;
+`gift boxes, cross-category combos and trial/sampling jars — rather than standalone retail SKUs, so they're excluded from the `+
+`SKU launch/discontinuation timeline below (a bulky combo or a near-zero-revenue free sample would otherwise skew it). Combined `+
+`they're worth <b>${fmtINR(rev)}</b> in the selected period — see the Product Explorer above (expand ${kitSuperCats.map(escapeHtml).join(' / ')}) for the full component-level breakdown.`;
 })());
-
-const agg = new Map();
-for(const f of filtered){
-const k=f[F_SKU];
-if(!agg.has(k)) agg.set(k, {rev:0, qty:0, catIdx:f[F_CAT]});
-const o=agg.get(k); o.rev+=f[F_VAL]; o.qty+=f[F_QTY];
-}
-const rows = [...agg.entries()].map(([k,o])=>({
-idx:k, product:D.skuNames[k], sku:D.skus[k], category:D.categories[o.catIdx],
-rev:o.rev, qty:o.qty, share: rev>0 ? o.rev/rev*100 : 0
-}));
-const tbody = document.querySelector('#trialKitTable tbody');
-tbody.innerHTML='';
-if(rows.length===0){
-const tr=document.createElement('tr'); const t0=td('No trial-kit sales in this period.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr);
-} else {
-rows.sort((a,b)=>b.rev-a.rev).forEach(r=>{
-const tr=document.createElement('tr');
-const nameTd=document.createElement('td');
-nameTd.innerHTML = `${escapeHtml(r.product)}<br><span style="color:var(--text-muted); font-size:11px;">${escapeHtml(r.sku)}</span>`;
-tr.appendChild(nameTd);
-const catTd=document.createElement('td'); catTd.innerHTML=`<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`; tr.appendChild(catTd);
-tr.appendChild(td(fmtINR(r.rev),'num'));
-tr.appendChild(td(fmtNum(r.qty),'num'));
-tr.appendChild(td(r.share.toFixed(1)+'%','num'));
-tbody.appendChild(tr);
-});
-}
 
 // ------------------------------------------------------------
 // Free vs. paid sampling — MoM, vs. overall business revenue
@@ -2388,32 +2513,44 @@ scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-mut
 y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } }
 }
 });
-
-// top distributors receiving sampling
-const distAgg = new Map();
-const freeRowsAll = factsInRange(filters.monthFrom, filters.monthTo, dimsForCat(FREE_SAMPLE_CAT_IDX>=0?FREE_SAMPLE_CAT_IDX:-1));
-for(const f of freeRowsAll){ const b=f[F_BUYER]; if(!distAgg.has(b)) distAgg.set(b,{free:0,paid:0}); distAgg.get(b).free += f[F_QTY]; }
-for(const f of paidRowsAll){ const b=f[F_BUYER]; if(!distAgg.has(b)) distAgg.set(b,{free:0,paid:0}); distAgg.get(b).paid += f[F_VAL]; }
-const distRows = [...distAgg.entries()].map(([b,o])=>({name:D.buyers[b], free:o.free, paid:o.paid})).sort((a,b)=>b.paid-a.paid).slice(0,15);
-const sdTbody = document.querySelector('#samplingDistTable tbody'); sdTbody.innerHTML='';
-if(distRows.length===0){
-const tr=document.createElement('tr'); const t0=td('No sampling activity in this period.','empty-state'); t0.colSpan=3; tr.appendChild(t0); sdTbody.appendChild(tr);
-} else {
-distRows.forEach(r=>{
-const tr=document.createElement('tr');
-tr.appendChild(td(r.name));
-tr.appendChild(td(fmtNum(r.free),'num'));
-tr.appendChild(td(fmtINR(r.paid),'num'));
-sdTbody.appendChild(tr);
-});
-}
+// Distributors receiving sampling are already searchable in the main
+// "Top distributors" table below (Category split shows Jars/ Boxes &
+// Sampling Jar directly) — a separate mini-table here just repeated that.
 }
 }
 
 // ============================================================
 // DISTRIBUTORS
 // ============================================================
-const distGeoState = { metric: 'growth' };
+// small reusable Chart.js plugin: draws each line dataset's own value as
+// text right at its endpoint. Used on multi-line trend charts (4+ series)
+// where a legend + hover tooltip alone leaves too much "which line is
+// which" guessing at a glance — a direct label removes the guesswork
+// without adding a second reading step.
+function endLabelPlugin(fmt){
+return {
+id: 'endLabel_'+Math.random().toString(36).slice(2),
+afterDatasetsDraw(chart){
+const {ctx} = chart;
+chart.data.datasets.forEach((ds, i)=>{
+const meta = chart.getDatasetMeta(i);
+if(!meta || meta.hidden) return;
+let pt=null, val=null;
+for(let k=ds.data.length-1;k>=0;k--){
+if(ds.data[k]!==null && ds.data[k]!==undefined){ pt=meta.data[k]; val=ds.data[k]; break; }
+}
+if(!pt) return;
+ctx.save();
+ctx.font = '600 10.5px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+ctx.fillStyle = ds.borderColor || ds.backgroundColor || '#888';
+ctx.textBaseline = 'middle';
+ctx.fillText(fmt(val, ds), pt.x + 6, pt.y);
+ctx.restore();
+});
+}
+};
+}
+const distGeoState = { metric: 'revenue' };
 const distGeoMetricSel = document.getElementById('distGeoMetric');
 if(distGeoMetricSel){
 distGeoMetricSel.addEventListener('change', ()=>{ distGeoState.metric = distGeoMetricSel.value; renderDistributors(); });
@@ -2459,80 +2596,71 @@ scales:{ x:{stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-mute
 y:{stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'),font:{size:11}, callback:(v)=>fmtINR(v)}} } }
 });
 
-// ---- growth by region & tier — CUSTOMIZABLE via a metric picker
-// (Growth % / Revenue / Active distributors), same picker driving both
-// charts so region and tier always read the same way. "Growth %" uses
-// CMGR across the selected period (the same method as "Category growth
-// vs. total business" above), which is why it never goes blank just
-// because there's no equal-length prior period to compare against (e.g.
-// the default "All time" view). ----
+// ---- growth by region & tier — TIME SERIES line charts, month on the
+// x-axis, one line per region / per tier: growth reads directly off each
+// line's slope, and period-over-period comparison is just "look left vs.
+// right" instead of a single point-in-time ranking bar that hid how each
+// region/tier actually got there. A metric picker chooses what the lines
+// plot (Revenue or Active distributors) — "Growth %" as its own metric is
+// gone because the line's shape already IS the growth story now. ----
 {
-const regionSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
-const tierSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
-const regionBuyers = new Map(), tierBuyers = new Map();
-D.regions.forEach((_,i)=>regionBuyers.set(i, new Set()));
-D.tiers.forEach((_,i)=>tierBuyers.set(i, new Set()));
+const regionRevSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
+const tierRevSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
+const monthLabelsRT = []; for(let m=filters.monthFrom;m<=filters.monthTo;m++) monthLabelsRT.push(monthLabel(D.months[m]));
+const nMonths = monthLabelsRT.length;
+
+function countSeriesFor(dimIdxFn, n){
+const sets = new Map();
+for(let i=0;i<n;i++) sets.set(i, new Array(nMonths).fill(0).map(()=>new Set()));
 for(const f of filtered){
-regionBuyers.get(D.citiesRegionIdx[f[F_CITY]]).add(f[F_BUYER]);
-tierBuyers.get(D.citiesTierIdx[f[F_CITY]]).add(f[F_BUYER]);
+const mi = f[F_MONTH]-filters.monthFrom; if(mi<0||mi>=nMonths) continue;
+sets.get(dimIdxFn(f))[mi].add(f[F_BUYER]);
 }
-function rowsFor(names, seriesMap, buyerMap){
-return names.map((name,i)=>{
-const arr = seriesMap.get(i) || [];
-return { name, rev: arr.reduce((a,b)=>a+b,0), growth: periodGrowthPct(arr), distCount: (buyerMap.get(i)||new Set()).size };
-});
+const out = new Map();
+sets.forEach((arr,k)=> out.set(k, arr.map(s=>s.size)));
+return out;
 }
-const regionRows = rowsFor(D.regions, regionSeries, regionBuyers);
-const tierRows = rowsFor(D.tiers, tierSeries, tierBuyers);
+const regionCountSeries = countSeriesFor(f=>D.citiesRegionIdx[f[F_CITY]], D.regions.length);
+const tierCountSeries = countSeriesFor(f=>D.citiesTierIdx[f[F_CITY]], D.tiers.length);
 
-const METRICS = {
-growth: { valueOf:r=>r.growth, fmt:v=>v===null?'not enough data':fmtPct(v,1), axisFmt:v=>fmtPct(v,1), sortDesc:true,
-color:(r)=> r.growth===null?cssVar('--text-muted'): (r.growth>=0?cssVar('--s1'):cssVar('--s8')),
-extra:r=>` (${fmtINR(r.rev)} revenue)` },
-revenue: { valueOf:r=>r.rev, fmt:v=>fmtINR(v), axisFmt:v=>fmtINR(v), sortDesc:true,
-color:()=>cssVar('--s1'), extra:r=>r.growth===null?'':` (${fmtPct(r.growth,1)} CMGR)` },
-count: { valueOf:r=>r.distCount, fmt:v=>fmtNum(v)+' distributors', axisFmt:v=>fmtNum(v), sortDesc:true,
-color:()=>cssVar('--s3'), extra:r=>` (${fmtINR(r.rev)} revenue)` },
-};
-const metric = METRICS[distGeoState.metric] || METRICS.growth;
-function sortedFor(rows){ return rows.slice().sort((a,b)=>{ const va=metric.valueOf(a), vb=metric.valueOf(b); if(va===null) return 1; if(vb===null) return -1; return (vb-va); }); }
-const regionSorted = sortedFor(regionRows), tierSorted = sortedFor(tierRows);
+const isCount = distGeoState.metric==='count';
+const fmtMetric = isCount ? (v)=>fmtNum(v) : (v)=>fmtINR(v);
+const metricLabel = isCount ? 'Active distributors' : 'Revenue';
 
-function metricBarChart(chartKey, canvasElId, gRows){
+function rowsFor(names, revMap, countMap){
+return names.map((name,i)=>({ name, arr: isCount ? (countMap.get(i)||new Array(nMonths).fill(0)) : (revMap.get(i)||new Array(nMonths).fill(0)) }))
+.filter(r=> r.arr.some(v=>Math.abs(v)>0));
+}
+const regionRows = rowsFor(D.regions, regionRevSeries, regionCountSeries).sort((a,b)=> b.arr.reduce((x,y)=>x+y,0)-a.arr.reduce((x,y)=>x+y,0));
+const tierRows = rowsFor(D.tiers, tierRevSeries, tierCountSeries).sort((a,b)=> b.arr.reduce((x,y)=>x+y,0)-a.arr.reduce((x,y)=>x+y,0));
+
+function lineChart(chartKey, canvasElId, rowsArr, colorFn){
 destroyChart(chartKey);
 const canvas = document.getElementById(canvasElId);
 if(!canvas) return;
+const base = baseLineOptions((ctx)=>fmtMetric(ctx.parsed.y));
 charts[chartKey] = new Chart(canvas, {
-type:'bar',
-data:{ labels: gRows.map(r=>r.name), datasets:[{
-data: gRows.map(r=>metric.valueOf(r)),
-backgroundColor: gRows.map(r=>metric.color(r)),
-borderRadius:4, maxBarThickness:26
-}]},
-options:{
-indexAxis:'y', responsive:true, maintainAspectRatio:false,
-plugins:{ legend:{display:false},
-tooltip:{ backgroundColor:cssVar('--card'), titleColor:cssVar('--text-primary'), bodyColor:cssVar('--text-primary'),
-borderColor:cssVar('--border'), borderWidth:1, padding:10,
-callbacks:{ label:(c)=> ` ${metric.fmt(c.parsed.x)}${metric.extra(gRows[c.dataIndex])}` } } },
-scales:{
-x:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>metric.axisFmt(v)} },
-y:{ grid:{display:false}, ticks:{color:cssVar('--text-secondary'), font:{size:12}} }
-}
-}
+type:'line',
+data:{ labels: monthLabelsRT, datasets: rowsArr.map(r=>({
+label:r.name, data:r.arr, borderColor: colorFn(r.name), backgroundColor: colorFn(r.name),
+borderWidth:2, pointRadius:2, tension:.25, fill:false
+})) },
+options:{ ...base, layout:{ padding:{ right:56 } } },
+plugins:[ endLabelPlugin(fmtMetric) ]
 });
 }
-metricBarChart('distRegion', 'distRegionChart', regionSorted);
-metricBarChart('distTier', 'distTierChart', tierSorted);
+lineChart('distRegion', 'distRegionChart', regionRows, (name)=>regionColor(name));
+lineChart('distTier', 'distTierChart', tierRows, (name)=>tierColor(name));
 
-const metricLabel = { growth:'CMGR', revenue:'revenue', count:'active distributor count' }[distGeoState.metric] || 'CMGR';
 setSummary('summary-distgeo', (()=>{
-const topR = regionSorted[0], topT = tierSorted[0];
-if(!topR && !topT) return null;
-let s='';
-if(topR) s += `By <b>${metricLabel}</b>, <b>${escapeHtml(topR.name)}</b> leads among regions (${metric.fmt(metric.valueOf(topR))}).`;
-if(topT) s += ` <b>${escapeHtml(topT.name)}</b> leads by city tier (${metric.fmt(metric.valueOf(topT))}).`;
-return s || null;
+if(regionRows.length===0 && tierRows.length===0) return null;
+const lastIdx = nMonths-1;
+const topRegionNow = regionRows.slice().sort((a,b)=>b.arr[lastIdx]-a.arr[lastIdx])[0];
+const topTierNow = tierRows.slice().sort((a,b)=>b.arr[lastIdx]-a.arr[lastIdx])[0];
+let s = `Showing <b>${metricLabel.toLowerCase()}</b> by month for each region &amp; tier — read growth directly off each line's slope.`;
+if(topRegionNow) s += ` <b>${escapeHtml(topRegionNow.name)}</b> leads among regions in ${monthLabelsRT[lastIdx]} (${fmtMetric(topRegionNow.arr[lastIdx])}).`;
+if(topTierNow) s += ` <b>${escapeHtml(topTierNow.name)}</b> leads by city tier (${fmtMetric(topTierNow.arr[lastIdx])}).`;
+return s;
 })());
 }
 
@@ -2581,10 +2709,40 @@ if(top) s += ` Top distributor: <b>${escapeHtml(top.name)}</b> (${fmtINR(top.rev
 return s;
 })());
 
+// ---- category split lives INLINE now (task: merge "top distributors" +
+// "category split by distributor" into one table) — expand any
+// distributor row to see its full category breakdown, same click-to-
+// expand pattern used elsewhere (Product Explorer, Category Deep Dive) ----
+const buyerCatRev = new Map(); // buyerIdx -> Map(catIdx -> rev)
+for(const f of filtered){
+const b=f[F_BUYER];
+if(!buyerCatRev.has(b)) buyerCatRev.set(b, new Map());
+const m = buyerCatRev.get(b);
+m.set(f[F_CAT], (m.get(f[F_CAT])||0)+f[F_VAL]);
+}
+function buildCatPanel(buyerIdx){
+const m = buyerCatRev.get(buyerIdx) || new Map();
+const total = [...m.values()].reduce((a,b)=>a+b,0) || 1;
+const catRows = [...m.entries()].filter(([,v])=>v!==0).sort((a,b)=>b[1]-a[1]);
+const bars = catRows.map(([ci,v])=>{
+const pct = Math.max(2, Math.abs(v)/Math.max(...catRows.map(r=>Math.abs(r[1])),1)*100);
+return `<div class="subpanel-bar">
+<span title="${escapeHtml(D.categories[ci])}"><span class="catdot" style="background:${catColor(D.categories[ci])}"></span>${escapeHtml(D.categories[ci])}</span>
+<span class="sb-track"><span class="sb-fill" style="width:${pct}%; background:${catColor(D.categories[ci])}"></span></span>
+<span class="num">${fmtINR(v)}</span>
+<span class="num" style="color:var(--text-muted); font-size:11px;">${(v/total*100).toFixed(1)}%</span>
+</div>`;
+}).join('') || '<div class="empty-state">No category-level sales in this period.</div>';
+return `<div class="subpanel-inner"><div class="subpanel-title">Full category split for this distributor</div>${bars}</div>`;
+}
+
 const distSearchEl = document.getElementById('distSearch');
 function renderRow(r){
-const tr=document.createElement('tr');
-tr.appendChild(td(r.name));
+const tr=document.createElement('tr'); tr.classList.add('row-click');
+const nameTd = document.createElement('td');
+const isOpen = distCatExpanded.has(r.idx);
+nameTd.innerHTML = `<span class="caret${isOpen?' open':''}">▶</span>${escapeHtml(r.name)}`;
+tr.appendChild(nameTd);
 tr.appendChild(td(r.state||'—'));
 tr.appendChild(td(r.tier||'—'));
 tr.appendChild(td(fmtINR(r.rev),'num'));
@@ -2597,42 +2755,47 @@ tr.appendChild(td(monthLabel(r.first)));
 const stTd=document.createElement('td');
 stTd.innerHTML = `<span class="pill ${r.status}">${r.status==='new'?'New':'Repeat'}</span>`;
 tr.appendChild(stTd);
+tr.addEventListener('click', ()=>{ if(distCatExpanded.has(r.idx)) distCatExpanded.delete(r.idx); else distCatExpanded.add(r.idx); drawDistTable(); });
 return tr;
 }
-makeSortable('distTable', buyerRows, new Array(11), renderRow, 'rev', -1);
-distSearchEl.oninput = ()=>{
-const q=distSearchEl.value.trim().toLowerCase();
-const rows = buyerRows.filter(r=>r.name.toLowerCase().includes(q));
+function panelRow(r){
+const tr=document.createElement('tr'); tr.className='subpanel';
+const tdEl=document.createElement('td'); tdEl.colSpan=11; tdEl.innerHTML=buildCatPanel(r.idx);
+tr.appendChild(tdEl);
+return tr;
+}
+function drawDistTable(){
+const q = distSearchEl.value.trim().toLowerCase();
+const shown = genericSort(buyerRows.filter(r=>r.name.toLowerCase().includes(q)), distTableSortState);
 const tbody=document.querySelector('#distTable tbody'); tbody.innerHTML='';
-if(rows.length===0){ const tr=document.createElement('tr'); const t0=td('No matching distributors.','empty-state'); t0.colSpan=11; tr.appendChild(t0); tbody.appendChild(tr); return; }
-rows.sort((a,b)=>b.rev-a.rev).forEach(r=>tbody.appendChild(renderRow(r)));
-};
+if(shown.length===0){ const tr=document.createElement('tr'); const t0=td('No matching distributors.','empty-state'); t0.colSpan=11; tr.appendChild(t0); tbody.appendChild(tr); return; }
+shown.forEach(r=>{
+tbody.appendChild(renderRow(r));
+if(distCatExpanded.has(r.idx)) tbody.appendChild(panelRow(r));
+});
+}
+distSearchEl.oninput = drawDistTable;
 distSearchEl.value='';
+wireHeaderSort('distTable', distTableSortState, drawDistTable);
+drawDistTable();
 
 renderParetoChart('paretoChart', buyerRows.map(r=>r.rev), 'summary-pareto');
 renderCohort(bFirst);
-renderDistCategorySplit(filtered, buyerRows);
+renderDistCategorySplit(buyerCatRev, buyerRows);
 renderRetentionWaterfall();
 }
 
 // ============================================================
-// CATEGORY SPLIT BY DISTRIBUTOR — what each distributor actually buys,
-// by category. Top 15 as a stacked bar (single axis, categories colored
-// the same fixed way as everywhere else); every distributor searchable
-// below, click a row to expand its full category breakdown (same
-// click-to-expand pattern as the SKU table's per-SKU geo panel).
+// CATEGORY SPLIT BY DISTRIBUTOR — top 15 as a stacked bar (single axis,
+// categories colored the same fixed way as everywhere else). The
+// distributor-by-distributor table this used to sit above (searchable,
+// click-to-expand) has been MERGED into the "Top distributors" table
+// above instead — same data, one table, expand any row there for its
+// full category split, rather than two tables telling the same story.
 // ============================================================
-const distCatExpanded = new Set();
-function renderDistCategorySplit(filtered, buyerRows){
+function renderDistCategorySplit(buyerCatRev, buyerRows){
 const chartCanvas = document.getElementById('distCatChart');
 if(!chartCanvas) return;
-const buyerCatRev = new Map(); // buyerIdx -> Map(catIdx -> rev)
-for(const f of filtered){
-const b=f[F_BUYER];
-if(!buyerCatRev.has(b)) buyerCatRev.set(b, new Map());
-const m = buyerCatRev.get(b);
-m.set(f[F_CAT], (m.get(f[F_CAT])||0)+f[F_VAL]);
-}
 const topDist = buyerRows.slice().sort((a,b)=>b.rev-a.rev).slice(0,15);
 const activeCats = new Set();
 topDist.forEach(r=>{ (buyerCatRev.get(r.idx)||new Map()).forEach((v,ci)=>{ if(v!==0) activeCats.add(ci); }); });
@@ -2668,68 +2831,10 @@ const top = [...m.entries()].sort((a,b)=>b[1]-a[1])[0];
 topCatCount.set(top[0], (topCatCount.get(top[0])||0)+1);
 });
 const commonest = [...topCatCount.entries()].sort((a,b)=>b[1]-a[1])[0];
-let s = `Showing the top ${topDist.length} distributors by revenue, split by category.`;
+let s = `Showing the top ${topDist.length} distributors by revenue, split by category — expand any distributor row in the table above for its full breakdown.`;
 if(commonest) s += ` <b>${escapeHtml(D.categories[commonest[0]])}</b> is the #1 category for the most distributors (${commonest[1]} of ${buyerRows.length}).`;
 return s;
 })());
-
-function buildCatPanel(buyerIdx){
-const m = buyerCatRev.get(buyerIdx) || new Map();
-const total = [...m.values()].reduce((a,b)=>a+b,0) || 1;
-const rows = [...m.entries()].filter(([,v])=>v!==0).sort((a,b)=>b[1]-a[1]);
-const bars = rows.map(([ci,v])=>{
-const pct = Math.max(2, Math.abs(v)/Math.max(...rows.map(r=>Math.abs(r[1])),1)*100);
-return `<div class="subpanel-bar">
-<span><span class="catdot" style="background:${catColor(D.categories[ci])}"></span>${escapeHtml(D.categories[ci])}</span>
-<span class="sb-track"><span class="sb-fill" style="width:${pct}%; background:${catColor(D.categories[ci])}"></span></span>
-<span class="num">${fmtINR(v)}</span>
-<span class="num" style="color:var(--text-muted); font-size:11px;">${(v/total*100).toFixed(1)}%</span>
-</div>`;
-}).join('') || '<div class="empty-state">No category-level sales in this period.</div>';
-return `<div class="subpanel-inner"><div class="subpanel-title">Full category split for this distributor</div>${bars}</div>`;
-}
-
-const searchEl = document.getElementById('distCatSearch');
-function renderMainRow(r){
-const m = buyerCatRev.get(r.idx) || new Map();
-const ranked = [...m.entries()].filter(([,v])=>v!==0).sort((a,b)=>b[1]-a[1]);
-const top = ranked[0];
-const tr = document.createElement('tr'); tr.classList.add('row-click');
-const nameTd = document.createElement('td');
-const isOpen = distCatExpanded.has(r.idx);
-nameTd.innerHTML = `<span class="caret${isOpen?' open':''}">▶</span>${escapeHtml(r.name)}`;
-tr.appendChild(nameTd);
-tr.appendChild(td(fmtINR(r.rev),'num'));
-const topTd = document.createElement('td');
-topTd.innerHTML = top ? `<span class="catdot" style="background:${catColor(D.categories[top[0]])}"></span>${escapeHtml(D.categories[top[0]])}` : '—';
-tr.appendChild(topTd);
-tr.appendChild(td(top ? (top[1]/r.rev*100).toFixed(1)+'%' : '—','num'));
-tr.appendChild(td(fmtNum(ranked.length),'num'));
-tr.addEventListener('click', ()=>{
-if(distCatExpanded.has(r.idx)) distCatExpanded.delete(r.idx); else distCatExpanded.add(r.idx);
-redraw();
-});
-return tr;
-}
-function renderPanelRow(r){
-const tr=document.createElement('tr'); tr.className='subpanel';
-const tdEl=document.createElement('td'); tdEl.colSpan=5; tdEl.innerHTML=buildCatPanel(r.idx);
-tr.appendChild(tdEl);
-return tr;
-}
-function redraw(){
-const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
-const shown = buyerRows.filter(r=>r.name.toLowerCase().includes(q)).sort((a,b)=>b.rev-a.rev);
-const tbody = document.querySelector('#distCatTable tbody'); if(!tbody) return;
-tbody.innerHTML='';
-if(shown.length===0){ const tr=document.createElement('tr'); const t0=td('No matching distributors.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr); return; }
-shown.forEach(r=>{
-tbody.appendChild(renderMainRow(r));
-if(distCatExpanded.has(r.idx)) tbody.appendChild(renderPanelRow(r));
-});
-}
-if(searchEl){ searchEl.oninput = redraw; }
-redraw();
 }
 
 // ============================================================
@@ -2801,6 +2906,33 @@ const size = tierSize.get(t.key) || 0;
 aovSeries[t.key] = rec.vouchers.map((vs,i)=> vs.size>0 ? rec.rev[i]/vs.size : null);
 freqSeries[t.key] = rec.vouchers.map(vs=> size>0 ? vs.size/size : null);
 });
+const lastI = months.length-1;
+const firstValidIdx = (arr)=> arr.findIndex(v=>v!==null);
+
+// ---- compact scorecard — one tile per tier: latest AOV, latest order
+// frequency, and a plain trend arrow vs. the start of the selected
+// period, instead of asking the reader to parse two 4-line charts +
+// a table to find the "so what" ----
+const scorecardEl = document.getElementById('distTierScorecard');
+if(scorecardEl){
+scorecardEl.innerHTML = DIST_TIERS.map((t,i)=>{
+const aovNow = aovSeries[t.key][lastI], freqNow = freqSeries[t.key][lastI];
+const fi = firstValidIdx(aovSeries[t.key]);
+const aovStart = fi>=0 ? aovSeries[t.key][fi] : null;
+const freqStart = fi>=0 ? freqSeries[t.key][fi] : null;
+const arrowFor = (now,start)=>{
+if(now===null || start===null || start===0) return '';
+const d=(now-start)/Math.abs(start)*100;
+if(Math.abs(d)<3) return '<span class="delta flat">— flat</span>';
+return d>0 ? `<span class="delta up">▲ ${d.toFixed(0)}%</span>` : `<span class="delta down">▼ ${Math.abs(d).toFixed(0)}%</span>`;
+};
+return `<div class="mini-tile">
+<div class="label">${escapeHtml(t.label)} <span style="color:var(--text-muted);">(${fmtNum(tierSize.get(t.key)||0)})</span></div>
+<div class="value">${aovNow===null?'—':fmtINR(aovNow)} <span style="font-size:11px; font-weight:500; color:var(--text-muted);">AOV</span></div>
+<div class="delta flat">${freqNow===null?'no orders':freqNow.toFixed(2)+' orders/distributor'} ${arrowFor(freqNow,freqStart)}</div>
+</div>`;
+}).join('');
+}
 
 destroyChart('distTierAov');
 charts.distTierAov = new Chart(canvasAov, {
@@ -2810,8 +2942,10 @@ label: t.label, data: aovSeries[t.key], borderColor: cssVar(TIER_COLORS[i]), bac
 borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true
 })) },
 options: { ...baseLineOptions((ctx)=> ctx.parsed.y===null ? 'no orders' : fmtINR(ctx.parsed.y)),
+layout:{ padding:{ right:52 } },
 scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } } }
+y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } } },
+plugins:[ endLabelPlugin((v)=>v===null?'':fmtINR(v)) ]
 });
 destroyChart('distTierFreq');
 charts.distTierFreq = new Chart(canvasFreq, {
@@ -2821,25 +2955,26 @@ label: t.label, data: freqSeries[t.key], borderColor: cssVar(TIER_COLORS[i]), ba
 borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true
 })) },
 options: { ...baseLineOptions((ctx)=> ctx.parsed.y===null ? '—' : ctx.parsed.y.toFixed(2)+' orders/distributor'),
+layout:{ padding:{ right:52 } },
 scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>v.toFixed(1)} } } }
+y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>v.toFixed(1)} } } },
+plugins:[ endLabelPlugin((v)=>v===null?'':v.toFixed(2)) ]
 });
 
+// ---- ONE clear thesis sentence, not a run-on list of per-tier stats
+// (those now live in the scorecard above and the table below) ----
 setSummary('summary-waterfall', (()=>{
 if(ranked.length===0) return null;
-const lastI = months.length-1;
-const parts = DIST_TIERS.map(t=>{
-const aov = aovSeries[t.key][lastI], freq = freqSeries[t.key][lastI];
-return `<b>${escapeHtml(t.label)}</b> (${fmtNum(tierSize.get(t.key)||0)} distributors): ${aov===null?'no orders':fmtINR(aov)+' AOV'}, ${freq===null?'—':freq.toFixed(2)+' orders/distributor'} in ${monthLabels[lastI]}`;
-});
 const top10Freq = freqSeries['top10'][lastI], restFreq = freqSeries['rest'][lastI];
-let utilNote = '';
-if(top10Freq!==null && restFreq!==null){
-utilNote = top10Freq >= restFreq
-? ` Top distributors are also ordering more often (${top10Freq.toFixed(2)} vs ${restFreq.toFixed(2)} orders/distributor for the Rest) — inventory looks fairly matched to who's actually selling through fastest.`
-: ` The Rest tier is ordering MORE often per distributor than the Top 10 (${restFreq.toFixed(2)} vs ${top10Freq.toFixed(2)}) — worth checking whether top distributors are sitting on unsold stock rather than genuinely slowing down.`;
+const top10Aov = aovSeries['top10'][lastI], restAov = aovSeries['rest'][lastI];
+if(top10Freq===null || restFreq===null) return `Distributors ranked by their own revenue in the selected period, held fixed across the trend — see the scorecard above for each tier's latest AOV &amp; order frequency.`;
+let thesis;
+if(top10Freq >= restFreq){
+thesis = `Top distributors order both more often (${top10Freq.toFixed(2)} vs ${restFreq.toFixed(2)} orders/distributor) and in bigger baskets (${top10Aov===null?'—':fmtINR(top10Aov)} vs ${restAov===null?'—':fmtINR(restAov)} AOV) than the Rest — inventory looks well matched to who's actually selling through fastest.`;
+} else {
+thesis = `The Rest tier is ordering MORE often per distributor than the Top 10 (${restFreq.toFixed(2)} vs ${top10Freq.toFixed(2)}) — worth checking whether top distributors are sitting on unsold stock rather than genuinely slowing down.`;
 }
-return `Distributors ranked by their own revenue in the selected period, held fixed across the trend. ${parts.join(' · ')}.${utilNote}`;
+return thesis;
 })());
 
 const tbody = document.querySelector('#waterfallTable tbody');
@@ -3044,11 +3179,52 @@ const dimsAll = D.facts.filter(f=>matchesDims(f,filters) && !isKitSku(f[F_SKU]))
 const lastM = D.months.length-1;
 const fullSeries = buildSeriesRange(dimsAll, F_SKU, 0, lastM);
 const allSkuFirst = new Map([...skuFirstMonth(filters).entries()].filter(([sk])=>!isKitSku(sk)));
+const allSkuLastAll = skuLastMonth(filters);
 
 const skuCat = new Map();
 for(const f of dimsAll) if(!skuCat.has(f[F_SKU])) skuCat.set(f[F_SKU], f[F_CAT]);
 
-const totals = [...fullSeries.entries()].map(([k,arr])=>({k, total:arr.reduce((a,b)=>a+b,0)}));
+// ---- collapse always-bundled "sampler" SKUs into ONE launch entity per
+// cluster (see bundleClusters, computed once above from full-history
+// voucher co-occurrence), instead of drawing N separate one-off launch
+// blips for products that were never independent launches — they're
+// components of informal multi-item sampler assortments. ----
+const isBundleEntity = (ek)=> !ek.startsWith('sku:');
+const entityOf = (sk)=> bundleClusterIdOf(sk) ? bundleClusterIdOf(sk) : ('sku:'+sk);
+const entityLabel = (ek)=>{
+if(!isBundleEntity(ek)) return D.skuNames[parseInt(ek.slice(4),10)];
+const cl = bundleClusters.clusters.find(c=>c.id===ek);
+return cl ? cl.label : 'Sampler assortment';
+};
+const entityMembers = new Map();
+const skusPresent = new Set([...allSkuFirst.keys(), ...fullSeries.keys()]);
+skusPresent.forEach(sk=>{
+const ek = entityOf(sk);
+if(!entityMembers.has(ek)) entityMembers.set(ek, []);
+entityMembers.get(ek).push(sk);
+});
+const entityFirst = new Map(), entityLastMap = new Map(), entitySeries = new Map(), entityCat = new Map(), entityRev = new Map(), entityCode = new Map();
+entityMembers.forEach((members, ek)=>{
+let fm=Infinity, lm=-1;
+const arr = new Array(lastM+1).fill(0);
+const catRev = new Map();
+members.forEach(sk=>{
+if(allSkuFirst.has(sk)) fm = Math.min(fm, allSkuFirst.get(sk));
+if(allSkuLastAll.has(sk)) lm = Math.max(lm, allSkuLastAll.get(sk));
+const s = fullSeries.get(sk); const tot = s ? s.reduce((a,b)=>a+b,0) : 0;
+if(s) s.forEach((v,i)=>arr[i]+=v);
+const ci = skuCat.get(sk); if(ci!==undefined) catRev.set(ci, (catRev.get(ci)||0)+tot);
+});
+entityFirst.set(ek, fm===Infinity?-1:fm);
+entityLastMap.set(ek, lm);
+entitySeries.set(ek, arr);
+entityRev.set(ek, arr.reduce((a,b)=>a+b,0));
+entityCode.set(ek, isBundleEntity(ek) ? `${members.length} items` : D.skus[members[0]]);
+const topCat = [...catRev.entries()].sort((a,b)=>b[1]-a[1])[0];
+entityCat.set(ek, topCat ? topCat[0] : undefined);
+});
+
+const totals = [...entitySeries.keys()].map(k=>({k, total: entityRev.get(k)}));
 totals.sort((a,b)=>b.total-a.total);
 const grandTotal = totals.reduce((a,t)=>a+t.total,0) || 1;
 const topSkus = totals.slice(0, TOP_LAUNCH_SERIES);
@@ -3090,35 +3266,36 @@ return { label: D.categories[ci], data:arr, backgroundColor: catColor(D.categori
 });
 if(otherBox) otherBox.style.display='none';
 } else {
-// SKU-level view — top 10 all-time earners named individually, every
-// other SKU folded into one "Other" band purely for chart legibility.
-// This is NOT a data-tagging bucket: no SKU is tagged "Other" in the
-// source sheet. The box below the chart lists exactly what's in it.
+// Product-level view — top 10 all-time earners named individually
+// (a bundle cluster counts as ONE of these), every other product folded
+// into one "Other" band purely for chart legibility. This is NOT a
+// data-tagging bucket: no SKU is tagged "Other" in the source sheet.
+// The box below the chart lists exactly what's in it.
 const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--seq-600','--seq-300'];
 const topSkusByLaunch = topSkus.slice().sort((a,b)=>{
-const fa = allSkuFirst.has(a.k) ? allSkuFirst.get(a.k) : Infinity;
-const fb = allSkuFirst.has(b.k) ? allSkuFirst.get(b.k) : Infinity;
+const fa = entityFirst.get(a.k)>=0 ? entityFirst.get(a.k) : Infinity;
+const fb = entityFirst.get(b.k)>=0 ? entityFirst.get(b.k) : Infinity;
 return fa-fb;
 });
 datasets = topSkusByLaunch.map((t,i)=>{
-const arr = fullSeries.get(t.k) || new Array(D.months.length).fill(0);
+const arr = entitySeries.get(t.k) || new Array(D.months.length).fill(0);
 const color = cssVar(palette[i]||'--seq-100');
-return { label: D.skuNames[t.k], data:arr, backgroundColor: color, borderRadius:1, maxBarThickness:26 };
+return { label: entityLabel(t.k), data:arr, backgroundColor: color, borderRadius:1, maxBarThickness:26 };
 });
 if(otherSkus.length){
 const arr = new Array(D.months.length).fill(0);
-otherSkus.forEach(t=>{ const s=fullSeries.get(t.k)||[]; s.forEach((v,i)=>arr[i]+=v); });
-datasets.unshift({ label:`Other SKUs — ${otherSkus.length} lower-volume SKUs combined`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:1, maxBarThickness:26 });
+otherSkus.forEach(t=>{ const s=entitySeries.get(t.k)||[]; s.forEach((v,i)=>arr[i]+=v); });
+datasets.unshift({ label:`Other products — ${otherSkus.length} lower-volume entries combined`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:1, maxBarThickness:26 });
 }
 if(otherBox){
 if(otherSkus.length===0){ otherBox.style.display='none'; }
 else {
 otherBox.style.display='';
 const rowsHtml = otherSkus.slice().sort((a,b)=>b.total-a.total).map(t=>
-`<tr><td>${escapeHtml(D.skuNames[t.k])}</td><td style="color:var(--text-muted); font-size:11px;">${escapeHtml(D.skus[t.k])}</td><td class="num">${fmtINR(t.total)}</td><td class="num">${(t.total/grandTotal*100).toFixed(1)}%</td></tr>`
+`<tr><td>${escapeHtml(entityLabel(t.k))}</td><td style="color:var(--text-muted); font-size:11px;">${escapeHtml(entityCode.get(t.k))}</td><td class="num">${fmtINR(t.total)}</td><td class="num">${(t.total/grandTotal*100).toFixed(1)}%</td></tr>`
 ).join('');
-otherBox.innerHTML = `<div class="sub" style="margin:10px 0 6px;">Exactly what's inside "Other SKUs" — every one of these ${otherSkus.length} SKUs is a real, individually-tagged product (none are tagged "Other" in the source data); they're only combined here so the chart above stays readable. Together they're <b>${(otherTotal/grandTotal*100).toFixed(1)}%</b> of all-time revenue (${fmtINR(otherTotal)}) — expected for a catalog this wide, not a data error.</div>`+
-`<div class="tablewrap" style="max-height:260px;"><table><thead><tr><th>SKU</th><th>Code</th><th class="num">All-time revenue</th><th class="num">% of total</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+otherBox.innerHTML = `<div class="sub" style="margin:10px 0 6px;">Exactly what's inside "Other products" — every one of these ${otherSkus.length} entries is a real, individually-tagged product or sampler bundle (none are tagged "Other" in the source data); they're only combined here so the chart above stays readable. Together they're <b>${(otherTotal/grandTotal*100).toFixed(1)}%</b> of all-time revenue (${fmtINR(otherTotal)}) — expected for a catalog this wide, not a data error.</div>`+
+`<div class="tablewrap" style="max-height:260px;"><table><thead><tr><th>Product</th><th>Code</th><th class="num">All-time revenue</th><th class="num">% of total</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
 }
 }
 }
@@ -3135,23 +3312,43 @@ y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, tic
 }
 });
 
-// ---- launch cadence mini bar, split by category (whole catalog, every SKU) ----
-const cadenceByCat = new Map();
-D.categories.forEach((c,ci)=> cadenceByCat.set(ci, new Array(D.months.length).fill(0)));
-allSkuFirst.forEach((fm, sk)=>{ const ci = skuCat.get(sk); if(ci===undefined || !cadenceByCat.has(ci)) return; cadenceByCat.get(ci)[fm]++; });
+// ---- launch cadence — redesigned as a clean two-series monthly count.
+// The old view stacked 15 categories, most months showing 0-1 launches
+// per category — unreadable. This answers the actual question: how many
+// GENUINELY NEW standalone products launched each month, vs. how many
+// "launches" were really just a new sampler/bundle assortment going out
+// (see the bundle-cluster note above). Category composition, for anyone
+// who wants it, is in the tooltip instead of as 15 legend colors. ----
+const cadenceStandalone = new Array(D.months.length).fill(0);
+const cadenceBundle = new Array(D.months.length).fill(0);
+const cadenceCatsByMonth = D.months.map(()=>new Map());
+entityFirst.forEach((fm, ek)=>{
+if(fm<0) return;
+if(isBundleEntity(ek)) cadenceBundle[fm]++; else cadenceStandalone[fm]++;
+const ci = entityCat.get(ek);
+if(ci!==undefined){ const m = cadenceCatsByMonth[fm]; m.set(D.categories[ci], (m.get(D.categories[ci])||0)+1); }
+});
 destroyChart('launchCadence');
 charts.launchCadence = new Chart(document.getElementById('launchCadenceChart'), {
 type:'bar',
-data:{ labels: monthLabels, datasets: D.categories.map((c,ci)=>({
-label:c, data: cadenceByCat.get(ci), backgroundColor: catColor(c), borderRadius:2, maxBarThickness:20, stack:'s'
-})) },
+data:{ labels: monthLabels, datasets:[
+{ label:'New standalone products', data:cadenceStandalone, backgroundColor:cssVar('--s1'), borderRadius:3, maxBarThickness:22, stack:'s' },
+{ label:'New sampler/bundle assortments', data:cadenceBundle, backgroundColor:cssVar('--s8'), borderRadius:3, maxBarThickness:22, stack:'s' },
+]},
 options:{
 responsive:true, maintainAspectRatio:false,
-plugins:{ legend:{ position:'bottom', labels:{ color:cssVar('--text-secondary'), boxWidth:10, boxHeight:2, font:{size:10} } },
+plugins:{ legend:{ position:'bottom', labels:{ color:cssVar('--text-secondary'), boxWidth:10, boxHeight:2, font:{size:10.5} } },
 tooltip:{ backgroundColor:cssVar('--card'), titleColor:cssVar('--text-primary'), bodyColor:cssVar('--text-primary'),
-borderColor:cssVar('--border'), borderWidth:1, padding:8, callbacks:{ label:(c)=> ` ${c.dataset.label}: ${c.parsed.y} new SKU${c.parsed.y===1?'':'s'}` } } },
-scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10}} },
-y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10}, stepSize:1} } }
+borderColor:cssVar('--border'), borderWidth:1, padding:8,
+callbacks:{ label:(c)=> ` ${c.dataset.label}: ${c.parsed.y}`,
+afterBody:(items)=>{
+if(!items.length) return '';
+const cats = cadenceCatsByMonth[items[0].dataIndex];
+if(!cats || cats.size===0) return '';
+return 'By category: '+[...cats.entries()].map(([c,n])=>`${c} (${n})`).join(', ');
+} } } },
+scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10.5}} },
+y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10.5}, stepSize:1} } }
 }
 });
 
@@ -3227,34 +3424,42 @@ tbody.appendChild(tr);
 
 // ---- summary ----
 setSummary('summary-launch', (()=>{
-const mostRecent = [...allSkuFirst.entries()].sort((a,b)=>b[1]-a[1])[0];
+const bundleCount = [...entityFirst.keys()].filter(isBundleEntity).length;
+const standaloneCount = entityFirst.size - bundleCount;
+const mostRecent = [...entityFirst.entries()].filter(([,fm])=>fm>=0).sort((a,b)=>b[1]-a[1])[0];
 const topShare = topSkus.length ? topSkus.reduce((a,t)=>a+t.total,0)/grandTotal*100 : 0;
-let s = `<b>${allSkuFirst.size}</b> SKUs have launched since ${monthLabel(D.months[0])}, contributing <b>${fmtINR(grandTotal)}</b> all-time.`;
+let s = `<b>${standaloneCount}</b> standalone products have launched since ${monthLabel(D.months[0])}`+
+(bundleCount ? `, plus <b>${bundleCount}</b> sampler/bundle assortment${bundleCount===1?'':'s'} (${bundleClusters.clusters.reduce((a,c)=>a+c.members.length,0)} niche products that were never sold on their own — see the note above)` : '')+
+`, contributing <b>${fmtINR(grandTotal)}</b> all-time.`;
 if(launchGroupState.mode==='category'){
 s += ` Chart is grouped by category (all ${new Set([...skuCat.values()]).size} of them) — every rupee is accounted for above, no "Other" bucket.`;
 } else {
-s += ` The top ${TOP_LAUNCH_SERIES} SKUs make up <b>${topShare.toFixed(1)}%</b> of that total`+
-(otherSkus.length ? `; the remaining <b>${otherSkus.length}</b> SKUs are genuinely spread thin (${(100-topShare).toFixed(1)}% of revenue, ${fmtINR(otherTotal)}) — a catalog this wide naturally has no single SKU dominating. None of them are tagged "Other" in the source data; see the breakdown box below the chart for the exact list.` : '.');
+s += ` The top ${TOP_LAUNCH_SERIES} entries make up <b>${topShare.toFixed(1)}%</b> of that total`+
+(otherSkus.length ? `; the remaining <b>${otherSkus.length}</b> are genuinely spread thin (${(100-topShare).toFixed(1)}% of revenue, ${fmtINR(otherTotal)}) — a catalog this wide naturally has no single product dominating. See the breakdown box below the chart for the exact list.` : '.');
 }
-if(mostRecent) s += ` Most recent launch: <b>${escapeHtml(D.skuNames[mostRecent[0]])}</b> in ${monthLabel(D.months[mostRecent[1]])}.`;
+if(mostRecent) s += ` Most recent launch: <b>${escapeHtml(entityLabel(mostRecent[0]))}</b> in ${monthLabel(D.months[mostRecent[1]])}.`;
 return s;
 })());
 
-// ---- discontinuation: last active month per SKU, full history, same filter scope as launch ----
-const allSkuLast = new Map([...skuLastMonth(filters).entries()].filter(([sk])=>!isKitSku(sk)));
+// ---- discontinuation: last active month per entity, full history, same filter scope as launch ----
 const STATUS_LABEL = {Active:'Active', Slowing:'Slowing', Discontinued:'Discontinued', Unknown:'—'};
+const launchBundleExpanded = new Set();
 
-// ---- table: every sku, launch month + cumulative contribution + growth ----
+// ---- table: every product (bundle clusters collapsed to one expandable
+// row), launch month + cumulative contribution + growth ----
 // sorted by % contribution to all-time business by default, descending
 const rows = totals.map(t=>{
-const arr = fullSeries.get(t.k) || [];
+const arr = entitySeries.get(t.k) || [];
 const {cmgr, cagr} = cmgrCagr(arr);
-const lastIdx = allSkuLast.has(t.k) ? allSkuLast.get(t.k) : -1;
+const lastIdx = entityLastMap.has(t.k) ? entityLastMap.get(t.k) : -1;
 const status = skuStatus(lastIdx);
+const ci = entityCat.get(t.k);
+const isBundle = isBundleEntity(t.k);
 return {
-idx:t.k, product:D.skuNames[t.k], sku:D.skus[t.k], category: skuCat.has(t.k)?D.categories[skuCat.get(t.k)]:'—',
-launch: allSkuFirst.has(t.k)? D.months[allSkuFirst.get(t.k)] : '—',
-launchIdx: allSkuFirst.has(t.k)? allSkuFirst.get(t.k) : -1,
+idx:t.k, isBundle, members: isBundle ? entityMembers.get(t.k) : null,
+product: entityLabel(t.k), sku: entityCode.get(t.k), category: ci!==undefined?D.categories[ci]:'—',
+launch: entityFirst.get(t.k)>=0? D.months[entityFirst.get(t.k)] : '—',
+launchIdx: entityFirst.get(t.k)>=0? entityFirst.get(t.k) : -1,
 lastActive: lastIdx>=0 ? D.months[lastIdx] : '—',
 lastActiveIdx: lastIdx,
 status, statusLabel: STATUS_LABEL[status],
@@ -3286,7 +3491,7 @@ const tr=document.createElement('tr'); const t0=td('No discontinued or slowing p
 } else {
 flagged.forEach(r=>{
 const tr=document.createElement('tr');
-tr.appendChild(td(r.product));
+const nameTd=document.createElement('td'); nameTd.textContent = r.product + (r.isBundle?` (${r.members.length} items)`:''); tr.appendChild(nameTd);
 const catTd=document.createElement('td'); catTd.innerHTML=`<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`; tr.appendChild(catTd);
 const lastTd=document.createElement('td');
 const monthsSince = r.lastActiveIdx>=0 ? (D.months.length-1-r.lastActiveIdx) : null;
@@ -3301,8 +3506,10 @@ dBody.appendChild(tr);
 const searchEl = document.getElementById('launchSearch');
 function renderRow(r){
 const tr=document.createElement('tr');
+if(r.isBundle) tr.classList.add('row-click');
 const nameTd=document.createElement('td');
-nameTd.innerHTML = `${escapeHtml(r.product)}<br><span style="color:var(--text-muted); font-size:11px;">${escapeHtml(r.sku)}</span>`;
+const caret = r.isBundle ? `<span class="caret${launchBundleExpanded.has(r.idx)?' open':''}">▶</span>` : '';
+nameTd.innerHTML = `${caret}${escapeHtml(r.product)}<br><span style="color:var(--text-muted); font-size:11px; ${r.isBundle?'margin-left:16px;':''}">${escapeHtml(r.sku)}</span>`;
 tr.appendChild(nameTd);
 const catTd=document.createElement('td'); catTd.innerHTML=`<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`; tr.appendChild(catTd);
 tr.appendChild(td(r.launch));
@@ -3314,6 +3521,24 @@ const qoqTd=document.createElement('td'); qoqTd.className='num'; qoqTd.innerHTML
 const sixMTd=document.createElement('td'); sixMTd.className='num'; sixMTd.innerHTML=growthBadge(r.sixM); tr.appendChild(sixMTd);
 const cmgrTd=document.createElement('td'); cmgrTd.className='num'; cmgrTd.innerHTML=growthBadge(r.cmgr); tr.appendChild(cmgrTd);
 const cagrTd=document.createElement('td'); cagrTd.className='num'; cagrTd.innerHTML=growthBadge(r.cagr); tr.appendChild(cagrTd);
+if(r.isBundle) tr.addEventListener('click', ()=>{ if(launchBundleExpanded.has(r.idx)) launchBundleExpanded.delete(r.idx); else launchBundleExpanded.add(r.idx); redraw(); });
+return tr;
+}
+function bundlePanelRow(r){
+const memberRows = r.members.map(sk=>{
+const arr = fullSeries.get(sk)||[];
+return { sk, rev: arr.reduce((a,b)=>a+b,0) };
+}).sort((a,b)=>b.rev-a.rev);
+const maxV = Math.max(...memberRows.map(m=>m.rev),1);
+const bars = memberRows.map(m=>`<div class="subpanel-bar">
+<span title="${escapeHtml(D.skuNames[m.sk])}">${escapeHtml(D.skuNames[m.sk])}</span>
+<span class="sb-track"><span class="sb-fill" style="width:${Math.max(2,m.rev/maxV*100)}%; background:${cssVar('--s8')}"></span></span>
+<span class="num">${fmtINR(m.rev)}</span><span></span>
+</div>`).join('');
+const tr=document.createElement('tr'); tr.className='subpanel';
+const tdEl=document.createElement('td'); tdEl.colSpan=11;
+tdEl.innerHTML = `<div class="subpanel-inner"><div class="subpanel-title">What's inside this sampler assortment (all-time revenue)</div>${bars}</div>`;
+tr.appendChild(tdEl);
 return tr;
 }
 function sortRows(list){
@@ -3330,8 +3555,11 @@ function redraw(){
 const q = searchEl.value.trim().toLowerCase();
 const shown = sortRows(rows.filter(r=> r.product.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q)));
 const tbody = document.querySelector('#launchTable tbody'); tbody.innerHTML='';
-if(shown.length===0){ const tr=document.createElement('tr'); const t0=td('No matching SKUs.','empty-state'); t0.colSpan=11; tr.appendChild(t0); tbody.appendChild(tr); return; }
-shown.forEach(r=>tbody.appendChild(renderRow(r)));
+if(shown.length===0){ const tr=document.createElement('tr'); const t0=td('No matching products.','empty-state'); t0.colSpan=11; tr.appendChild(t0); tbody.appendChild(tr); return; }
+shown.forEach(r=>{
+tbody.appendChild(renderRow(r));
+if(r.isBundle && launchBundleExpanded.has(r.idx)) tbody.appendChild(bundlePanelRow(r));
+});
 }
 searchEl.oninput = redraw;
 searchEl.value='';
@@ -3376,17 +3604,24 @@ setSummary('summary-overall', s);
 // (own-scale trend/bar + ranked table with % of total, growth, trend) —
 // so there's a single method to learn, applied to any dimension.
 // ============================================================
-const EXPLORE_DIM_LABEL = { cat:'category', region:'zone', tier:'city tier', quarter:'quarter' };
-const EXPLORE_DIM_LABEL_PLURAL = { cat:'categories', region:'zones', tier:'city tiers', quarter:'quarters' };
+const EXPLORE_DIM_LABEL = { cat:'category', superCat:'super category', shortName:'product', region:'zone', tier:'city tier', state:'state', distributor:'distributor', quarter:'quarter' };
+const EXPLORE_DIM_LABEL_PLURAL = { cat:'categories', superCat:'super categories', shortName:'products', region:'zones', tier:'city tiers', state:'states', distributor:'distributors', quarter:'quarters' };
+// category -> super category, derived once from the per-SKU arrays (there's
+// no direct per-category column) — used to drill a super-category bar into
+// exactly the categories underneath it
+const catToSuperCat = (()=>{ const m=new Map(); for(let i=0;i<D.skuCategory.length;i++){ if(!m.has(D.skuCategory[i])) m.set(D.skuCategory[i], D.skuSuperCategory[i]); } return m; })();
 // color-by-entity for whichever dimension Explore is currently grouped by —
-// categories/regions/tiers all already have a fixed, stable color assigned
-// once at startup (see regionColorCache/tierColorCache above), so the same
-// entity keeps the same color here as everywhere else in the dashboard
-function dimEntityColor(dimKey, name){
+// categories/regions/tiers/super-categories all already have a fixed,
+// stable color assigned once at startup, so the same entity keeps the same
+// color here as everywhere else in the dashboard. High-cardinality dims
+// (product, state, distributor) have no small fixed palette to draw from,
+// so they fall back to a rank-based color within THIS chart only.
+function dimEntityColor(dimKey, name, idx){
 if(dimKey==='cat') return catColor(name);
+if(dimKey==='superCat') return superCatColor(name);
 if(dimKey==='region') return regionColor(name);
 if(dimKey==='tier') return tierColor(name);
-return cssVar('--s1');
+return cssVar(CAT_COLOR_SEQ[(idx||0) % CAT_COLOR_SEQ.length]);
 }
 
 function computeExploreRows(dimKey){
@@ -3419,12 +3654,24 @@ let groups, seriesMap;
 if(dimKey==='cat'){
 groups = D.categories.map((c,i)=>({key:i,name:c}));
 seriesMap = buildMonthlySeries(filtered, F_CAT);
+} else if(dimKey==='superCat'){
+groups = D.superCategories.map((c,i)=>({key:i,name:c}));
+seriesMap = buildDerivedMonthlySeries(filtered, f=>D.skuSuperCategory[f[F_SKU]]);
 } else if(dimKey==='region'){
 groups = D.regions.map((r,i)=>({key:i,name:r}));
 seriesMap = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
-} else {
+} else if(dimKey==='tier'){
 groups = D.tiers.map((t,i)=>({key:i,name:t}));
 seriesMap = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
+} else if(dimKey==='state'){
+groups = D.states.map((s,i)=>({key:i,name:s}));
+seriesMap = buildMonthlySeries(filtered, F_STATE);
+} else if(dimKey==='distributor'){
+groups = D.buyers.map((b,i)=>({key:i,name:b}));
+seriesMap = buildMonthlySeries(filtered, F_BUYER);
+} else { // shortName — no fixed enumerable list, built straight from what's present
+seriesMap = buildDerivedMonthlySeries(filtered, f=>D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]]);
+groups = [...seriesMap.keys()].map(k=>({key:k,name:k}));
 }
 return groups.map(g=>{
 const arr = seriesMap.get(g.key) || new Array(Math.max(1,filters.monthTo-filters.monthFrom+1)).fill(0);
@@ -3434,16 +3681,20 @@ return { name:g.name, rev, share: rev/grand*100, growth: periodGrowthPct(arr), t
 }
 
 // ---- click-to-drill: from a ranked Explore bar into that segment's own
-// composition (categories -> its top SKUs; region/tier/quarter -> their
-// category mix). A legitimate within-chart interaction per the dataviz
-// skill (distinct from a "per-chart filter"): it doesn't change what's
-// being measured, it drills into one row of what's already shown. ----
+// composition (categories -> its top SKUs; a product/short-name -> its
+// grammage split; everything else -> its category mix). A legitimate
+// within-chart interaction per the dataviz skill (distinct from a
+// "per-chart filter"): it doesn't change what's being measured, it drills
+// into one row of what's already shown. ----
 const exploreDrill = { dimKey:null, key:null, name:null };
 function exploreDrillDims(dimKey, key){
 if(dimKey==='cat') return { ...filters, cats: new Set([key]), variants:null, sizes:null };
+if(dimKey==='superCat') return { ...filters, cats: new Set(D.categories.map((c,ci)=>ci).filter(ci=>catToSuperCat.get(ci)===key)), variants:null, sizes:null };
 if(dimKey==='region') return { ...filters, regions: new Set([key]) };
 if(dimKey==='tier') return { ...filters, tiers: new Set([key]) };
-return filters;
+if(dimKey==='state') return { ...filters, states: new Set([key]) };
+if(dimKey==='distributor') return { ...filters, buyerQuery: D.buyers[key].toLowerCase() };
+return filters; // shortName — post-filtered by name below instead, not a global filter dimension
 }
 function computeExploreDrillRows(dimKey, key){
 let mFrom=filters.monthFrom, mTo=filters.monthTo, dims=filters;
@@ -3452,10 +3703,11 @@ const monthsInQ=[];
 for(let m=filters.monthFrom;m<=filters.monthTo;m++){ if(fiscalQuarterLabel(D.months[m])===key) monthsInQ.push(m); }
 if(monthsInQ.length===0) return [];
 mFrom=Math.min(...monthsInQ); mTo=Math.max(...monthsInQ);
-} else {
+} else if(dimKey!=='shortName'){
 dims = exploreDrillDims(dimKey, key);
 }
-const rows = factsInRange(mFrom, mTo, dims);
+let rows = factsInRange(mFrom, mTo, dims);
+if(dimKey==='shortName') rows = rows.filter(f=> (D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]])===key);
 const grand = sumVal(rows) || 1;
 if(dimKey==='cat'){
 const seriesMap = buildSeriesRange(rows, F_SKU, mFrom, mTo);
@@ -3463,6 +3715,13 @@ return [...seriesMap.entries()].map(([sk,arr])=>{
 const rev = arr.reduce((a,b)=>a+b,0);
 return { name:D.skuNames[sk], rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend:arr };
 }).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev).slice(0,12);
+}
+if(dimKey==='shortName'){
+const seriesMap = buildSeriesRange(rows, F_SKU, mFrom, mTo);
+return [...seriesMap.entries()].map(([sk,arr])=>{
+const rev = arr.reduce((a,b)=>a+b,0);
+return { name: D.skuSize[sk]||D.skuNames[sk], rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend:arr };
+}).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev);
 }
 const seriesMap = buildSeriesRange(rows, F_CAT, mFrom, mTo);
 return D.categories.map((c,ci)=>{
@@ -3477,8 +3736,8 @@ const bc = document.getElementById('exploreDrillBreadcrumb');
 if(!panel || !bc) return;
 if(exploreDrill.key===null){ panel.style.display='none'; bc.innerHTML=''; return; }
 panel.style.display='';
-const drillIntoLabel = exploreDrill.dimKey==='cat' ? 'top SKUs' : 'category mix';
-const allLabel = { cat:'All categories', region:'All zones', tier:'All city tiers', quarter:'All quarters' }[exploreDrill.dimKey] || 'Back';
+const drillIntoLabel = exploreDrill.dimKey==='cat' ? 'top SKUs' : (exploreDrill.dimKey==='shortName' ? 'grammage / pack-size split' : 'category mix');
+const allLabel = { cat:'All categories', superCat:'All super categories', shortName:'All products', region:'All zones', tier:'All city tiers', state:'All states', distributor:'All distributors', quarter:'All quarters' }[exploreDrill.dimKey] || 'Back';
 bc.innerHTML = `<span class="crumb">${allLabel}</span><span class="sep">›</span><span class="current">${escapeHtml(exploreDrill.name)} — ${drillIntoLabel}</span>`;
 bc.querySelector('.crumb').addEventListener('click', ()=>{ exploreDrill.dimKey=null; exploreDrill.key=null; exploreDrill.name=null; renderExplore(); });
 const drillRows = computeExploreDrillRows(exploreDrill.dimKey, exploreDrill.key);
@@ -3488,9 +3747,10 @@ const top = drillRows[0];
 return `Within <b>${escapeHtml(exploreDrill.name)}</b>, <b>${escapeHtml(top.name)}</b> leads at <b>${top.share.toFixed(1)}%</b> (${fmtINR(top.rev)}).`;
 })());
 const tableBox = panel.querySelector('.drill-table-box');
+const isSkuLevel = exploreDrill.dimKey==='cat' || exploreDrill.dimKey==='shortName';
 if(tableBox) tableBox.innerHTML = stdTableHTML(drillRows, {
-nameHeader: exploreDrill.dimKey==='cat' ? 'SKU' : 'Category', maxHeight:320,
-dotColor: exploreDrill.dimKey==='cat' ? null : (r)=>catColor(r.name)
+nameHeader: exploreDrill.dimKey==='cat' ? 'SKU' : (exploreDrill.dimKey==='shortName' ? 'Grammage' : 'Category'), maxHeight:320,
+dotColor: isSkuLevel ? null : (r)=>catColor(r.name)
 });
 }
 
@@ -3556,7 +3816,7 @@ const N_SHOW = 7;
 const ranked2 = rows.slice().sort((a,b)=>b.rev-a.rev);
 const shown = ranked2.slice(0, N_SHOW);
 const rest = ranked2.slice(N_SHOW);
-const dsets = shown.map(r=>({ label:r.name, data:r.trend, backgroundColor: dimEntityColor(dimKey,r.name), borderRadius:2, maxBarThickness:26, _key:r._key, _name:r.name }));
+const dsets = shown.map((r,i)=>({ label:r.name, data:r.trend, backgroundColor: dimEntityColor(dimKey,r.name,i), borderRadius:2, maxBarThickness:26, _key:r._key, _name:r.name }));
 if(rest.length){
 const arr = new Array(monthLabelsE.length).fill(0);
 rest.forEach(r=> r.trend.forEach((v,i)=>arr[i]+=v));
@@ -3597,7 +3857,7 @@ const tr=document.createElement('tr'); const t0=td('No data for this filter sele
 rows.forEach(r=>{
 const tr=document.createElement('tr');
 const nameTd=document.createElement('td');
-nameTd.innerHTML = dimKey==='cat' ? `<span class="catdot" style="background:${catColor(r.name)}"></span>${escapeHtml(r.name)}` : escapeHtml(r.name);
+nameTd.innerHTML = dimKey==='cat' ? `<span class="catdot" style="background:${catColor(r.name)}"></span>${escapeHtml(r.name)}` : (dimKey==='superCat' ? `<span class="catdot" style="background:${superCatColor(r.name)}"></span>${escapeHtml(r.name)}` : escapeHtml(r.name));
 tr.appendChild(nameTd);
 tr.appendChild(td(fmtINR(r.rev),'num'));
 tr.appendChild(td(r.share.toFixed(1)+'%','num'));
@@ -3648,7 +3908,7 @@ renderGst();
 renderCategory();
 renderCatGrowth();
 renderGeo();
-renderSku();
+renderProductExplorer();
 renderTrialKit();
 renderSkuLaunch();
 renderDistributors();
