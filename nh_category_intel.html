@@ -101,6 +101,12 @@ padding:8px; display:none;
 .kpirow{display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:22px;}
 @media (max-width:1100px){.kpirow{grid-template-columns:repeat(3,1fr);}}
 @media (max-width:620px){.kpirow{grid-template-columns:repeat(2,1fr);}}
+/* auto-fit variant for the per-tab master KPI bands, whose tile count
+   varies (4-6) — avoids the dead trailing cells a fixed 6-col grid leaves
+   when there are only 4 or 5 tiles */
+.kpirow-auto{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px,1fr)); gap:12px; margin-bottom:18px;}
+.kpirow-2{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0 20px;}
+@media (max-width:620px){.kpirow-2{grid-template-columns:1fr;}}
 .tile{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 15px;}
 .tile .label{font-size:11.5px; color:var(--text-muted); margin-bottom:6px;}
 .tile .value{font-size:21px; font-weight:650; line-height:1.15;}
@@ -324,7 +330,9 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="tabnav" id="tabNav">
 <button class="tab-btn active" data-tab="overview">Overview</button>
-<button class="tab-btn" data-tab="explore">Explore</button>
+<button class="tab-btn" data-tab="distributors">Distributors</button>
+<button class="tab-btn" data-tab="portfolio">Portfolio</button>
+<button class="tab-btn" data-tab="sampling">Sampling ROI</button>
 </div>
 
 <div id="tabOverview">
@@ -332,6 +340,9 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="kpirow" id="kpiRow"></div>
 
 <div class="ai-summary ai-summary-hero" id="summary-overall"></div>
+
+<div class="sub" style="margin:0 0 6px;">Concentration &amp; risk — how reliant the business currently is on its biggest accounts and its biggest category</div>
+<div class="kpirow-2" id="concSnapshot"></div>
 
 <section>
 <div class="card">
@@ -355,41 +366,77 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 </div>
 </section>
 
+</div>
+
+<div id="tabDistributors" style="display:none;">
+
+<div class="sectitle"><h2 style="font-size:15px;">Distributor health</h2><span class="sub">Acquisition, growth, concentration risk, engagement depth, retention and reach — one continuous story instead of scattered scorecards. Respects the filters above.</span></div>
+<div class="kpirow-auto" id="distMasterKpis"></div>
+<div class="ai-summary ai-summary-hero" id="summary-dist"></div>
+
 <section>
 <div class="card">
 <div class="sectitle">
-<h2>Category mix</h2>
-<span class="sub">Monthly revenue by product category</span>
+<h2>New vs. repeat distributors</h2>
+<span class="sub">Monthly revenue split by whether the distributor was new that month or already active — the acquisition engine at a glance</span>
 </div>
-<div class="ai-summary" id="summary-category"></div>
-<div class="chartbox tall"><canvas id="catChart"></canvas></div>
+<div class="chartbox tall"><canvas id="distChart"></canvas></div>
 </div>
 
 <div class="card">
 <div class="sectitle">
-<h2>Category deep-dive</h2>
-<span class="sub">Pick a category to see its month-by-month mix, SKU by SKU</span>
+<h2>Growth by region &amp; tier</h2>
+<span class="sub">Month-by-month, one line per region/tier — growth reads directly off the slope. Same metric picker drives both charts.</span>
 </div>
 <div class="explore-controls">
-<label>Category</label>
-<select id="catDDSel"></select>
-<label style="margin-left:10px;">Measure</label>
-<select id="catDDMetric">
-<option value="rev">Revenue</option>
-<option value="units">Units</option>
+<label>Metric</label>
+<select id="distGeoMetric">
+<option value="revenue">Revenue</option>
+<option value="count">Active distributors</option>
 </select>
 </div>
-<div class="ai-summary" id="summary-catdd"></div>
-<div class="chartbox tall"><canvas id="catDDChart"></canvas></div>
+<div class="ai-summary" id="summary-distgeo"></div>
+<div class="grid2">
+<div class="chartbox"><canvas id="distRegionChart"></canvas></div>
+<div class="chartbox"><canvas id="distTierChart"></canvas></div>
+</div>
+</div>
+
+<div class="card">
+<div class="sectitle">
+<h2>Distributor concentration</h2>
+<span class="sub">Cumulative % of active distributors (ranked by revenue) vs. cumulative % of revenue — the risk counterpart to the growth chart above</span>
+</div>
+<div class="ai-summary" id="summary-pareto"></div>
+<div class="chartbox tall"><canvas id="paretoChart"></canvas></div>
+</div>
+
+<div class="card">
+<div class="sectitle">
+<h2>Engagement depth — order frequency &amp; AOV by tier</h2>
+<span class="sub">A distributor not ordering this month may just not have sold through last month's stock — order frequency &amp; AOV by revenue tier (Top 1&ndash;10 / 11&ndash;25 / 26&ndash;50 / Rest) is a better read on inventory utilisation than active/churned</span>
+</div>
+<div class="ai-summary" id="summary-waterfall"></div>
+<div class="fourcol-kpi" id="distTierScorecard" style="margin-top:10px;"></div>
+<div class="grid2" style="margin-top:16px;">
+<div>
+<div class="sub" style="margin-bottom:6px;">Average order value, MoM</div>
+<div class="chartbox tall"><canvas id="distTierAovChart"></canvas></div>
+</div>
+<div>
+<div class="sub" style="margin-bottom:6px;">Order frequency (orders per distributor), MoM</div>
+<div class="chartbox tall"><canvas id="distTierFreqChart"></canvas></div>
+</div>
+</div>
 <div class="tablewrap" style="margin-top:12px;">
-<table id="catDDTable">
+<table id="waterfallTable">
 <thead><tr>
-<th>SKU</th>
-<th class="num">Revenue</th>
-<th class="num">Units</th>
-<th class="num">% of category</th>
-<th class="num">CMGR</th>
-<th>Trend</th>
+<th>Tier</th>
+<th class="num">Distributors</th>
+<th class="num">Total orders</th>
+<th class="num">Avg AOV</th>
+<th class="num">Avg order freq.</th>
+<th class="num">Total revenue</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -398,45 +445,30 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="card">
 <div class="sectitle">
-<h2>Category growth vs. total business</h2>
-<span class="sub">CMGR (compound monthly growth rate) across the selected period — a steadier, less start-point-sensitive measure than a raw start-vs-end % change</span>
+<h2>Retention cohorts</h2>
+<span class="sub">New distributors acquired per month, and % of each cohort still ordering N months later</span>
 </div>
-<div class="ai-summary" id="summary-catgrowth"></div>
-<div class="chartbox tall"><canvas id="catGrowthChart"></canvas></div>
-<div class="sub" style="margin:16px 0 4px;">MoM view — each top category's share of total business revenue, by month</div>
-<div class="chartbox tall"><canvas id="catGrowthMomChart"></canvas></div>
+<div class="explore-controls">
+<label>View</label>
+<select id="cohortViewSel">
+<option value="heatmap">Heatmap grid (every cohort)</option>
+<option value="curve">Average retention curve</option>
+</select>
 </div>
-</section>
+<div class="chartbox" style="height:130px;"><canvas id="newDistChart"></canvas></div>
+<div id="cohortWrap"></div>
+<div class="chartbox tall" id="cohortCurveBox" style="display:none;"><canvas id="cohortCurveChart"></canvas></div>
+</div>
 
-<section>
 <div class="card">
 <div class="sectitle">
-<h2>Geo-wise penetration</h2>
+<h2>Geographic reach</h2>
 <span class="sub">State → city drill-down, with each market's own SKU mix</span>
 </div>
 <div class="ai-summary" id="summary-geo"></div>
 <div class="twocol-kpi" id="geoKpis"></div>
 <div class="movers-row" id="geoMovers"></div>
-
-<div class="grid2" style="margin-top:14px;">
-<div>
-<div class="sub" style="margin-bottom:6px;">Revenue by region <span style="color:var(--text-muted);">(from City Tier / Region cols in the source sheet)</span></div>
-<div id="regionMix"></div>
-</div>
-<div>
-<div class="sub" style="margin-bottom:6px;">Revenue by city tier</div>
-<div id="tierMix"></div>
-</div>
-</div>
-<!-- "Top categories" mini-mix removed here — redundant with the Category
-Deep Dive and Product Explorer above, both of which can already be scoped
-to a state via the state filter, without a third copy of the same numbers. -->
-
 <div class="drillbar" id="geoBreadcrumb"></div>
-
-<div class="sub" id="geoMomLabel" style="margin-top:14px; margin-bottom:6px;">Month-by-month revenue — top states</div>
-<div class="chartbox tall"><canvas id="geoMomChart"></canvas></div>
-
 <div class="grid2" style="margin-top:14px;">
 <div>
 <div class="sub" id="geoBarLabel" style="margin-bottom:6px;">Top states by revenue (selected period)</div>
@@ -464,9 +496,52 @@ to a state via the state filter, without a third copy of the same numbers. -->
 </table>
 </div>
 </div>
+
+<div class="card">
+<div class="sectitle">
+<h2>Distributor lookup</h2>
+<span class="sub">Ranked by revenue in the selected period — what each buys by category, top 15 by revenue, shown below. Expand any row in the table for that distributor's full category split.</span>
+</div>
+<div class="ai-summary" id="summary-distcat"></div>
+<div class="chartbox tall"><canvas id="distCatChart"></canvas></div>
+<input type="text" class="searchbox" id="distSearch" placeholder="Search distributor…" style="margin-top:16px;">
+<div class="tablewrap">
+<table id="distTable">
+<thead><tr>
+<th data-key="name">Distributor</th>
+<th data-key="state">State</th>
+<th data-key="tier">Tier</th>
+<th class="num" data-key="rev">Revenue</th>
+<th class="num" data-key="sharePct">% of total</th>
+<th class="num" data-key="mom">MoM growth</th>
+<th data-key="trend">Trend</th>
+<th class="num" data-key="orders">Orders</th>
+<th class="num" data-key="months">Active months</th>
+<th data-key="first">First order</th>
+<th data-key="status">Status</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
 </section>
+</div>
+
+<div id="tabPortfolio" style="display:none;">
+
+<div class="sectitle"><h2 style="font-size:15px;">Portfolio &amp; catalog health</h2><span class="sub">Composition → drill into any product → growth momentum by category → is the catalog evolving well. The Product Explorer below is the one tool for every category/SKU/grammage question — everything else on this tab is a distinct, non-overlapping cut.</span></div>
+<div class="kpirow-auto" id="portfolioMasterKpis"></div>
 
 <section>
+<div class="card">
+<div class="sectitle">
+<h2>Category mix</h2>
+<span class="sub">Monthly revenue by product category</span>
+</div>
+<div class="ai-summary" id="summary-category"></div>
+<div class="chartbox tall"><canvas id="catChart"></canvas></div>
+</div>
+
 <div class="card">
 <div class="sectitle">
 <h2>Product explorer</h2>
@@ -490,34 +565,20 @@ to a state via the state filter, without a third copy of the same numbers. -->
 </table>
 </div>
 </div>
-</section>
 
-<section id="trialKitSection">
 <div class="card">
 <div class="sectitle">
-<h2>Gift boxes, combos &amp; sampling kits</h2>
-<span class="sub">Products your own SKU Mapping tags as Gift Boxes, Cross-Combos or Trial / Sampling — component-level detail lives in the Product Explorer above; this section covers what's specific to sampling: the free-vs-paid trend and its geo split</span>
+<h2>Category growth vs. total business</h2>
+<span class="sub">CMGR (compound monthly growth rate) across the selected period — which categories are outgrowing the business overall, a steadier measure than a raw start-vs-end % change</span>
 </div>
-<div class="ai-summary" id="summary-trialkit"></div>
-<div class="twocol-kpi" id="trialKitKpis"></div>
-
-<div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Free vs. paid sampling</h2>
-<span class="sub">Monthly, against overall business revenue</span>
+<div class="ai-summary" id="summary-catgrowth"></div>
+<div class="chartbox tall"><canvas id="catGrowthChart"></canvas></div>
 </div>
-<div class="ai-summary" id="summary-sampling-fp"></div>
-<div class="chartbox tall"><canvas id="samplingFpChart"></canvas></div>
 
-<div class="sub" style="margin:16px 0 6px;">Sampling revenue by region / tier</div>
-<div class="chartbox"><canvas id="samplingGeoChart"></canvas></div>
-</div>
-</section>
-
-<section>
 <div class="card">
 <div class="sectitle">
-<h2>SKU launch &amp; discontinuation timeline</h2>
-<span class="sub">Actual month-by-month revenue (not cumulative) by launch vintage · full history, regardless of the date filter above — see the table below for cumulative all-time contribution</span>
+<h2>Launch &amp; lifecycle</h2>
+<span class="sub">Is the catalog evolving well — actual month-by-month revenue (not cumulative) by launch vintage · full history, regardless of the date filter above</span>
 </div>
 <div class="explore-controls">
 <label>Group by</label>
@@ -583,177 +644,35 @@ to a state via the state filter, without a third copy of the same numbers. -->
 </div>
 </div>
 </section>
+</div>
 
-<section>
+<div id="tabSampling" style="display:none;">
+<section id="samplingSection">
 <div class="card">
 <div class="sectitle">
-<h2>Distributor repeat &amp; growth</h2>
-<span class="sub">New vs. repeat distributor contribution over time</span>
+<h2>Is free sampling bringing us scale?</h2>
+<span class="sub">Built on the "Jars/ Boxes" free-giveaway category (confirmed near-zero invoiced value against the raw ledger) — the paid "Sampling Jar" product is real revenue and counts as ordinary paid business everywhere here, including this tab. Cohorts are indexed to each distributor's own first order, and ignore the date range above (a cohort needs its full life to date) but respect state / zone / tier / distributor search.</span>
 </div>
-<div class="ai-summary" id="summary-dist"></div>
-<div class="twocol-kpi" id="distKpis"></div>
-<div class="chartbox tall" style="margin-top:16px;"><canvas id="distChart"></canvas></div>
+<div class="kpirow-auto" id="samplingMasterKpis"></div>
+<div class="ai-summary ai-summary-hero" id="summary-sampling"></div>
 
 <div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Distributor growth by region &amp; tier</h2>
-<span class="sub">Month-by-month, one line per region/tier — growth reads directly off the slope. Same metric picker drives both charts.</span>
+<h2 style="font-size:13.5px;">Revenue trajectory, sampled-at-onboarding vs. not</h2>
+<span class="sub">Average monthly paid revenue per distributor, indexed to months since their own first-ever order (M+0 = onboarding month)</span>
 </div>
-<div class="explore-controls">
-<label>Metric</label>
-<select id="distGeoMetric">
-<option value="revenue">Revenue</option>
-<option value="count">Active distributors</option>
-</select>
-</div>
-<div class="ai-summary" id="summary-distgeo"></div>
-<div class="grid2">
-<div class="chartbox"><canvas id="distRegionChart"></canvas></div>
-<div class="chartbox"><canvas id="distTierChart"></canvas></div>
-</div>
+<div class="chartbox tall"><canvas id="samplingCohortChart"></canvas></div>
 
 <div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Retention cohorts</h2>
-<span class="sub">New distributors acquired per month, and % of each cohort still ordering N months later</span>
+<h2 style="font-size:13.5px;">Where we sample vs. where paid growth is happening</h2>
+<span class="sub">By zone — free units sampled, distributors sampled, and the paid-revenue growth rate in that zone over the selected period</span>
 </div>
-<div class="explore-controls">
-<label>View</label>
-<select id="cohortViewSel">
-<option value="heatmap">Heatmap grid (every cohort)</option>
-<option value="curve">Average retention curve</option>
-</select>
-</div>
-<div class="chartbox" style="height:130px;"><canvas id="newDistChart"></canvas></div>
-<div id="cohortWrap"></div>
-<div class="chartbox tall" id="cohortCurveBox" style="display:none;"><canvas id="cohortCurveChart"></canvas></div>
+<div id="samplingRegionTable"></div>
 
-<div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Distributor order frequency &amp; AOV by tier</h2>
-<span class="sub">A distributor not ordering this month may just not have sold through last month's stock — order frequency &amp; AOV by revenue tier (Top 1&ndash;10 / 11&ndash;25 / 26&ndash;50 / Rest) is a better read on inventory utilisation than active/churned</span>
-</div>
-<div class="ai-summary" id="summary-waterfall"></div>
-<div class="fourcol-kpi" id="distTierScorecard" style="margin-top:10px;"></div>
-<div class="grid2" style="margin-top:16px;">
-<div>
-<div class="sub" style="margin-bottom:6px;">Average order value, MoM</div>
-<div class="chartbox tall"><canvas id="distTierAovChart"></canvas></div>
-</div>
-<div>
-<div class="sub" style="margin-bottom:6px;">Order frequency (orders per distributor), MoM</div>
-<div class="chartbox tall"><canvas id="distTierFreqChart"></canvas></div>
-</div>
-</div>
-<div class="tablewrap" style="margin-top:12px;">
-<table id="waterfallTable">
-<thead><tr>
-<th>Tier</th>
-<th class="num">Distributors</th>
-<th class="num">Total orders</th>
-<th class="num">Avg AOV</th>
-<th class="num">Avg order freq.</th>
-<th class="num">Total revenue</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-
-<div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Distributor concentration</h2>
-<span class="sub">Cumulative % of active distributors (ranked by revenue) vs. cumulative % of revenue</span>
-</div>
-<div class="ai-summary" id="summary-pareto"></div>
-<div class="chartbox tall"><canvas id="paretoChart"></canvas></div>
-
-<div class="sectitle" style="margin-top:22px;">
-<h2 style="font-size:13.5px;">Top distributors</h2>
-<span class="sub">Ranked by revenue in the selected period — what each buys by category, top 15 by revenue, shown below. Expand any row in the table for that distributor's full category split.</span>
-</div>
-<div class="ai-summary" id="summary-distcat"></div>
-<div class="chartbox tall"><canvas id="distCatChart"></canvas></div>
-<input type="text" class="searchbox" id="distSearch" placeholder="Search distributor…" style="margin-top:16px;">
-<div class="tablewrap">
-<table id="distTable">
-<thead><tr>
-<th data-key="name">Distributor</th>
-<th data-key="state">State</th>
-<th data-key="tier">Tier</th>
-<th class="num" data-key="rev">Revenue</th>
-<th class="num" data-key="sharePct">% of total</th>
-<th class="num" data-key="mom">MoM growth</th>
-<th data-key="trend">Trend</th>
-<th class="num" data-key="orders">Orders</th>
-<th class="num" data-key="months">Active months</th>
-<th data-key="first">First order</th>
-<th data-key="status">Status</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
-</section>
-
-</div>
-
-<div id="tabExplore" style="display:none;">
-<section>
-<div class="card">
-<div class="sectitle">
-<h2>Explore — step 1: pick a dimension</h2>
-<span class="sub">Same filters as the Overview tab (date range, category, zone, tier, distributor search). Flow: pick an axis → see the ranked breakdown → click any bar to drill into what makes it up → check distributor concentration for the whole selection.</span>
-</div>
-<div class="explore-controls">
-<label>Group by</label>
-<select id="exploreDim">
-<option value="cat">My category tags</option>
-<option value="superCat">Super category</option>
-<option value="shortName">Product (short name)</option>
-<option value="region">Zone</option>
-<option value="tier">City tier</option>
-<option value="state">State</option>
-<option value="distributor">Distributor</option>
-<option value="quarter">Quarter (fiscal)</option>
-</select>
-</div>
-<div class="ai-summary" id="summary-explore"></div>
-<div class="sub" style="margin:14px 0 4px;">Step 2 — month-by-month breakdown by <span id="exploreDimLabel">category</span>. Click a segment to drill in.</div>
-<div class="chartbox tall"><canvas id="exploreBarChart"></canvas></div>
-<div class="tablewrap" style="margin-top:14px;">
-<table id="exploreTable">
-<thead><tr>
-<th>Name</th>
-<th class="num">Revenue</th>
-<th class="num">% of total</th>
-<th class="num" id="exploreGrowthHeader">CMGR</th>
-<th>Trend</th>
-</tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
-</section>
-
-<section>
-<div class="card" id="exploreDrillPanel" style="display:none;">
-<div class="sectitle">
-<h2>Step 3 — what's inside that</h2>
-<span class="sub">Click any bar above to see its own composition here — a category shows its top SKUs; a zone, tier or quarter shows its category mix</span>
-</div>
-<div class="drillbar" id="exploreDrillBreadcrumb"></div>
-<div class="ai-summary" id="summary-explore-drill"></div>
-<div class="drill-table-box" style="margin-top:10px;"></div>
-</div>
-</section>
-
-<section>
-<div class="card">
-<div class="sectitle">
-<h2>Distributor concentration</h2>
-<span class="sub">Same "x% of distributors → y% of revenue" view as the Distributor tab, scoped to your current filter selection</span>
-</div>
-<div class="ai-summary" id="summary-pareto-explore"></div>
-<div class="chartbox tall"><canvas id="exploreParetoChart"></canvas></div>
+<div class="sub" style="margin-top:16px; font-style:italic;">Correlation, not causation: distributors chosen for sampling may already have looked more promising than average, so a gap between the two lines above is suggestive, not proof.</div>
 </div>
 </section>
 </div>
+
 
 <footer>
 Source: internal GST sales register (Google Sheets) · <span id="rowCount"></span> line items across <span id="skuCount"></span> SKUs<br>
@@ -1642,154 +1561,6 @@ if(perCatGrowth[0]) growLine = ` <b>${escapeHtml(perCatGrowth[0].name)}</b> grew
 }
 return `<b>${escapeHtml(top.name)}</b> leads the mix at <b>${(top.val/grand*100).toFixed(1)}%</b> of revenue (${fmtINR(top.val)}) in the selected period.${growLine}`;
 })());
-renderCategoryDeepDive();
-}
-
-// ============================================================
-// CATEGORY DEEP-DIVE — pick one category, see its SKU-level MoM mix
-// (independent of the top-bar category filter — this picker always lets
-// you look at any single category's own SKU breakdown, respecting the
-// other filters: date range, state, region, tier, distributor search)
-// ============================================================
-const catDD = { catIdx: null, metric: 'rev' };
-const catDDExpanded = new Set();
-const catDDSel = document.getElementById('catDDSel');
-const catDDMetricSel = document.getElementById('catDDMetric');
-if(catDDSel){
-D.categories.forEach((c,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=c; catDDSel.appendChild(o); });
-catDDSel.addEventListener('change', ()=>{ catDD.catIdx = parseInt(catDDSel.value,10); renderCategoryDeepDive(); });
-catDDMetricSel.addEventListener('change', ()=>{ catDD.metric = catDDMetricSel.value; renderCategoryDeepDive(); });
-}
-
-// Grouped by SHORT NAME (not raw SKU) — each row can then be expanded to
-// its own grammage/pack-size split, so the deep-dive reads at the product
-// level first and the exact size variant is a drill-down, not the headline.
-function renderCategoryDeepDive(){
-if(!catDDSel) return;
-if(catDD.catIdx===null){
-const filtered0 = getFiltered();
-const totals0 = new Map();
-for(const f of filtered0) totals0.set(f[F_CAT], (totals0.get(f[F_CAT])||0)+f[F_VAL]);
-const top = [...totals0.entries()].sort((a,b)=>b[1]-a[1])[0];
-catDD.catIdx = top ? top[0] : 0;
-}
-catDDSel.value = catDD.catIdx;
-catDDMetricSel.value = catDD.metric;
-const ci = catDD.catIdx;
-const metric = catDD.metric;
-const valField = metric==='units' ? F_QTY : F_VAL;
-const catRows = factsInRange(filters.monthFrom, filters.monthTo, dimsForCat(ci));
-
-const shortOf = (sk)=> D.skuShortName[sk] || D.skuNames[sk];
-const shortTotals = new Map();      // shortName -> value (rev or units, per metric)
-const shortMembers = new Map();     // shortName -> Set(skuIdx)
-for(const f of catRows){
-const sn = shortOf(f[F_SKU]);
-shortTotals.set(sn, (shortTotals.get(sn)||0) + f[valField]);
-if(!shortMembers.has(sn)) shortMembers.set(sn, new Set());
-shortMembers.get(sn).add(f[F_SKU]);
-}
-const ranked = [...shortTotals.entries()].sort((a,b)=>b[1]-a[1]);
-const TOP_N = 8;
-const topSet = new Set(ranked.slice(0, TOP_N).map(([sn])=>sn));
-const otherCount = ranked.length - topSet.size;
-
-const months=[]; for(let m=filters.monthFrom;m<=filters.monthTo;m++) months.push(monthLabel(D.months[m]));
-const seriesForShort = (sn)=>{
-const arr = new Array(months.length).fill(0);
-const members = shortMembers.get(sn) || new Set();
-for(const f of catRows) if(members.has(f[F_SKU])) arr[f[F_MONTH]-filters.monthFrom]+=f[valField];
-return arr;
-};
-const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
-const datasets = ranked.filter(([sn])=>topSet.has(sn)).map(([sn],i)=>({
-label: sn, data: seriesForShort(sn), backgroundColor: cssVar(palette[i%palette.length]), borderRadius:2, maxBarThickness:26
-}));
-if(otherCount>0){
-const arr = new Array(months.length).fill(0);
-for(const f of catRows){ if(!topSet.has(shortOf(f[F_SKU]))) arr[f[F_MONTH]-filters.monthFrom]+=f[valField]; }
-datasets.push({ label:`Other products in category (${otherCount})`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:2, maxBarThickness:26 });
-}
-
-const grand = ranked.reduce((a,[,v])=>a+v,0) || 1;
-setSummary('summary-catdd', (()=>{
-if(ranked.length===0) return null;
-const top = ranked[0];
-const label = metric==='units' ? 'units sold' : 'revenue';
-return `<b>${escapeHtml(D.categories[ci])}</b> has <b>${ranked.length}</b> active product${ranked.length===1?'':'s'} (by short name) in the selected period. `+
-`<b>${escapeHtml(top[0])}</b> leads at <b>${(top[1]/grand*100).toFixed(1)}%</b> of the category's ${label}. Expand any row below for its grammage-level split.`;
-})());
-
-destroyChart('catDD');
-charts.catDD = new Chart(document.getElementById('catDDChart'), {
-type:'bar',
-data:{ labels: months, datasets },
-options:{
-...baseLineOptions((ctx)=> metric==='units' ? fmtNum(ctx.parsed.y)+' units' : fmtINR(ctx.parsed.y)),
-scales:{
-x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=> metric==='units'?fmtNum(v):fmtINR(v)} }
-}
-}
-});
-
-const revByShort = new Map(), unitsByShort = new Map(), revBySku = new Map(), unitsBySku = new Map();
-for(const f of catRows){
-const sn = shortOf(f[F_SKU]);
-revByShort.set(sn, (revByShort.get(sn)||0)+f[F_VAL]);
-unitsByShort.set(sn, (unitsByShort.get(sn)||0)+f[F_QTY]);
-revBySku.set(f[F_SKU], (revBySku.get(f[F_SKU])||0)+f[F_VAL]);
-unitsBySku.set(f[F_SKU], (unitsBySku.get(f[F_SKU])||0)+f[F_QTY]);
-}
-
-function grammagePanel(sn){
-const members = [...(shortMembers.get(sn)||[])];
-const memberRows = members.map(sk=>{
-const arr = new Array(months.length).fill(0);
-for(const f of catRows) if(f[F_SKU]===sk) arr[f[F_MONTH]-filters.monthFrom]+=f[valField];
-const v = arr.reduce((a,b)=>a+b,0);
-return { sk, size: D.skuSize[sk]||D.skuNames[sk], rev: revBySku.get(sk)||0, units: unitsBySku.get(sk)||0, val:v };
-}).sort((a,b)=>b.val-a.val);
-const maxV = Math.max(...memberRows.map(m=>m.val),1);
-const totalVal = memberRows.reduce((a,r)=>a+r.val,0) || 1;
-const bars = memberRows.map(r=>`<div class="subpanel-bar">
-<span title="${escapeHtml(r.size)}">${escapeHtml(r.size)}</span>
-<span class="sb-track"><span class="sb-fill" style="width:${Math.max(2,r.val/maxV*100)}%; background:${cssVar('--s1')}"></span></span>
-<span class="num">${metric==='units'?fmtNum(r.units)+' u':fmtINR(r.rev)}</span>
-<span class="num" style="color:var(--text-muted); font-size:11px;">${(r.val/totalVal*100).toFixed(1)}%</span>
-</div>`).join('') || '<div class="empty-state">No grammage-level data.</div>';
-return `<div class="subpanel-inner"><div class="subpanel-title">${escapeHtml(sn)} — by grammage / pack size</div>${bars}</div>`;
-}
-
-const tbody = document.querySelector('#catDDTable tbody'); tbody.innerHTML='';
-if(ranked.length===0){
-const tr=document.createElement('tr'); const t0=td('No data for this filter selection.','empty-state'); t0.colSpan=6; tr.appendChild(t0); tbody.appendChild(tr);
-} else {
-ranked.forEach(([sn,val])=>{
-const arr = seriesForShort(sn);
-const members = shortMembers.get(sn) || new Set();
-const multi = members.size>1;
-const tr=document.createElement('tr');
-if(multi) tr.classList.add('row-click');
-const nameTd = document.createElement('td');
-const isOpen = catDDExpanded.has(sn);
-const caret = multi ? `<span class="caret${isOpen?' open':''}">▶</span>` : '<span style="display:inline-block; width:14px;"></span>';
-nameTd.innerHTML = `${caret}${escapeHtml(sn)}${multi?` <span style="color:var(--text-muted); font-size:11px;">(${members.size} sizes)</span>`:''}`;
-tr.appendChild(nameTd);
-tr.appendChild(td(fmtINR(revByShort.get(sn)||0),'num'));
-tr.appendChild(td(fmtNum(unitsByShort.get(sn)||0),'num'));
-tr.appendChild(td((val/grand*100).toFixed(1)+'%','num'));
-const gTd=document.createElement('td'); gTd.className='num'; gTd.innerHTML=growthBadge(periodGrowthPct(arr)); tr.appendChild(gTd);
-const trTd=document.createElement('td'); trTd.innerHTML=sparklineSVG(arr); tr.appendChild(trTd);
-if(multi) tr.addEventListener('click', ()=>{ if(catDDExpanded.has(sn)) catDDExpanded.delete(sn); else catDDExpanded.add(sn); renderCategoryDeepDive(); });
-tbody.appendChild(tr);
-if(multi && isOpen){
-const ptr=document.createElement('tr'); ptr.className='subpanel';
-const ptd=document.createElement('td'); ptd.colSpan=6; ptd.innerHTML=grammagePanel(sn);
-ptr.appendChild(ptd); tbody.appendChild(ptr);
-}
-});
-}
 }
 
 // ============================================================
@@ -1843,63 +1614,6 @@ callbacks:{ label:(c)=> ` ${c.dataset.label}: ${c.parsed.x===null?'—':fmtPct(c
 scales:{
 x:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtPct(v,1)} },
 y:{ grid:{display:false}, ticks:{color:cssVar('--text-secondary'), font:{size:12}} }
-}
-}
-});
-renderCatGrowthMom();
-}
-
-// ============================================================
-// CATEGORY GROWTH — MoM VIEW (share of total business, by month)
-// Single axis (%), stacked to 100 — top categories vs. "Other categories".
-// Deliberately NOT a dual-axis chart: everything here is expressed as a
-// share of total business revenue, so it lives on one 0-100% axis.
-// ============================================================
-function renderCatGrowthMom(){
-const canvas = document.getElementById('catGrowthMomChart');
-if(!canvas) return;
-const months=[]; for(let m=filters.monthFrom;m<=filters.monthTo;m++) months.push(monthLabel(D.months[m]));
-const len = months.length;
-// always computed against the FULL business (ignores the category filter,
-// like the CMGR bar chart above it) — this chart's whole point is "how is
-// the mix of total business changing month to month"
-const overallDims = dimsOverall(filters);
-const overallRows = factsInRange(filters.monthFrom, filters.monthTo, overallDims);
-const monthlyTotal = new Array(len).fill(0);
-for(const f of overallRows) monthlyTotal[f[F_MONTH]-filters.monthFrom] += f[F_VAL];
-
-const catTotals = new Map();
-for(const f of overallRows) catTotals.set(f[F_CAT], (catTotals.get(f[F_CAT])||0)+f[F_VAL]);
-const ranked = [...catTotals.entries()].sort((a,b)=>b[1]-a[1]);
-const TOP=6;
-const topCats = ranked.slice(0,TOP).map(([ci])=>ci);
-const topSet = new Set(topCats);
-
-const catSeries = topCats.map(ci=>{
-const arr = new Array(len).fill(0);
-for(const f of overallRows) if(f[F_CAT]===ci) arr[f[F_MONTH]-filters.monthFrom]+=f[F_VAL];
-return arr;
-});
-const otherArr = new Array(len).fill(0);
-for(const f of overallRows) if(!topSet.has(f[F_CAT])) otherArr[f[F_MONTH]-filters.monthFrom]+=f[F_VAL];
-
-const shareOf = (arr)=> arr.map((v,i)=> monthlyTotal[i]>0 ? v/monthlyTotal[i]*100 : 0);
-const datasets = topCats.map((ci,idx)=>({
-label: D.categories[ci], data: shareOf(catSeries[idx]), backgroundColor: catColor(D.categories[ci]), borderRadius:2, maxBarThickness:26
-}));
-if(ranked.length > TOP){
-datasets.push({ label:`Other categories (${ranked.length-TOP})`, data: shareOf(otherArr), backgroundColor: cssVar('--text-muted')+'80', borderRadius:2, maxBarThickness:26 });
-}
-
-destroyChart('catGrowthMom');
-charts.catGrowthMom = new Chart(canvas, {
-type:'bar',
-data:{ labels: months, datasets },
-options:{
-...baseLineOptions((ctx)=> ctx.parsed.y===null?'—':ctx.parsed.y.toFixed(1)+'%'),
-scales:{
-x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ stacked:true, min:0, max:100, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>v+'%'} }
 }
 }
 });
@@ -2021,25 +1735,6 @@ document.getElementById('geoKpis').innerHTML = `
 <div class="mini-tile"><div class="label">New states entered this period</div><div class="value">${newThisPeriod}</div></div>
 `;
 
-// ---- region, city-tier & category mix — same standardized table shape
-// (name / revenue / % of total / growth / trend) used everywhere else in
-// this dashboard, computed via "growth across the selected period" (the
-// same method as the Category growth and Distributor growth charts) ----
-(function renderTierRegionMix(){
-const grand = sumVal(filtered) || 1;
-const regionSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
-const tierSeries = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
-function rowsFor(names, seriesMap){
-return names.map((name,i)=>{
-const arr = seriesMap.get(i) || [];
-const rev = arr.reduce((a,b)=>a+b,0);
-return { name, rev, share: grand>0? rev/grand*100 : 0, growth: periodGrowthPct(arr), trend: arr };
-}).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev);
-}
-document.getElementById('regionMix').innerHTML = stdTableHTML(rowsFor(D.regions, regionSeries), {nameHeader:'Region', maxHeight:230});
-document.getElementById('tierMix').innerHTML = stdTableHTML(rowsFor(D.tiers, tierSeries), {nameHeader:'Tier', maxHeight:230});
-})();
-
 // ---- movers, always at state grain (business headline) ----
 const stateSeries = buildMonthlySeries(filtered, F_STATE);
 const {gainer, decliner} = computeGrowthMovers(stateSeries, MIN_GEO_BASE);
@@ -2092,28 +1787,6 @@ const arr = series.get(idx)||[];
 return { idx, name:nameArr[idx], rev:o.rev, orders:o.orders.size, distributors:o.dist.size,
 first: firstMap.has(idx)? D.months[firstMap.get(idx)] : '—', growth: momGrowth(arr), trend: arr };
 });
-
-// ---- MoM trend, top 6 by revenue at the current drill level (states, or
-// cities once drilled into a state) — single axis, own scale ----
-(function renderGeoMom(){
-const canvas = document.getElementById('geoMomChart');
-if(!canvas) return;
-const topForTrend = rows.slice().sort((a,b)=>b.rev-a.rev).slice(0,6);
-const monthLabelsG = []; for(let m=filters.monthFrom;m<=filters.monthTo;m++) monthLabelsG.push(monthLabel(D.months[m]));
-const palette6 = ['--s1','--s2','--s3','--s4','--s5','--s6'];
-const lbl = document.getElementById('geoMomLabel');
-if(lbl) lbl.textContent = atCity ? `Month-by-month revenue — top cities in ${D.states[geoDrill.state]}` : 'Month-by-month revenue — top states';
-destroyChart('geoMom');
-if(topForTrend.length===0) return;
-charts.geoMom = new Chart(canvas, {
-type:'line',
-data:{ labels: monthLabelsG, datasets: topForTrend.map((r,i)=>({
-label:r.name, data:r.trend, borderColor: cssVar(palette6[i%palette6.length]),
-borderWidth:2, pointRadius:0, tension:.25, fill:false
-})) },
-options: baseLineOptions((ctx)=>fmtINR(ctx.parsed.y))
-});
-})();
 
 // bar chart: top 12 in current level (sequential ramp by rank)
 const topRows = rows.slice().sort((a,b)=>b.rev-a.rev).slice(0,12);
@@ -2409,113 +2082,280 @@ redrawExplorer();
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 // ============================================================
-// TRIAL / SAMPLER KIT — "Temp" tagged SKUs, kept out of the main
-// SKU performance view (see summary-trialkit for why)
+// SHARED KPI-TILE HELPER — used by the master KPI band on every tab so
+// they all read as one system (same tile, same delta convention) instead
+// of each section growing its own bespoke scorecard markup.
 // ============================================================
-function renderTrialKit(){
-const section = document.getElementById('trialKitSection');
-const hasTemp = D.skuIsKit && D.skuIsKit.some(Boolean);
-if(!section) return;
-if(!hasTemp){ section.style.display='none'; return; }
+function tileHTML(label, value, d){
+return `<div class="tile"><div class="label">${label}</div><div class="value">${value}</div>${d? `<div class="delta ${d.cls}">${d.text}</div>` : ''}</div>`;
+}
+function renderTiles(elId, tiles){
+const row = document.getElementById(elId);
+if(!row) return;
+row.innerHTML = tiles.map(t=>tileHTML(t.label, t.value, t.d)).join('');
+}
+// standalone delta computer (renderKPIs has its own closure-based version
+// for the Overview row; this one takes the prior value directly so the
+// other tabs' KPI bands can use the same up/down/flat convention)
+function deltaGeneric(curr, prev, opts){
+opts = opts || {};
+if(prev===null || prev===undefined) return {text:'vs prior period n/a', cls:'flat'};
+if(prev===0 && curr===0) return {text:'flat', cls:'flat'};
+let d;
+if(opts.pointDiff) d = curr-prev; else d = prev!==0 ? (curr-prev)/Math.abs(prev)*100 : 100;
+const goodUp = opts.badUp ? d<=0 : d>=0;
+const cls = Math.abs(d)<0.05 ? 'flat' : (goodUp?'up':'down');
+const arrow = d>0?'▲':(d<0?'▼':'—');
+const text = opts.pointDiff ? `${arrow} ${Math.abs(d).toFixed(1)} pt vs prior period` : `${arrow} ${Math.abs(d).toFixed(1)}% vs prior period`;
+return {text, cls};
+}
+function concentrationShare(revenues, pct){
+const sorted = (revenues||[]).filter(v=>v>0).sort((a,b)=>b-a);
+const total = sorted.reduce((a,b)=>a+b,0) || 1;
+const n = Math.max(1, Math.round(sorted.length*pct/100));
+return { pct: sorted.slice(0,n).reduce((a,b)=>a+b,0)/total*100, n, of: sorted.length };
+}
+
+// ============================================================
+// OVERVIEW — concentration & risk snapshot (headline-level: how reliant
+// is the business on its biggest distributor accounts and its biggest
+// category right now — the risk counterpart to the growth KPIs above it)
+// ============================================================
+function renderConcentrationSnapshot(){
+const el = document.getElementById('concSnapshot');
+if(!el) return;
+const filtered = getFiltered();
+const bAgg = new Map();
+for(const f of filtered) bAgg.set(f[F_BUYER], (bAgg.get(f[F_BUYER])||0)+f[F_VAL]);
+const distConc = concentrationShare([...bAgg.values()], 10);
+
+const catTotals = new Map();
+for(const f of filtered) catTotals.set(f[F_CAT], (catTotals.get(f[F_CAT])||0)+f[F_VAL]);
+const grandCat = [...catTotals.values()].reduce((a,b)=>a+b,0) || 1;
+const topCat = [...catTotals.entries()].sort((a,b)=>b[1]-a[1])[0];
+
+renderTiles('concSnapshot', [
+{label:`Revenue held by top 10% of distributors (${distConc.n} of ${distConc.of})`, value: distConc.of? distConc.pct.toFixed(1)+'%':'—'},
+{label: topCat? `Revenue held by leading category (${escapeHtml(D.categories[topCat[0]])})` : 'Revenue held by leading category',
+value: topCat? (topCat[1]/grandCat*100).toFixed(1)+'%' : '—'},
+]);
+}
+
+// ============================================================
+// PORTFOLIO — master KPI band (catalog composition & lifecycle at a glance)
+// ============================================================
+function renderPortfolioKpis(){
+const el = document.getElementById('portfolioMasterKpis');
+if(!el) return;
+const filtered = getFiltered();
+const netRev = sumVal(filtered);
+const skusLive = distinctCount(filtered, F_SKU);
+const catsActive = distinctCount(filtered, F_CAT);
+const firstMap = new Map([...skuFirstMonth(filters).entries()].filter(([sk])=>!isKitSku(sk)));
+const lastMap = skuLastMonth(filters);
+let newLaunches=0, discontinued=0, slowing=0;
+firstMap.forEach((fm)=>{ if(fm>=filters.monthFrom && fm<=filters.monthTo) newLaunches++; });
+lastMap.forEach((lm,sk)=>{ if(isKitSku(sk)) return; const st=skuStatus(lm); if(st==='Discontinued') discontinued++; else if(st==='Slowing') slowing++; });
+
+renderTiles('portfolioMasterKpis', [
+{label:'Revenue (selected period)', value: fmtINR(netRev)},
+{label:'SKUs live', value: fmtNum(skusLive)+' / '+D.skus.length},
+{label:'Categories active', value: fmtNum(catsActive)+' / '+D.categories.length},
+{label:'New launches this period', value: fmtNum(newLaunches)},
+{label:'Discontinued / slowing (full history)', value: fmtNum(discontinued)+' / '+fmtNum(slowing)},
+]);
+}
+
+// ============================================================
+// DISTRIBUTORS — master KPI band (the headline distributor-health numbers,
+// merged from what used to be three separate scorecards scattered across
+// the old Overview scroll — growth, concentration risk and reach in one
+// place, with the rest of the tab telling that same story in more detail)
+// ============================================================
+function renderDistributorKpis(){
+const el = document.getElementById('distMasterKpis');
+if(!el) return;
+const filtered = getFiltered();
+const bFirst = buyerFirstMonth(filters);
+const bAgg = new Map();
+for(const f of filtered){
+const b=f[F_BUYER];
+if(!bAgg.has(b)) bAgg.set(b, {rev:0, orders:new Set(), months:new Set()});
+const o=bAgg.get(b); o.rev+=f[F_VAL]; o.orders.add(f[F_VOUCHER]); o.months.add(f[F_MONTH]);
+}
+const totalActive = bAgg.size;
+const newCount = [...bAgg.keys()].filter(b=>{ const fm=bFirst.get(b); return fm>=filters.monthFrom && fm<=filters.monthTo; }).length;
+const repeatCount = [...bAgg.values()].filter(o=>o.months.size>=2).length;
+const totalOrders = [...bAgg.values()].reduce((a,o)=>a+o.orders.size,0);
+const statesLive = distinctCount(filtered, F_STATE);
+const conc = concentrationShare([...bAgg.values()].map(o=>o.rev), 10);
+
+renderTiles('distMasterKpis', [
+{label:'Active distributors', value: fmtNum(totalActive)},
+{label:'New this period', value: fmtNum(newCount)},
+{label:'Repeat rate (2+ months in period)', value: totalActive? (repeatCount/totalActive*100).toFixed(1)+'%':'0.0%'},
+{label:'States live', value: statesLive+' / '+D.states.length},
+{label:'Avg orders / distributor', value: totalActive? (totalOrders/totalActive).toFixed(1):'0'},
+{label:`Revenue held by top 10% (${conc.n})`, value: conc.of? conc.pct.toFixed(1)+'%':'—'},
+]);
+}
+
+// ============================================================
+// SAMPLING ROI — does giving away free product actually convert into
+// scaled, paying distributor relationships? Built on the "Jars/ Boxes"
+// category, which is the genuine free giveaway (near-zero invoiced value —
+// confirmed against the raw ledger: ~₹0/unit vs. the real ~₹200/unit on
+// the separately-tracked paid "Sampling Jar" product, which counts as
+// ordinary paid revenue everywhere in this dashboard, including here).
+//
+// Two questions, both answered from the same underlying cohort logic:
+//  1. Acquisition: when a distributor's very first-ever transaction is a
+//     free sample, do they go on to become a paying account, and how fast?
+//  2. Scale: once onboarded, do "sampled-at-onboarding" distributors grow
+//     faster than distributors who started without one?
+// Both are indexed to the distributor's OWN first-order month (not a
+// calendar date) so a cohort from the business's slow early months is
+// compared fairly against one from a fast recent month. This deliberately
+// ignores the date-range filter above (like the SKU launch timeline) —
+// a cohort needs its full life to date, not a clipped window — but still
+// respects state / zone / tier / distributor-search, so it can be scoped
+// geographically.
+// ============================================================
+function renderSamplingROI(){
+const kpiEl = document.getElementById('samplingMasterKpis');
+const section = document.getElementById('samplingSection');
+if(!kpiEl || !section) return;
+if(FREE_SAMPLE_CAT_IDX<0){ section.style.display='none'; return; }
 section.style.display='';
 
-const filtered = getFiltered().filter(f=>isKitSku(f[F_SKU]));
-const rev = sumVal(filtered);
-const orders = distinctCount(filtered, F_VOUCHER);
-const dist = distinctCount(filtered, F_BUYER);
-const components = new Set(filtered.map(f=>f[F_SKU])).size;
-const kitSuperCats = [...new Set(filtered.map(f=>D.skuSuperCategory[f[F_SKU]]))].map(si=>D.superCategories[si]);
+const dims = dimsOverall(filters); // state/zone/tier/distributor-search only — no date range, no category
+const lastMonthIdx = D.months.length-1;
 
-document.getElementById('trialKitKpis').innerHTML = `
-<div class="mini-tile"><div class="label">Revenue (selected period)</div><div class="value">${fmtINR(rev)}</div></div>
-<div class="mini-tile"><div class="label">Orders containing these products</div><div class="value">${fmtNum(orders)}</div></div>
-<div class="mini-tile"><div class="label">Distributors buying them</div><div class="value">${fmtNum(dist)}</div></div>
-`;
-
-setSummary('summary-trialkit', (()=>{
-if(filtered.length===0) return null;
-return `These <b>${components}</b> products are tagged in your SKU Mapping as <b>${kitSuperCats.map(escapeHtml).join(', ')}</b> — `+
-`gift boxes, cross-category combos and trial/sampling jars — rather than standalone retail SKUs, so they're excluded from the `+
-`SKU launch/discontinuation timeline below (a bulky combo or a near-zero-revenue free sample would otherwise skew it). Combined `+
-`they're worth <b>${fmtINR(rev)}</b> in the selected period — see the Product Explorer above (expand ${kitSuperCats.map(escapeHtml).join(' / ')}) for the full component-level breakdown.`;
-})());
-
-// ------------------------------------------------------------
-// Free vs. paid sampling — MoM, vs. overall business revenue
-// (sourced from the "Jars/ Boxes" (free giveaway jars) vs. "Sampling Jar"
-// (paid sampling, real revenue) categories in the user's own SKU Mapping)
-// ------------------------------------------------------------
-if(FREE_SAMPLE_CAT_IDX>=0 || PAID_SAMPLE_CAT_IDX>=0){
-const months=[], paidRev=[], freeUnits=[], overallRev=[];
-const overallDims = dimsOverall(filters);
-for(let m=filters.monthFrom;m<=filters.monthTo;m++){
-months.push(monthLabel(D.months[m]));
-let pr=0; if(PAID_SAMPLE_CAT_IDX>=0) for(const f of factsForMonth(m, dimsForCat(PAID_SAMPLE_CAT_IDX))) pr+=f[F_VAL];
-paidRev.push(pr);
-let fu=0; if(FREE_SAMPLE_CAT_IDX>=0) for(const f of factsForMonth(m, dimsForCat(FREE_SAMPLE_CAT_IDX))) fu+=f[F_QTY];
-freeUnits.push(fu);
-overallRev.push(sumVal(factsForMonth(m, overallDims)));
+const firstAny = new Map(), firstSample = new Map();
+let freeUnitsGiven = 0;
+for(const f of D.facts){
+if(!matchesDims(f, dims)) continue;
+const b = f[F_BUYER], m = f[F_MONTH];
+if(!firstAny.has(b) || m<firstAny.get(b)) firstAny.set(b, m);
+if(f[F_CAT]===FREE_SAMPLE_CAT_IDX){
+if(!firstSample.has(b) || m<firstSample.get(b)) firstSample.set(b, m);
+freeUnitsGiven += f[F_QTY];
 }
-const totalPaid = paidRev.reduce((a,b)=>a+b,0), totalFree = freeUnits.reduce((a,b)=>a+b,0), totalOverall = overallRev.reduce((a,b)=>a+b,0);
-setSummary('summary-sampling-fp', (()=>{
-if(totalPaid===0 && totalFree===0) return null;
-return `Paid sampling jars brought in <b>${fmtINR(totalPaid)}</b> (<b>${totalOverall>0?(totalPaid/totalOverall*100).toFixed(1):'0'}%</b> of overall business revenue) `+
-`while <b>${fmtNum(totalFree)}</b> units were given away free in the selected period.`;
-})());
-destroyChart('samplingFp');
-// paid sampling revenue (a few lakh) sits ~40-50x smaller than overall
-// business revenue (crores) — plotting both as absolute values on the
-// same axis squashed the paid-sampling line flat and unreadable. Same
-// fix as the rest of the dashboard: overall business is expressed as a
-// % share on its own hidden 0-100 axis instead.
-const paidSharePct = sharePctSeries(paidRev, overallRev);
-const fpBase = baseLineOptions((ctx)=>{
-if(ctx.dataset.label==='Free sampling units given') return fmtNum(ctx.parsed.y)+' units';
-if(ctx.dataset.label==='Paid sampling as % of overall revenue') return ctx.parsed.y===null?'—':ctx.parsed.y.toFixed(1)+'%';
-return fmtINR(ctx.parsed.y);
+}
+
+const totalActiveDistributors = firstAny.size;
+const sampledDistributors = firstSample.size;
+// checked against the raw ledger first: a free sample NEVER shows up as a
+// separate earlier touchpoint that later converts — for every distributor
+// who was ever sampled, the sample lands in the exact same month as their
+// first paid order (362 of 362 in this data). So "sampling" here isn't a
+// lead-gen funnel with a conversion lag to measure — it's a welcome
+// freebie bundled into the first invoice. The honest question is
+// therefore "do distributors who started that way go on to buy more",
+// not "how many convert" (which is tautologically ~100% by construction).
+const onboardingCohort = [...firstSample.entries()].filter(([b,fm])=> firstAny.get(b)===fm).map(([b])=>b);
+const lateSampleCount = sampledDistributors - onboardingCohort.length; // already-active accounts sampled later
+
+renderTiles('samplingMasterKpis', [
+{label:'Free units sampled (full history, current scope)', value: fmtNum(freeUnitsGiven)},
+{label:'Distributors ever sampled', value: `${fmtNum(sampledDistributors)} of ${fmtNum(totalActiveDistributors)} (${totalActiveDistributors? (sampledDistributors/totalActiveDistributors*100).toFixed(1):'0'}%)`},
+{label:'New distributors onboarded with a free sample', value: `${fmtNum(onboardingCohort.length)} (${totalActiveDistributors? (onboardingCohort.length/totalActiveDistributors*100).toFixed(1):'0'}% of all new distributors)`},
+{label:'Existing distributors sampled later (not at onboarding)', value: fmtNum(lateSampleCount)},
+]);
+
+// ---- core chart: avg paid revenue, indexed to months since each
+// distributor's own first-ever order, sampled-at-onboarding vs not ----
+const nonOnboardingSample = new Set(onboardingCohort);
+const cohortB = [...firstAny.keys()].filter(b=>!nonOnboardingSample.has(b));
+const maxOffset = 8;
+function paidRevByBuyerMonth(){
+const map = new Map(); // buyer -> Map(month -> paid revenue)
+for(const f of D.facts){
+if(!matchesDims(f, dims)) continue;
+if(f[F_CAT]===FREE_SAMPLE_CAT_IDX || f[F_VAL]<=0) continue;
+const b=f[F_BUYER];
+if(!map.has(b)) map.set(b, new Map());
+const mm = map.get(b);
+mm.set(f[F_MONTH], (mm.get(f[F_MONTH])||0)+f[F_VAL]);
+}
+return map;
+}
+const paidByBuyer = paidRevByBuyerMonth();
+function indexedAvg(cohort){
+const sums = new Array(maxOffset+1).fill(0), counts = new Array(maxOffset+1).fill(0);
+cohort.forEach(b=>{
+const fm = firstAny.get(b);
+for(let k=0;k<=maxOffset;k++){
+const target = fm+k;
+if(target>lastMonthIdx) continue;
+const rev = (paidByBuyer.get(b)||new Map()).get(target) || 0;
+sums[k]+=rev; counts[k]++;
+}
 });
-charts.samplingFp = new Chart(document.getElementById('samplingFpChart'), {
-type:'bar',
-data:{ labels: months, datasets:[
-{ label:'Paid sampling revenue', data:paidRev, type:'line', borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1')+'26',
-borderWidth:2, pointRadius:3, tension:.25, fill:true, yAxisID:'y', order:1 },
-{ label:'Paid sampling as % of overall revenue', data:paidSharePct, type:'line', borderColor:cssVar('--text-muted'), borderWidth:2, borderDash:[2,2],
-pointRadius:0, tension:.25, fill:false, yAxisID:'yPct', order:2 },
-{ label:'Free sampling units given', data:freeUnits, backgroundColor:cssVar('--gridline'), borderRadius:3, maxBarThickness:20, yAxisID:'y1', order:3 },
+return sums.map((s,k)=> counts[k]>0 ? s/counts[k] : null);
+}
+const avgA = indexedAvg(onboardingCohort);
+const avgB = indexedAvg(cohortB);
+
+setSummary('summary-sampling', (()=>{
+if(totalActiveDistributors===0) return null;
+let s = `<b>${fmtNum(freeUnitsGiven)}</b> free units have gone out to <b>${fmtNum(sampledDistributors)}</b> of <b>${fmtNum(totalActiveDistributors)}</b> distributors `+
+`(<b>${(sampledDistributors/totalActiveDistributors*100).toFixed(1)}%</b> of the active base). Checked against the raw ledger, a sample is never a separate, earlier `+
+`touchpoint that later converts — it lands in the exact same month as the distributor's first paid order every single time. In practice it's a welcome freebie bundled `+
+`into the first invoice: <b>${fmtNum(onboardingCohort.length)}</b> of <b>${fmtNum(totalActiveDistributors)}</b> new distributors (<b>${(onboardingCohort.length/totalActiveDistributors*100).toFixed(1)}%</b>) `+
+`started that way, and a further <b>${fmtNum(lateSampleCount)}</b> already-active distributors were sampled again later.`;
+const a3=avgA[3], b3=avgB[3];
+if(a3!==null && b3!==null && a3+b3>0){
+const lift = b3!==0 ? (a3-b3)/b3*100 : null;
+if(lift!==null) s += ` By month 3, distributors who started with a sample are averaging <b>${fmtINR(a3)}</b>/month in paid orders vs. <b>${fmtINR(b3)}</b> for the `+
+`${fmtNum(cohortB.length)} who didn't (${lift>=0?'+':''}${lift.toFixed(0)}%) — a correlation worth watching, not proof the sample caused it, since which distributors `+
+`get one isn't random and the no-sample group is small.`;
+}
+return s;
+})());
+
+destroyChart('samplingCohort');
+const cohortCanvas = document.getElementById('samplingCohortChart');
+if(cohortCanvas){
+const base = baseLineOptions((ctx)=> ctx.parsed.y===null?'—':fmtINR(ctx.parsed.y));
+charts.samplingCohort = new Chart(cohortCanvas, {
+type:'line',
+data:{ labels: avgA.map((_,k)=>'M+'+k), datasets:[
+{ label:`Started with a sample (${onboardingCohort.length})`, data:avgA, borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1')+'1f', borderWidth:2, pointRadius:3, tension:.2, fill:true },
+{ label:`No sample with first order (${cohortB.length})`, data:avgB, borderColor:cssVar('--text-muted'), backgroundColor:'transparent', borderWidth:2, borderDash:[4,3], pointRadius:2, tension:.2, fill:false },
 ]},
-options:{ ...fpBase,
-scales:{ ...fpBase.scales,
-y1:{ position:'right', grid:{display:false}, ticks:{ color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtNum(v) } },
-yPct:{ display:false, min:0, max:100 }
-}
-}
+options:{ ...base, layout:{ padding:{ right:8 } } }
 });
+}
 
-// geo/tier split for paid sampling revenue
-const paidRowsAll = factsInRange(filters.monthFrom, filters.monthTo, dimsForCat(PAID_SAMPLE_CAT_IDX>=0?PAID_SAMPLE_CAT_IDX:-1));
-const byRegionTier = new Map();
-D.regions.forEach(r=>{ const m=new Map(); D.tiers.forEach(t=>m.set(t,0)); byRegionTier.set(r,m); });
-for(const f of paidRowsAll){
-const ri = D.citiesRegionIdx[f[F_CITY]], ti = D.citiesTierIdx[f[F_CITY]];
-const rMap = byRegionTier.get(D.regions[ri]); if(!rMap) continue;
-rMap.set(D.tiers[ti], (rMap.get(D.tiers[ti])||0) + f[F_VAL]);
+// ---- where are we sampling vs. where is paid growth happening ----
+const regionRows = D.regions.map((rname,ri)=>{
+let units=0; const dset=new Set();
+for(const f of D.facts){
+if(f[F_CAT]!==FREE_SAMPLE_CAT_IDX || !matchesDims(f,dims)) continue;
+if(D.citiesRegionIdx[f[F_CITY]]!==ri) continue;
+units += f[F_QTY]; dset.add(f[F_BUYER]);
 }
-const tierPalette = ['--s1','--s2','--s3','--s4','--s5','--s6'];
-destroyChart('samplingGeo');
-charts.samplingGeo = new Chart(document.getElementById('samplingGeoChart'), {
-type:'bar',
-data:{ labels: D.regions, datasets: D.tiers.map((t,ti)=>({
-label:t, data: D.regions.map(r=> byRegionTier.get(r).get(t)||0),
-backgroundColor: cssVar(tierPalette[ti % tierPalette.length]), borderRadius:3, maxBarThickness:18, stack:'s'
-})) },
-options:{ ...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
-scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } }
+const paidArr = [];
+for(let m=filters.monthFrom;m<=filters.monthTo;m++){
+let s=0;
+for(const f of factsForMonth(m, dims)) if(f[F_CAT]!==FREE_SAMPLE_CAT_IDX && D.citiesRegionIdx[f[F_CITY]]===ri) s+=f[F_VAL];
+paidArr.push(s);
 }
-});
-// Distributors receiving sampling are already searchable in the main
-// "Top distributors" table below (Category split shows Jars/ Boxes &
-// Sampling Jar directly) — a separate mini-table here just repeated that.
+return { name:rname, samples:units, distributors:dset.size, growth: periodGrowthPct(paidArr), trend:paidArr };
+}).filter(r=>r.samples>0 || r.trend.some(v=>v!==0));
+regionRows.sort((a,b)=>b.samples-a.samples);
+const regionTableEl = document.getElementById('samplingRegionTable');
+if(regionTableEl){
+if(regionRows.length===0){
+regionTableEl.innerHTML = '<div class="empty-state">No sampling activity in this selection.</div>';
+} else {
+const rowsHtml = regionRows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td class="num">${fmtNum(r.samples)}</td>`+
+`<td class="num">${fmtNum(r.distributors)}</td><td class="num">${growthBadge(r.growth)}</td><td>${sparklineSVG(r.trend)}</td></tr>`).join('');
+regionTableEl.innerHTML = `<div class="tablewrap"><table><thead><tr><th>Zone</th><th class="num">Free units sampled</th>`+
+`<th class="num">Distributors sampled</th><th class="num">Paid revenue CMGR (selected period)</th><th>Paid revenue trend</th></tr></thead>`+
+`<tbody>${rowsHtml}</tbody></table></div>`;
+}
 }
 }
 
@@ -2692,12 +2532,8 @@ status: o.months.size>=2 ? 'repeat' : 'new' };
 const totalActive = buyerRows.length;
 const repeatCount = buyerRows.filter(r=>r.months>=2).length;
 const newCount = buyerRows.filter(r=>r.status==='new').length;
-document.getElementById('distKpis').innerHTML = `
-<div class="mini-tile"><div class="label">Repeat rate (2+ active months in period)</div><div class="value">${totalActive? (repeatCount/totalActive*100).toFixed(1):'0.0'}%</div></div>
-<div class="mini-tile"><div class="label">New distributors this period</div><div class="value">${fmtNum(newCount)}</div></div>
-<div class="mini-tile"><div class="label">Existing (repeat) distributors this period</div><div class="value">${fmtNum(repeatCount)}</div></div>
-<div class="mini-tile"><div class="label">Avg orders / distributor</div><div class="value">${totalActive? (buyerRows.reduce((a,r)=>a+r.orders,0)/totalActive).toFixed(1):'0'}</div></div>
-`;
+// (repeat rate / new / avg-orders now live in the tab's master KPI band —
+// see renderDistributorKpis — rather than a second scorecard here)
 
 setSummary('summary-dist', (()=>{
 if(totalActive===0) return null;
@@ -3596,324 +3432,41 @@ if(gainer) s += ` <b>${escapeHtml(D.states[gainer.key])}</b> is currently the fa
 setSummary('summary-overall', s);
 }
 
-// ============================================================
-// EXPLORE — a generic breakdown by category tag / zone / tier / quarter,
-// built on the exact same filters as the Overview tab. This is the one
-// place to slice the whole business by whichever axis you want, using the
-// same standardized chart/table language as the rest of the dashboard
-// (own-scale trend/bar + ranked table with % of total, growth, trend) —
-// so there's a single method to learn, applied to any dimension.
-// ============================================================
-const EXPLORE_DIM_LABEL = { cat:'category', superCat:'super category', shortName:'product', region:'zone', tier:'city tier', state:'state', distributor:'distributor', quarter:'quarter' };
-const EXPLORE_DIM_LABEL_PLURAL = { cat:'categories', superCat:'super categories', shortName:'products', region:'zones', tier:'city tiers', state:'states', distributor:'distributors', quarter:'quarters' };
-// category -> super category, derived once from the per-SKU arrays (there's
-// no direct per-category column) — used to drill a super-category bar into
-// exactly the categories underneath it
-const catToSuperCat = (()=>{ const m=new Map(); for(let i=0;i<D.skuCategory.length;i++){ if(!m.has(D.skuCategory[i])) m.set(D.skuCategory[i], D.skuSuperCategory[i]); } return m; })();
-// color-by-entity for whichever dimension Explore is currently grouped by —
-// categories/regions/tiers/super-categories all already have a fixed,
-// stable color assigned once at startup, so the same entity keeps the same
-// color here as everywhere else in the dashboard. High-cardinality dims
-// (product, state, distributor) have no small fixed palette to draw from,
-// so they fall back to a rank-based color within THIS chart only.
-function dimEntityColor(dimKey, name, idx){
-if(dimKey==='cat') return catColor(name);
-if(dimKey==='superCat') return superCatColor(name);
-if(dimKey==='region') return regionColor(name);
-if(dimKey==='tier') return tierColor(name);
-return cssVar(CAT_COLOR_SEQ[(idx||0) % CAT_COLOR_SEQ.length]);
-}
-
-function computeExploreRows(dimKey){
-const filtered = getFiltered();
-const grand = sumVal(filtered) || 1;
-
-if(dimKey==='quarter'){
-const qOrder = [];
-const qMonths = new Map();
-for(let m=filters.monthFrom;m<=filters.monthTo;m++){
-const lbl = fiscalQuarterLabel(D.months[m]);
-if(!qMonths.has(lbl)){ qMonths.set(lbl, []); qOrder.push(lbl); }
-qMonths.get(lbl).push(m);
-}
-const rows = qOrder.map((lbl,qi)=>{
-const months = qMonths.get(lbl);
-const trend = months.map(m=> sumVal(factsForMonth(m, filters)));
-const rev = trend.reduce((a,b)=>a+b,0);
-return { name:lbl, rev, share: rev/grand*100, trend, _qi:qi, _key:lbl };
-});
-rows.forEach((r,i)=>{
-if(i===0){ r.growth=null; return; }
-const prev = rows[i-1].rev;
-r.growth = prev!==0 ? (r.rev-prev)/Math.abs(prev)*100 : (r.rev>0?100:null);
-});
-return rows;
-}
-
-let groups, seriesMap;
-if(dimKey==='cat'){
-groups = D.categories.map((c,i)=>({key:i,name:c}));
-seriesMap = buildMonthlySeries(filtered, F_CAT);
-} else if(dimKey==='superCat'){
-groups = D.superCategories.map((c,i)=>({key:i,name:c}));
-seriesMap = buildDerivedMonthlySeries(filtered, f=>D.skuSuperCategory[f[F_SKU]]);
-} else if(dimKey==='region'){
-groups = D.regions.map((r,i)=>({key:i,name:r}));
-seriesMap = buildDerivedMonthlySeries(filtered, f=>D.citiesRegionIdx[f[F_CITY]]);
-} else if(dimKey==='tier'){
-groups = D.tiers.map((t,i)=>({key:i,name:t}));
-seriesMap = buildDerivedMonthlySeries(filtered, f=>D.citiesTierIdx[f[F_CITY]]);
-} else if(dimKey==='state'){
-groups = D.states.map((s,i)=>({key:i,name:s}));
-seriesMap = buildMonthlySeries(filtered, F_STATE);
-} else if(dimKey==='distributor'){
-groups = D.buyers.map((b,i)=>({key:i,name:b}));
-seriesMap = buildMonthlySeries(filtered, F_BUYER);
-} else { // shortName — no fixed enumerable list, built straight from what's present
-seriesMap = buildDerivedMonthlySeries(filtered, f=>D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]]);
-groups = [...seriesMap.keys()].map(k=>({key:k,name:k}));
-}
-return groups.map(g=>{
-const arr = seriesMap.get(g.key) || new Array(Math.max(1,filters.monthTo-filters.monthFrom+1)).fill(0);
-const rev = arr.reduce((a,b)=>a+b,0);
-return { name:g.name, rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend: arr, _key:g.key };
-}).filter(r=>Math.abs(r.rev)>=1);
-}
-
-// ---- click-to-drill: from a ranked Explore bar into that segment's own
-// composition (categories -> its top SKUs; a product/short-name -> its
-// grammage split; everything else -> its category mix). A legitimate
-// within-chart interaction per the dataviz skill (distinct from a
-// "per-chart filter"): it doesn't change what's being measured, it drills
-// into one row of what's already shown. ----
-const exploreDrill = { dimKey:null, key:null, name:null };
-function exploreDrillDims(dimKey, key){
-if(dimKey==='cat') return { ...filters, cats: new Set([key]), variants:null, sizes:null };
-if(dimKey==='superCat') return { ...filters, cats: new Set(D.categories.map((c,ci)=>ci).filter(ci=>catToSuperCat.get(ci)===key)), variants:null, sizes:null };
-if(dimKey==='region') return { ...filters, regions: new Set([key]) };
-if(dimKey==='tier') return { ...filters, tiers: new Set([key]) };
-if(dimKey==='state') return { ...filters, states: new Set([key]) };
-if(dimKey==='distributor') return { ...filters, buyerQuery: D.buyers[key].toLowerCase() };
-return filters; // shortName — post-filtered by name below instead, not a global filter dimension
-}
-function computeExploreDrillRows(dimKey, key){
-let mFrom=filters.monthFrom, mTo=filters.monthTo, dims=filters;
-if(dimKey==='quarter'){
-const monthsInQ=[];
-for(let m=filters.monthFrom;m<=filters.monthTo;m++){ if(fiscalQuarterLabel(D.months[m])===key) monthsInQ.push(m); }
-if(monthsInQ.length===0) return [];
-mFrom=Math.min(...monthsInQ); mTo=Math.max(...monthsInQ);
-} else if(dimKey!=='shortName'){
-dims = exploreDrillDims(dimKey, key);
-}
-let rows = factsInRange(mFrom, mTo, dims);
-if(dimKey==='shortName') rows = rows.filter(f=> (D.skuShortName[f[F_SKU]]||D.skuNames[f[F_SKU]])===key);
-const grand = sumVal(rows) || 1;
-if(dimKey==='cat'){
-const seriesMap = buildSeriesRange(rows, F_SKU, mFrom, mTo);
-return [...seriesMap.entries()].map(([sk,arr])=>{
-const rev = arr.reduce((a,b)=>a+b,0);
-return { name:D.skuNames[sk], rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend:arr };
-}).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev).slice(0,12);
-}
-if(dimKey==='shortName'){
-const seriesMap = buildSeriesRange(rows, F_SKU, mFrom, mTo);
-return [...seriesMap.entries()].map(([sk,arr])=>{
-const rev = arr.reduce((a,b)=>a+b,0);
-return { name: D.skuSize[sk]||D.skuNames[sk], rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend:arr };
-}).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev);
-}
-const seriesMap = buildSeriesRange(rows, F_CAT, mFrom, mTo);
-return D.categories.map((c,ci)=>{
-const arr = seriesMap.get(ci) || new Array(mTo-mFrom+1).fill(0);
-const rev = arr.reduce((a,b)=>a+b,0);
-return { name:c, rev, share: rev/grand*100, growth: periodGrowthPct(arr), trend:arr };
-}).filter(r=>Math.abs(r.rev)>=1).sort((a,b)=>b.rev-a.rev);
-}
-function renderExploreDrill(){
-const panel = document.getElementById('exploreDrillPanel');
-const bc = document.getElementById('exploreDrillBreadcrumb');
-if(!panel || !bc) return;
-if(exploreDrill.key===null){ panel.style.display='none'; bc.innerHTML=''; return; }
-panel.style.display='';
-const drillIntoLabel = exploreDrill.dimKey==='cat' ? 'top SKUs' : (exploreDrill.dimKey==='shortName' ? 'grammage / pack-size split' : 'category mix');
-const allLabel = { cat:'All categories', superCat:'All super categories', shortName:'All products', region:'All zones', tier:'All city tiers', state:'All states', distributor:'All distributors', quarter:'All quarters' }[exploreDrill.dimKey] || 'Back';
-bc.innerHTML = `<span class="crumb">${allLabel}</span><span class="sep">›</span><span class="current">${escapeHtml(exploreDrill.name)} — ${drillIntoLabel}</span>`;
-bc.querySelector('.crumb').addEventListener('click', ()=>{ exploreDrill.dimKey=null; exploreDrill.key=null; exploreDrill.name=null; renderExplore(); });
-const drillRows = computeExploreDrillRows(exploreDrill.dimKey, exploreDrill.key);
-setSummary('summary-explore-drill', (()=>{
-if(drillRows.length===0) return null;
-const top = drillRows[0];
-return `Within <b>${escapeHtml(exploreDrill.name)}</b>, <b>${escapeHtml(top.name)}</b> leads at <b>${top.share.toFixed(1)}%</b> (${fmtINR(top.rev)}).`;
-})());
-const tableBox = panel.querySelector('.drill-table-box');
-const isSkuLevel = exploreDrill.dimKey==='cat' || exploreDrill.dimKey==='shortName';
-if(tableBox) tableBox.innerHTML = stdTableHTML(drillRows, {
-nameHeader: exploreDrill.dimKey==='cat' ? 'SKU' : (exploreDrill.dimKey==='shortName' ? 'Grammage' : 'Category'), maxHeight:320,
-dotColor: isSkuLevel ? null : (r)=>catColor(r.name)
-});
-}
-
-function renderExplore(){
-const dimSel = document.getElementById('exploreDim');
-if(!dimSel) return;
-const dimKey = dimSel.value;
-const dimLabel = EXPLORE_DIM_LABEL[dimKey];
-document.getElementById('exploreDimLabel').textContent = dimLabel;
-const growthHeaderEl = document.getElementById('exploreGrowthHeader');
-if(growthHeaderEl) growthHeaderEl.textContent = dimKey==='quarter' ? 'QoQ growth' : 'CMGR';
-
-let rows = computeExploreRows(dimKey);
-rows = dimKey==='quarter' ? rows.slice().sort((a,b)=>a._qi-b._qi) : rows.slice().sort((a,b)=>b.rev-a.rev);
-
-setSummary('summary-explore', (()=>{
-if(rows.length===0) return null;
-const byRev = rows.slice().sort((a,b)=>b.rev-a.rev)[0];
-let s = `Broken down by <b>${dimLabel}</b> across the selected period.`;
-if(byRev) s += ` <b>${escapeHtml(byRev.name)}</b> leads at <b>${byRev.share.toFixed(1)}%</b> of revenue (${fmtINR(byRev.rev)}).`;
-const fastest = rows.filter(r=>r.growth!==null).sort((a,b)=>b.growth-a.growth)[0];
-if(fastest) s += ` <b>${escapeHtml(fastest.name)}</b> ${dimKey==='quarter'?'was the fastest-growing quarter':'grew the fastest'} (${fmtPct(fastest.growth,1)}${dimKey==='quarter'?' QoQ':' across the period'}).`;
-return s;
-})());
-
-destroyChart('exploreBar');
-const barCanvas = document.getElementById('exploreBarChart');
-if(barCanvas && dimKey==='quarter'){
-// quarters ARE already a time axis — one bar per quarter is the MoM-
-// equivalent view here, so this stays a plain ranked-over-time bar
-charts.exploreBar = new Chart(barCanvas, {
-type:'bar',
-data:{ labels: rows.map(r=>r.name), datasets:[{
-data: rows.map(r=>r.rev), backgroundColor: cssVar('--s1'), borderRadius:4, maxBarThickness:26
-}]},
-options:{
-responsive:true, maintainAspectRatio:false,
-onClick: (evt, els)=>{
-if(!els.length) return;
-const r = rows[els[0].index];
-exploreDrill.dimKey = dimKey; exploreDrill.key = r._key; exploreDrill.name = r.name;
-renderExploreDrill();
-document.getElementById('exploreDrillPanel')?.scrollIntoView({behavior:'smooth', block:'nearest'});
-},
-onHover: (evt, els)=>{ if(evt.native && evt.native.target) evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
-plugins:{ legend:{display:false},
-tooltip:{ backgroundColor:cssVar('--card'), titleColor:cssVar('--text-primary'), bodyColor:cssVar('--text-primary'),
-borderColor:cssVar('--border'), borderWidth:1, padding:10,
-callbacks:{ label:(c)=> ' '+fmtINR(c.parsed.y)+' — click to drill in' } } },
-scales:{
-x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} }
-}
-}
-});
-} else if(barCanvas){
-// MoM view — stacked bar, one segment per entity per month, entities
-// colored by their fixed identity color (never by rank). Folds
-// anything past the top 7 into "Other" so the legend never exceeds 8
-// categorical slots. Click any segment to drill into that entity.
-const monthLabelsE=[]; for(let m=filters.monthFrom;m<=filters.monthTo;m++) monthLabelsE.push(monthLabel(D.months[m]));
-const N_SHOW = 7;
-const ranked2 = rows.slice().sort((a,b)=>b.rev-a.rev);
-const shown = ranked2.slice(0, N_SHOW);
-const rest = ranked2.slice(N_SHOW);
-const dsets = shown.map((r,i)=>({ label:r.name, data:r.trend, backgroundColor: dimEntityColor(dimKey,r.name,i), borderRadius:2, maxBarThickness:26, _key:r._key, _name:r.name }));
-if(rest.length){
-const arr = new Array(monthLabelsE.length).fill(0);
-rest.forEach(r=> r.trend.forEach((v,i)=>arr[i]+=v));
-dsets.push({ label:`Other ${EXPLORE_DIM_LABEL_PLURAL[dimKey]} (${rest.length})`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:2, maxBarThickness:26, _key:null, _name:null });
-}
-charts.exploreBar = new Chart(barCanvas, {
-type:'bar',
-data:{ labels: monthLabelsE, datasets: dsets },
-options:{
-responsive:true, maintainAspectRatio:false,
-onClick: (evt, els)=>{
-if(!els.length) return;
-const ds = dsets[els[0].datasetIndex];
-if(ds._key===null || ds._key===undefined) return; // "Other" bucket — no single entity to drill into
-exploreDrill.dimKey = dimKey; exploreDrill.key = ds._key; exploreDrill.name = ds._name;
-renderExploreDrill();
-document.getElementById('exploreDrillPanel')?.scrollIntoView({behavior:'smooth', block:'nearest'});
-},
-onHover: (evt, els)=>{ if(evt.native && evt.native.target) evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
-plugins:{ legend:{ position:'bottom', labels:{ color:cssVar('--text-secondary'), boxWidth:12, boxHeight:2, font:{size:11.5} } },
-tooltip:{ backgroundColor:cssVar('--card'), titleColor:cssVar('--text-primary'), bodyColor:cssVar('--text-primary'),
-borderColor:cssVar('--border'), borderWidth:1, padding:10,
-callbacks:{ label:(c)=> ` ${c.dataset.label}: ${fmtINR(c.parsed.y)}${c.dataset._key!==null?' — click to drill in':''}` } } },
-scales:{
-x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} }
-}
-}
-});
-}
-
-const tbody = document.querySelector('#exploreTable tbody');
-if(tbody){
-tbody.innerHTML='';
-if(rows.length===0){
-const tr=document.createElement('tr'); const t0=td('No data for this filter selection.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr);
-} else {
-rows.forEach(r=>{
-const tr=document.createElement('tr');
-const nameTd=document.createElement('td');
-nameTd.innerHTML = dimKey==='cat' ? `<span class="catdot" style="background:${catColor(r.name)}"></span>${escapeHtml(r.name)}` : (dimKey==='superCat' ? `<span class="catdot" style="background:${superCatColor(r.name)}"></span>${escapeHtml(r.name)}` : escapeHtml(r.name));
-tr.appendChild(nameTd);
-tr.appendChild(td(fmtINR(r.rev),'num'));
-tr.appendChild(td(r.share.toFixed(1)+'%','num'));
-const gTd=document.createElement('td'); gTd.className='num'; gTd.innerHTML=growthBadge(r.growth); tr.appendChild(gTd);
-const trTd=document.createElement('td'); trTd.innerHTML=sparklineSVG(r.trend); tr.appendChild(trTd);
-tbody.appendChild(tr);
-});
-}
-}
-
-// step 3 of the flow: click any bar above to drill into its own composition
-renderExploreDrill();
-
-// distributor concentration for the current top-bar filtered scope
-const filtered = getFiltered();
-const bAgg = new Map();
-for(const f of filtered){ bAgg.set(f[F_BUYER], (bAgg.get(f[F_BUYER])||0)+f[F_VAL]); }
-renderParetoChart('exploreParetoChart', [...bAgg.values()], 'summary-pareto-explore');
-}
-
-const exploreDimSel = document.getElementById('exploreDim');
-if(exploreDimSel) exploreDimSel.addEventListener('change', ()=>{
-// changing what we're grouping by invalidates any current drill — a
-// drilled-in category doesn't mean anything once you're looking at
-// regions instead
-exploreDrill.dimKey=null; exploreDrill.key=null; exploreDrill.name=null;
-renderExplore();
-});
-
 // ---- tab switching ----
+// Four purpose-built tabs, each answering one business question, instead
+// of one long kitchen-sink scroll plus a generic pivot tool. Charts drawn
+// while their tab was hidden size to 0, so switching re-runs refresh() —
+// cheap at this data size, and it guarantees every canvas on the newly
+// shown tab comes up correctly sized regardless of which render call
+// happens to own it.
+const TAB_IDS = ['overview','distributors','portfolio','sampling'];
 document.querySelectorAll('.tab-btn').forEach(btn=>{
 btn.addEventListener('click', ()=>{
 document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
 const tab = btn.dataset.tab;
-const ov = document.getElementById('tabOverview'), ex = document.getElementById('tabExplore');
-if(ov) ov.style.display = tab==='overview' ? '' : 'none';
-if(ex) ex.style.display = tab==='explore' ? '' : 'none';
-// charts drawn while their tab was hidden size to 0 — re-render on
-// switch so Explore's canvases always come up correctly sized
-if(tab==='explore') renderExplore();
+TAB_IDS.forEach(id=>{
+const el = document.getElementById('tab'+id[0].toUpperCase()+id.slice(1));
+if(el) el.style.display = (tab===id) ? '' : 'none';
+});
+refresh();
 });
 });
 
 function refresh(){
 renderKPIs();
+renderConcentrationSnapshot();
 renderRevenueTrend();
 renderGst();
 renderCategory();
 renderCatGrowth();
-renderGeo();
+renderPortfolioKpis();
 renderProductExplorer();
-renderTrialKit();
 renderSkuLaunch();
+renderDistributorKpis();
+renderGeo();
 renderDistributors();
+renderSamplingROI();
 renderOverallSummary();
-renderExplore();
 }
 
 document.getElementById('dataAsOf').textContent = monthLabel(D.months[D.months.length-1]);
