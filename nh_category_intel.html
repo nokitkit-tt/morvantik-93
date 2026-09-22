@@ -341,8 +341,8 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="ai-summary ai-summary-hero" id="summary-overall"></div>
 
-<div class="sub" style="margin:0 0 6px;">Concentration &amp; risk — how reliant the business currently is on its biggest accounts and its biggest category</div>
-<div class="kpirow-2" id="concSnapshot"></div>
+<div class="sub" style="margin:0 0 6px;">Concentration &amp; risk — how reliant the business currently is on its biggest accounts and its biggest category, and who's gone quiet</div>
+<div class="kpirow-auto" id="concSnapshot"></div>
 
 <section>
 <div class="card">
@@ -370,25 +370,18 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div id="tabDistributors" style="display:none;">
 
-<div class="sectitle"><h2 style="font-size:15px;">Distributor health</h2><span class="sub">Acquisition, growth, concentration risk, engagement depth, retention and reach — one continuous story instead of scattered scorecards. Respects the filters above.</span></div>
+<div class="sectitle"><h2 style="font-size:15px;">Distributor health</h2><span class="sub">Growing, and where it's coming from → how reliant we are on the top accounts, and whether they behave differently → whether distributors stick, and exactly who's gone quiet → where we have depth today → any one distributor, in detail. Five distinct cuts, nothing repeated. Respects the filters above.</span></div>
 <div class="kpirow-auto" id="distMasterKpis"></div>
 <div class="ai-summary ai-summary-hero" id="summary-dist"></div>
 
 <section>
 <div class="card">
 <div class="sectitle">
-<h2>New vs. repeat distributors</h2>
-<span class="sub">Monthly revenue split by whether the distributor was new that month or already active — the acquisition engine at a glance</span>
+<h2>Growth — acquisition &amp; where it's coming from</h2>
+<span class="sub">New vs. repeat revenue each month (the acquisition engine), then the same growth broken out by region &amp; city tier — same metric picker drives both region and tier lines</span>
 </div>
 <div class="chartbox tall"><canvas id="distChart"></canvas></div>
-</div>
-
-<div class="card">
-<div class="sectitle">
-<h2>Growth by region &amp; tier</h2>
-<span class="sub">Month-by-month, one line per region/tier — growth reads directly off the slope. Same metric picker drives both charts.</span>
-</div>
-<div class="explore-controls">
+<div class="explore-controls" style="margin-top:20px;">
 <label>Metric</label>
 <select id="distGeoMetric">
 <option value="revenue">Revenue</option>
@@ -404,19 +397,12 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="card">
 <div class="sectitle">
-<h2>Distributor concentration</h2>
-<span class="sub">Cumulative % of active distributors (ranked by revenue) vs. cumulative % of revenue — the risk counterpart to the growth chart above</span>
+<h2>Concentration &amp; tier economics</h2>
+<span class="sub">How reliant the business is on its biggest accounts (cumulative % of distributors vs. cumulative % of revenue), and whether those top accounts actually behave differently — bigger baskets, more frequent orders — using the same Top 1&ndash;10 / 11&ndash;25 / 26&ndash;50 / Rest tiers throughout</span>
 </div>
 <div class="ai-summary" id="summary-pareto"></div>
 <div class="chartbox tall"><canvas id="paretoChart"></canvas></div>
-</div>
-
-<div class="card">
-<div class="sectitle">
-<h2>Engagement depth — order frequency &amp; AOV by tier</h2>
-<span class="sub">A distributor not ordering this month may just not have sold through last month's stock — order frequency &amp; AOV by revenue tier (Top 1&ndash;10 / 11&ndash;25 / 26&ndash;50 / Rest) is a better read on inventory utilisation than active/churned</span>
-</div>
-<div class="ai-summary" id="summary-waterfall"></div>
+<div class="ai-summary" id="summary-waterfall" style="margin-top:16px;"></div>
 <div class="fourcol-kpi" id="distTierScorecard" style="margin-top:10px;"></div>
 <div class="grid2" style="margin-top:16px;">
 <div>
@@ -445,8 +431,8 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="card">
 <div class="sectitle">
-<h2>Retention cohorts</h2>
-<span class="sub">New distributors acquired per month, and % of each cohort still ordering N months later</span>
+<h2>Retention &amp; attrition</h2>
+<span class="sub">New distributors acquired per month and what % of each cohort is still ordering N months later, then exactly who's gone quiet right now — not just the aggregate curve</span>
 </div>
 <div class="explore-controls">
 <label>View</label>
@@ -458,6 +444,21 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="chartbox" style="height:130px;"><canvas id="newDistChart"></canvas></div>
 <div id="cohortWrap"></div>
 <div class="chartbox tall" id="cohortCurveBox" style="display:none;"><canvas id="cohortCurveChart"></canvas></div>
+
+<div class="sub" style="margin:20px 0 6px;">Distributors gone quiet — repeat distributors with no paid order in 3+ months, well past their typical 1&ndash;2 month reorder gap (full history, respects state/tier/search filters above)</div>
+<div class="ai-summary" id="summary-distquiet"></div>
+<div class="tablewrap" style="margin-top:10px;">
+<table id="distQuietTable">
+<thead><tr>
+<th>Distributor</th>
+<th>State</th>
+<th>Last order</th>
+<th class="num">Months quiet</th>
+<th class="num">All-time revenue</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
 </div>
 
 <div class="card">
@@ -871,6 +872,32 @@ if(!map.has(b) || f[F_MONTH]<map.get(b)) map.set(b, f[F_MONTH]);
 }
 return map;
 }
+// per-buyer paid-order history: first month, last month, and the count of
+// distinct months with a paid order — used to flag distributors who've
+// gone quiet (see renderDistQuiet). Distributor reorder cycles are longer
+// and noisier than SKU restocking, so unlike skuStatus's fixed 2-month
+// rule, "quiet" is grounded in this data's own cadence instead of
+// borrowing the SKU threshold: see QUIET_THRESHOLD_MONTHS below.
+function buyerOrderHistory(dims){
+const map = new Map();
+for(const f of D.facts){
+if(f[F_VAL]<=0) continue;
+if(!matchesDims(f,dims)) continue;
+const b=f[F_BUYER], m=f[F_MONTH];
+if(!map.has(b)) map.set(b, {first:m, last:m, months:new Set()});
+const o = map.get(b);
+if(m<o.first) o.first=m;
+if(m>o.last) o.last=m;
+o.months.add(m);
+}
+return map;
+}
+// Among repeat distributors (2+ distinct order months), the gap between
+// consecutive order months is 1 month at the median and 2 months at the
+// 90th percentile (checked directly against the ledger) — so 3+ months of
+// total silence is a genuinely unusual gap, not just an off month between
+// a normal quarterly-ish reorder cycle.
+const QUIET_THRESHOLD_MONTHS = 3;
 function firstMonthByDim(dimField, dims){
 const map = new Map();
 for(const f of D.facts){
@@ -2134,10 +2161,21 @@ for(const f of filtered) catTotals.set(f[F_CAT], (catTotals.get(f[F_CAT])||0)+f[
 const grandCat = [...catTotals.values()].reduce((a,b)=>a+b,0) || 1;
 const topCat = [...catTotals.entries()].sort((a,b)=>b[1]-a[1])[0];
 
+// third risk signal: repeat distributors who've gone quiet, full history
+// (ignores the date-range filter like the Distributors-tab list it
+// summarizes), so this headline stays honest even when someone narrows
+// the date range. Scoped to repeat distributors only — a one-time buyer
+// was never a going concern to lose in the same sense.
+const lastOverall = D.months.length-1;
+const hist = buyerOrderHistory(filters);
+let quietCount=0, repeatCount2=0;
+hist.forEach(o=>{ if(o.months.size<2) return; repeatCount2++; if(lastOverall-o.last>=QUIET_THRESHOLD_MONTHS) quietCount++; });
+
 renderTiles('concSnapshot', [
 {label:`Revenue held by top 10% of distributors (${distConc.n} of ${distConc.of})`, value: distConc.of? distConc.pct.toFixed(1)+'%':'—'},
 {label: topCat? `Revenue held by leading category (${escapeHtml(D.categories[topCat[0]])})` : 'Revenue held by leading category',
 value: topCat? (topCat[1]/grandCat*100).toFixed(1)+'%' : '—'},
+{label:`Repeat distributors gone quiet (${QUIET_THRESHOLD_MONTHS}+ months silent)`, value: repeatCount2? `${fmtNum(quietCount)} of ${fmtNum(repeatCount2)} (${(quietCount/repeatCount2*100).toFixed(1)}%)` : '—'},
 ]);
 }
 
@@ -2153,9 +2191,22 @@ const skusLive = distinctCount(filtered, F_SKU);
 const catsActive = distinctCount(filtered, F_CAT);
 const firstMap = new Map([...skuFirstMonth(filters).entries()].filter(([sk])=>!isKitSku(sk)));
 const lastMap = skuLastMonth(filters);
-let newLaunches=0, discontinued=0, slowing=0;
+let newLaunches=0;
 firstMap.forEach((fm)=>{ if(fm>=filters.monthFrom && fm<=filters.monthTo) newLaunches++; });
-lastMap.forEach((lm,sk)=>{ if(isKitSku(sk)) return; const st=skuStatus(lm); if(st==='Discontinued') discontinued++; else if(st==='Slowing') slowing++; });
+
+// Discontinued/slowing counted at the same PRODUCT-ENTITY grain as the
+// Launch & Lifecycle table below (bundle-cluster members collapsed into
+// one row, same as renderSkuLaunch) — a raw per-grammage-SKU count would
+// count every component of a single sampler assortment separately and
+// disagree with the explicit list in that table.
+const entityLast = new Map();
+lastMap.forEach((lm, sk)=>{
+if(isKitSku(sk)) return;
+const ek = bundleClusterIdOf(sk) || ('sku:'+sk);
+if(!entityLast.has(ek) || lm>entityLast.get(ek)) entityLast.set(ek, lm);
+});
+let discontinued=0, slowing=0;
+entityLast.forEach((lm)=>{ const st=skuStatus(lm); if(st==='Discontinued') discontinued++; else if(st==='Slowing') slowing++; });
 
 renderTiles('portfolioMasterKpis', [
 {label:'Revenue (selected period)', value: fmtINR(netRev)},
@@ -2619,6 +2670,73 @@ renderParetoChart('paretoChart', buyerRows.map(r=>r.rev), 'summary-pareto');
 renderCohort(bFirst);
 renderDistCategorySplit(buyerCatRev, buyerRows);
 renderRetentionWaterfall();
+renderDistQuiet();
+}
+
+// ============================================================
+// DISTRIBUTORS GONE QUIET — the named-list counterpart to the retention
+// curve above: the curve says what % of a cohort typically survives, this
+// says WHO specifically has gone quiet right now. Scoped to REPEAT
+// distributors (2+ distinct order months) — a one-time buyer was never a
+// going concern to lose, that's the "new vs. never came back" question the
+// cohort curve already answers. "Quiet" = no paid order in the last
+// QUIET_THRESHOLD_MONTHS (3) — chosen from this ledger's own reorder
+// cadence (median gap 1 month, 90th percentile 2 months among repeat
+// distributors), not borrowed from the SKU discontinued rule, since a
+// distributor's restocking cycle is naturally slower and noisier than a
+// product's. Ignores the date-range filter — like skuFirstMonth/
+// skuLastMonth, a distributor needs their full life to date to judge
+// "quiet" — but still respects state/zone/tier/distributor-search.
+// ============================================================
+function renderDistQuiet(){
+const tbl = document.getElementById('distQuietTable');
+if(!tbl) return;
+const lastOverall = D.months.length-1;
+const hist = buyerOrderHistory(filters);
+const allTimeRev = new Map();
+const stateCount = new Map();
+for(const f of D.facts){
+if(!matchesDims(f, filters)) continue;
+const b = f[F_BUYER];
+if(f[F_VAL]>0) allTimeRev.set(b, (allTimeRev.get(b)||0) + f[F_VAL]);
+if(!stateCount.has(b)) stateCount.set(b, new Map());
+const sm = stateCount.get(b); sm.set(f[F_STATE], (sm.get(f[F_STATE])||0)+1);
+}
+const topState = new Map();
+stateCount.forEach((m,b)=>{ let top=null,c=-1; m.forEach((v,s)=>{ if(v>c){c=v; top=s;} }); topState.set(b, top); });
+
+const flagged = [...hist.entries()]
+.filter(([,o])=> o.months.size>=2 && (lastOverall-o.last)>=QUIET_THRESHOLD_MONTHS)
+.map(([b,o])=>({ b, lastM:o.last, monthsSince: lastOverall-o.last, rev: allTimeRev.get(b)||0 }))
+.sort((a,b)=> (a.lastM-b.lastM) || (b.rev-a.rev));
+
+setSummary('summary-distquiet', (()=>{
+let repeatTotal=0; hist.forEach(o=>{ if(o.months.size>=2) repeatTotal++; });
+if(flagged.length===0) return `No repeat distributor has gone quiet — everyone who ordered 2+ months' worth has ordered again within the last ${QUIET_THRESHOLD_MONTHS-1} months.`;
+const lostRev = flagged.reduce((a,r)=>a+r.rev,0);
+return `<b>${fmtNum(flagged.length)}</b> of <b>${fmtNum(repeatTotal)}</b> repeat distributors (<b>${(flagged.length/repeatTotal*100).toFixed(1)}%</b>) haven't placed a paid order in <b>${QUIET_THRESHOLD_MONTHS}+ months</b> — well past their typical 1&ndash;2 month reorder gap. `+
+`Together they represent <b>${fmtINR(lostRev)}</b> in all-time revenue — worth a check-in before they're gone for good.`;
+})());
+
+const body = tbl.querySelector('tbody'); body.innerHTML='';
+if(flagged.length===0){
+const tr=document.createElement('tr'); const t0=td('No repeat distributors have gone quiet in this selection.','empty-state'); t0.colSpan=5; tr.appendChild(t0); body.appendChild(tr); return;
+}
+flagged.slice(0,25).forEach(r=>{
+const tr=document.createElement('tr');
+tr.appendChild(td(D.buyers[r.b]));
+const st = topState.get(r.b);
+tr.appendChild(td(st!==null && st!==undefined ? D.states[st] : '—'));
+const lastTd=document.createElement('td');
+lastTd.innerHTML = `${escapeHtml(D.months[r.lastM])} <span class="pill slowing">Quiet</span>`;
+tr.appendChild(lastTd);
+tr.appendChild(td(fmtNum(r.monthsSince),'num'));
+tr.appendChild(td(fmtINR(r.rev),'num'));
+body.appendChild(tr);
+});
+if(flagged.length>25){
+const tr=document.createElement('tr'); const t0=td(`+ ${flagged.length-25} more — narrow with the search/filters above to see the rest.`,'empty-state'); t0.colSpan=5; tr.appendChild(t0); body.appendChild(tr);
+}
 }
 
 // ============================================================
