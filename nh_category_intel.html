@@ -1533,17 +1533,45 @@ series.get(vn)[f[F_MONTH]] += f[F_VAL];
 }
 order.sort((a,b)=> series.get(b).reduce((x,y)=>x+y,0) - series.get(a).reduce((x,y)=>x+y,0));
 
+// month-by-month grand total — needed both to give the total-value label
+// plugin headroom to draw into, and to turn each tooltip line into that
+// variant's SHARE of the month rather than a raw rupee figure. The bar
+// itself already carries the rupee total (drawn on top by the plugin
+// below); the tooltip's job is the mix, not the size.
+const totalArr = new Array(lastM+1).fill(0);
+order.forEach(vn=> series.get(vn).forEach((v,i)=> totalArr[i]+=v));
+const maxTotal = Math.max(0, ...totalArr);
+
 const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--seq-600','--seq-300'];
 destroyChart('catVariant');
+const catVariantBaseOpts = baseLineOptions((ctx)=>fmtINR(ctx.parsed.y));
 charts.catVariant = new Chart(canvas, {
 type:'bar',
 data:{ labels: monthLabels, datasets: order.map((vn,i)=>({
 label: vn, data: series.get(vn), backgroundColor: cssVar(palette[i % palette.length]),
 borderRadius:2, maxBarThickness:26, stack:'s'
 })) },
-options:{ ...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
+options:{
+...catVariantBaseOpts,
+plugins:{ ...catVariantBaseOpts.plugins,
+tooltip:{ ...catVariantBaseOpts.plugins.tooltip,
+// skip zero-share lines — a category with fewer variants than
+// others in the catalog would otherwise pad the tooltip with
+// "Variant: 0.0%" rows
+filter:(item)=> Math.round(item.parsed.y*100)!==0,
+callbacks:{ label:(c)=>{
+const monthTotal = totalArr[c.dataIndex] || 0;
+const pct = monthTotal>0 ? (c.parsed.y/monthTotal*100) : 0;
+return ` ${c.dataset.label}: ${pct.toFixed(1)}%`;
+} }
+}
+},
 scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
-y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } } }
+// headroom above the tallest bar so the total-value label drawn by
+// stackTotalLabelPlugin below is never clipped by the chart area
+y:{ stacked:true, min:0, suggestedMax: maxTotal*1.18, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } }
+},
+plugins:[ stackTotalLabelPlugin((v)=>fmtINR(v)) ]
 });
 
 setSummary('summary-catvariant', (()=>{
@@ -2526,6 +2554,41 @@ ctx.textBaseline = 'middle';
 ctx.fillText(fmt(val, ds), pt.x + 6, pt.y);
 ctx.restore();
 });
+}
+};
+}
+// small reusable Chart.js plugin: draws each stacked bar's column TOTAL
+// as text just above its top segment. Used on the Category variant mix
+// chart — the legend + tooltip already carry the per-variant split, so
+// the bar itself is the one place that should show "how big was this
+// month" at a glance, without a second axis or a hover.
+function stackTotalLabelPlugin(fmt){
+return {
+id: 'stackTotal_'+Math.random().toString(36).slice(2),
+afterDatasetsDraw(chart){
+const {ctx} = chart;
+const dsCount = chart.data.datasets.length;
+const n = chart.data.labels.length;
+for(let idx=0; idx<n; idx++){
+let total = 0, topY = null, x = null;
+for(let i=0;i<dsCount;i++){
+const meta = chart.getDatasetMeta(i);
+if(!meta || meta.hidden) continue;
+const val = chart.data.datasets[i].data[idx];
+if(val===null || val===undefined) continue;
+total += val;
+const pt = meta.data[idx];
+if(pt){ x = pt.x; if(topY===null || pt.y<topY) topY = pt.y; }
+}
+if(topY===null || total<=0) continue;
+ctx.save();
+ctx.font = '600 10.5px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+ctx.fillStyle = cssVar('--text-primary');
+ctx.textAlign = 'center';
+ctx.textBaseline = 'bottom';
+ctx.fillText(fmt(total), x, topY - 4);
+ctx.restore();
+}
 }
 };
 }
