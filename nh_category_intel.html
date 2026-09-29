@@ -358,6 +358,21 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <section>
 <div class="card">
 <div class="sectitle">
+<h2>Category variant mix</h2>
+<span class="sub">Pick one category, see its monthly revenue split by variant, full history from Apr 25 — ignores the date range above (like the SKU launch timeline, a variant needs its full life to date) but still respects state/zone/tier/distributor-search</span>
+</div>
+<div class="explore-controls">
+<label>Category</label>
+<select id="catVariantSel"></select>
+</div>
+<div class="ai-summary" id="summary-catvariant"></div>
+<div class="chartbox tall"><canvas id="catVariantChart"></canvas></div>
+</div>
+</section>
+
+<section>
+<div class="card">
+<div class="sectitle">
 <h2>GST collected</h2>
 <span class="sub">Interstate (IGST) vs. intrastate (CGST+SGST) sales, by month</span>
 </div>
@@ -1473,6 +1488,79 @@ yPct:{ display:false, min:0, max:100 }
 }
 }
 });
+}
+
+// ============================================================
+// CATEGORY VARIANT MIX — pick ONE category (independent of the top-bar
+// category filter, via dimsForCat) and see its monthly revenue stacked by
+// variant. "Variant" here = the Product Explorer's Short Name level
+// (D.skuShortName) collapsed across grammage — e.g. Tikta's Ubtan/Acne/
+// Masoor — not the legacy D.skuVariant field, which is empty in this
+// taxonomy. Ignores the date-range filter — like the SKU launch timeline,
+// a variant needs its full life to date (Apr 25+), not a clipped window —
+// but still respects state/zone/tier/distributor-search.
+// ============================================================
+function renderCatVariantMix(){
+const selEl = document.getElementById('catVariantSel');
+const canvas = document.getElementById('catVariantChart');
+if(!selEl || !canvas) return;
+
+// populate the select once, ordered by all-time revenue, defaulting to
+// the single biggest category so the chart is never empty on first load
+if(!selEl.dataset.built){
+const catTotals = new Map();
+for(const f of D.facts) catTotals.set(f[F_CAT], (catTotals.get(f[F_CAT])||0)+f[F_VAL]);
+const order = D.categories.map((c,i)=>({c,i,rev:catTotals.get(i)||0})).sort((a,b)=>b.rev-a.rev);
+selEl.innerHTML = order.map(o=>`<option value="${o.i}">${escapeHtml(o.c)}</option>`).join('');
+if(order[0]) selEl.value = String(order[0].i);
+selEl.dataset.built = '1';
+selEl.addEventListener('change', renderCatVariantMix);
+}
+if(!selEl.value) return;
+const ci = parseInt(selEl.value, 10);
+const dims = dimsForCat(ci);
+const lastM = D.months.length-1;
+const monthLabels = D.months.map(monthLabel);
+
+const order = [];
+const seen = new Set();
+const series = new Map(); // shortName -> revenue array, index = month
+for(const f of D.facts){
+if(!matchesDims(f, dims)) continue;
+const vn = D.skuShortName[f[F_SKU]] || 'Other';
+if(!seen.has(vn)){ seen.add(vn); order.push(vn); series.set(vn, new Array(lastM+1).fill(0)); }
+series.get(vn)[f[F_MONTH]] += f[F_VAL];
+}
+order.sort((a,b)=> series.get(b).reduce((x,y)=>x+y,0) - series.get(a).reduce((x,y)=>x+y,0));
+
+const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--seq-600','--seq-300'];
+destroyChart('catVariant');
+charts.catVariant = new Chart(canvas, {
+type:'bar',
+data:{ labels: monthLabels, datasets: order.map((vn,i)=>({
+label: vn, data: series.get(vn), backgroundColor: cssVar(palette[i % palette.length]),
+borderRadius:2, maxBarThickness:26, stack:'s'
+})) },
+options:{ ...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
+scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
+y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } } }
+});
+
+setSummary('summary-catvariant', (()=>{
+const grand = order.reduce((a,vn)=>a+series.get(vn).reduce((x,y)=>x+y,0),0);
+const catName = D.categories[ci];
+if(grand===0) return `No sales recorded yet for <b>${escapeHtml(catName)}</b>.`;
+const totalArr = new Array(lastM+1).fill(0);
+order.forEach(vn=> series.get(vn).forEach((v,i)=> totalArr[i]+=v));
+const {cmgr} = cmgrCagr(totalArr);
+const top = order[0];
+const topShare = series.get(top).reduce((a,b)=>a+b,0)/grand*100;
+let s = `<b>${escapeHtml(catName)}</b> has done <b>${fmtINR(grand)}</b> across its full history (Apr 25&ndash;${monthLabels[lastM]})`+
+(cmgr!==null ? `, growing at <b>${fmtPct(cmgr,1)}</b> CMGR` : '')+`. `;
+if(order.length>1) s += `<b>${escapeHtml(top)}</b> is the largest of its <b>${order.length}</b> variants at <b>${topShare.toFixed(1)}%</b> of the category.`;
+else s += `It's currently a single-variant category (${escapeHtml(top)}).`;
+return s;
+})());
 }
 
 // ============================================================
@@ -3574,6 +3662,7 @@ function refresh(){
 renderKPIs();
 renderConcentrationSnapshot();
 renderRevenueTrend();
+renderCatVariantMix();
 renderGst();
 renderCategory();
 renderCatGrowth();
