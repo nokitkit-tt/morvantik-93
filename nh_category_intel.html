@@ -159,10 +159,6 @@ tr:hover td{background:var(--surface-2);}
 .badge-down{color:var(--critical); font-weight:600;}
 .badge-flat{color:var(--text-muted);}
 .catdot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px;}
-.heatgrid{display:grid; margin-top:14px; font-size:11px; overflow-x:auto;}
-.heatcell{aspect-ratio:1.6/1; min-width:34px; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10.5px; cursor:default;}
-.heatcell.empty{background:transparent !important; color:var(--text-muted);}
-.heatlabel{display:flex; align-items:center; font-size:11px; color:var(--text-secondary); padding-right:8px;}
 footer{margin-top:30px; font-size:11.5px; color:var(--text-muted); text-align:center; line-height:1.7;}
 footer a{color:var(--text-muted);}
 .twocol-kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:10px;}
@@ -363,7 +359,10 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 </div>
 <div class="explore-controls">
 <label>Category</label>
-<select id="catVariantSel"></select>
+<div class="grp multiselect" id="catVariantMS">
+<button class="msbtn" id="catVariantMSBtn">Loading…</button>
+<div class="mspanel" id="catVariantMSPanel"></div>
+</div>
 </div>
 <div class="ai-summary" id="summary-catvariant"></div>
 <div class="chartbox tall"><canvas id="catVariantChart"></canvas></div>
@@ -395,6 +394,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <h2>Growth — acquisition &amp; where it's coming from</h2>
 <span class="sub">New vs. repeat revenue each month (the acquisition engine), then the same growth broken out by region &amp; city tier — same metric picker drives both region and tier lines</span>
 </div>
+<div class="ai-summary" id="summary-distgrowth"></div>
 <div class="chartbox tall"><canvas id="distChart"></canvas></div>
 <div class="explore-controls" style="margin-top:20px;">
 <label>Metric</label>
@@ -447,18 +447,12 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="card">
 <div class="sectitle">
 <h2>Retention &amp; attrition</h2>
-<span class="sub">New distributors acquired per month and what % of each cohort is still ordering N months later, then exactly who's gone quiet right now — not just the aggregate curve</span>
+<span class="sub">Month-over-month: how many distributors are new, how many who ordered last month ordered again, and how many went quiet — then exactly who, right now</span>
 </div>
-<div class="explore-controls">
-<label>View</label>
-<select id="cohortViewSel">
-<option value="heatmap">Heatmap grid (every cohort)</option>
-<option value="curve">Average retention curve</option>
-</select>
-</div>
-<div class="chartbox" style="height:130px;"><canvas id="newDistChart"></canvas></div>
-<div id="cohortWrap"></div>
-<div class="chartbox tall" id="cohortCurveBox" style="display:none;"><canvas id="cohortCurveChart"></canvas></div>
+<div class="ai-summary" id="summary-distflow"></div>
+<div class="chartbox tall"><canvas id="distFlowChart"></canvas></div>
+<div class="sub" style="margin:16px 0 6px;">Retention rate — of distributors active the previous month, the % who ordered again this month</div>
+<div class="chartbox" style="height:180px;"><canvas id="distRetentionRateChart"></canvas></div>
 
 <div class="sub" style="margin:20px 0 6px;">Distributors gone quiet — repeat distributors with no paid order in 3+ months, well past their typical 1&ndash;2 month reorder gap (full history, respects state/tier/search filters above)</div>
 <div class="ai-summary" id="summary-distquiet"></div>
@@ -593,7 +587,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 
 <div class="card">
 <div class="sectitle">
-<h2>Launch &amp; lifecycle</h2>
+<h2>Revenue by launch vintage</h2>
 <span class="sub">Is the catalog evolving well — actual month-by-month revenue (not cumulative) by launch vintage · full history, regardless of the date filter above</span>
 </div>
 <div class="explore-controls">
@@ -606,7 +600,14 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="ai-summary" id="summary-launch"></div>
 <div class="chartbox tall"><canvas id="launchStackChart"></canvas></div>
 <div id="launchOtherBreakdown" style="display:none;"></div>
-<div class="sub" style="margin:14px 0 4px;">New products launched per month — standalone launches vs. sampler/bundle assortments (see note below chart), category breakdown in the tooltip</div>
+</div>
+
+<div class="card">
+<div class="sectitle">
+<h2>Launch cadence &amp; impact</h2>
+<span class="sub">How often we launch, and what each wave of new products actually did to its category</span>
+</div>
+<div class="sub" style="margin:0 0 4px;">New products launched per month — standalone launches vs. sampler/bundle assortments (see note below chart), category breakdown in the tooltip</div>
 <div class="chartbox" style="height:230px;"><canvas id="launchCadenceChart"></canvas></div>
 <div class="sub" style="margin:16px 0 4px;">What those launches actually did to the category — new SKUs' own volume &amp; revenue vs. the category's pre-existing (already-active) SKU volume that same month</div>
 <div class="ai-summary" id="summary-newskuimpact"></div>
@@ -624,7 +625,14 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <tbody></tbody>
 </table>
 </div>
-<div class="sub" style="margin:16px 0 4px;">Discontinued &amp; slowing products — no sales, or falling off, in the most recent months of data</div>
+</div>
+
+<div class="card">
+<div class="sectitle">
+<h2>Product lifecycle</h2>
+<span class="sub">Which products are declining or dead, and how every product has performed across its full life · full history, regardless of the date filter above</span>
+</div>
+<div class="sub" style="margin:0 0 4px;">Discontinued &amp; slowing products — no sales, or falling off, in the most recent months of data</div>
 <div class="ai-summary" id="summary-discontinued"></div>
 <div class="tablewrap" style="max-height:280px;">
 <table id="discontinuedTable">
@@ -1501,30 +1509,66 @@ yPct:{ display:false, min:0, max:100 }
 // but still respects state/zone/tier/distributor-search.
 // ============================================================
 function renderCatVariantMix(){
-const selEl = document.getElementById('catVariantSel');
+const msEl = document.getElementById('catVariantMS');
+const btnEl = document.getElementById('catVariantMSBtn');
+const panelEl = document.getElementById('catVariantMSPanel');
 const canvas = document.getElementById('catVariantChart');
-if(!selEl || !canvas) return;
+if(!msEl || !btnEl || !panelEl || !canvas) return;
 
-// populate the select once, ordered by all-time revenue, defaulting to
-// the single biggest category so the chart is never empty on first load
-if(!selEl.dataset.built){
+// build the multi-select panel once, ordered by all-time revenue,
+// defaulting to just the single biggest category checked so the chart
+// is never empty on first load. Picking exactly one category keeps the
+// original point of this chart — its variant-level split; picking two or
+// more switches to a direct category-vs-category comparison instead (see
+// below) — variant lines from several categories at once would be too
+// many series to read (up to 8 variants each, per the catalog check).
+if(!panelEl.dataset.built){
 const catTotals = new Map();
 for(const f of D.facts) catTotals.set(f[F_CAT], (catTotals.get(f[F_CAT])||0)+f[F_VAL]);
 const order = D.categories.map((c,i)=>({c,i,rev:catTotals.get(i)||0})).sort((a,b)=>b.rev-a.rev);
-selEl.innerHTML = order.map(o=>`<option value="${o.i}">${escapeHtml(o.c)}</option>`).join('');
-if(order[0]) selEl.value = String(order[0].i);
-selEl.dataset.built = '1';
-selEl.addEventListener('change', renderCatVariantMix);
+const actions=document.createElement('div'); actions.className='msactions';
+actions.innerHTML='<span data-a="all">Select all</span><span data-a="none">Clear</span>';
+panelEl.appendChild(actions);
+order.forEach((o,i)=>{
+const row=document.createElement('label'); row.className='msrow';
+row.innerHTML = `<input type="checkbox" data-idx="${o.i}" ${i===0?'checked':''}> <span class="dot" style="background:${catColor(o.c)}; display:inline-block; width:8px; height:8px; border-radius:50%;"></span> ${escapeHtml(o.c)}`;
+panelEl.appendChild(row);
+});
+actions.addEventListener('click', (e)=>{
+const a=e.target.dataset.a; if(!a) return;
+panelEl.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.checked = (a==='all'));
+renderCatVariantMix();
+});
+panelEl.addEventListener('change', renderCatVariantMix);
+btnEl.addEventListener('click', (e)=>{ e.stopPropagation(); msEl.classList.toggle('open'); });
+document.addEventListener('click', (e)=>{ if(!msEl.contains(e.target)) msEl.classList.remove('open'); });
+panelEl.dataset.built = '1';
 }
-if(!selEl.value) return;
-const ci = parseInt(selEl.value, 10);
-const dims = dimsForCat(ci);
+
+const boxes = [...panelEl.querySelectorAll('input[type=checkbox]')];
+const selectedCats = boxes.filter(b=>b.checked).map(b=>parseInt(b.dataset.idx,10));
+btnEl.textContent = selectedCats.length===0 ? 'Select a category'
+: selectedCats.length===1 ? D.categories[selectedCats[0]]
+: `${selectedCats.length} categories selected`;
+
 const lastM = D.months.length-1;
 const monthLabels = D.months.map(monthLabel);
+const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--seq-600','--seq-300'];
 
+if(selectedCats.length===0){
+destroyChart('catVariant');
+setSummary('summary-catvariant', `Select at least one category above to see its revenue trend.`);
+return;
+}
+
+if(selectedCats.length===1){
+// ---- exactly one category: one line per VARIANT (Short Name) — the
+// original point of this chart, unchanged. ----
+const ci = selectedCats[0];
+const dims = dimsForCat(ci);
 const order = [];
 const seen = new Set();
-const series = new Map(); // shortName -> revenue array, index = month
+const series = new Map();
 for(const f of D.facts){
 if(!matchesDims(f, dims)) continue;
 const vn = D.skuShortName[f[F_SKU]] || 'Other';
@@ -1533,14 +1577,6 @@ series.get(vn)[f[F_MONTH]] += f[F_VAL];
 }
 order.sort((a,b)=> series.get(b).reduce((x,y)=>x+y,0) - series.get(a).reduce((x,y)=>x+y,0));
 
-// one line per variant, not a stacked bar — a stacked segment's own
-// baseline shifts every month as the variants below it move, which makes
-// it hard to follow any single variant's trend by eye. A line plots each
-// variant's own revenue directly, so its trend reads straight off its
-// slope, and an end-of-line label (via endLabelPlugin, the same pattern
-// used for the region/tier growth charts on the Distributors tab) gives
-// the latest month's rupee figure without needing a hover.
-const palette = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--seq-600','--seq-300'];
 destroyChart('catVariant');
 charts.catVariant = new Chart(canvas, {
 type:'line',
@@ -1550,7 +1586,6 @@ borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true
 })) },
 options:{
 ...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
-// extra right-hand room so each line's end label isn't clipped
 layout:{ padding:{ right:64 } },
 scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
 y:{ min:0, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } }
@@ -1572,6 +1607,51 @@ let s = `<b>${escapeHtml(catName)}</b> has done <b>${fmtINR(grand)}</b> across i
 if(order.length>1) s += `<b>${escapeHtml(top)}</b> is the largest of its <b>${order.length}</b> variants at <b>${topShare.toFixed(1)}%</b> of the category.`;
 else s += `It's currently a single-variant category (${escapeHtml(top)}).`;
 return s;
+})());
+return;
+}
+
+// ---- two or more categories selected: one line per CATEGORY instead —
+// a direct category-vs-category revenue comparison, full history. Colored
+// with each category's own dashboard-wide color (catColor), the same
+// swatch used in the top-bar category filter, so identity carries across
+// the whole dashboard. ----
+const dims = { ...filters, cats: new Set(selectedCats), variants:null, sizes:null };
+const series = new Map();
+selectedCats.forEach(ci=> series.set(ci, new Array(lastM+1).fill(0)));
+for(const f of D.facts){
+if(!matchesDims(f, dims)) continue;
+const arr = series.get(f[F_CAT]); if(arr) arr[f[F_MONTH]] += f[F_VAL];
+}
+const order = selectedCats.slice().sort((a,b)=> series.get(b).reduce((x,y)=>x+y,0) - series.get(a).reduce((x,y)=>x+y,0));
+
+destroyChart('catVariant');
+charts.catVariant = new Chart(canvas, {
+type:'line',
+data:{ labels: monthLabels, datasets: order.map(ci=>({
+label: D.categories[ci], data: series.get(ci), borderColor: catColor(D.categories[ci]), backgroundColor: catColor(D.categories[ci]),
+borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true
+})) },
+options:{
+...baseLineOptions((ctx)=>fmtINR(ctx.parsed.y)),
+layout:{ padding:{ right:64 } },
+scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
+y:{ min:0, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>fmtINR(v)} } }
+},
+plugins:[ endLabelPlugin((v)=>v===null?'':fmtINR(v)) ]
+});
+
+setSummary('summary-catvariant', (()=>{
+const totals = order.map(ci=>({ci, name:D.categories[ci], total: series.get(ci).reduce((a,b)=>a+b,0)}));
+const grand = totals.reduce((a,t)=>a+t.total,0);
+if(grand===0) return `No sales recorded yet for the selected categories.`;
+const top = totals[0];
+const withCmgr = order.map(ci=>{ const {cmgr} = cmgrCagr(series.get(ci)); return {name:D.categories[ci], cmgr}; }).filter(r=>r.cmgr!==null);
+withCmgr.sort((a,b)=>b.cmgr-a.cmgr);
+let growLine = '';
+if(withCmgr[0]) growLine = ` <b>${escapeHtml(withCmgr[0].name)}</b> is growing fastest of the selection (${fmtPct(withCmgr[0].cmgr,1)} CMGR).`;
+return `Comparing <b>${order.length}</b> categories across full history (Apr 25&ndash;${monthLabels[lastM]}): `+
+`<b>${escapeHtml(top.name)}</b> leads at <b>${fmtINR(top.total)}</b> (<b>${(top.total/grand*100).toFixed(1)}%</b> of the group's combined revenue).`+growLine;
 })());
 }
 
@@ -2523,6 +2603,10 @@ return {
 id: 'endLabel_'+Math.random().toString(36).slice(2),
 afterDatasetsDraw(chart){
 const {ctx} = chart;
+// Collect the last plotted point for every visible dataset first, then
+// lay labels out together — two lines that end at (near) the same value
+// would otherwise draw their labels directly on top of each other.
+const entries = [];
 chart.data.datasets.forEach((ds, i)=>{
 const meta = chart.getDatasetMeta(i);
 if(!meta || meta.hidden) return;
@@ -2531,13 +2615,25 @@ for(let k=ds.data.length-1;k>=0;k--){
 if(ds.data[k]!==null && ds.data[k]!==undefined){ pt=meta.data[k]; val=ds.data[k]; break; }
 }
 if(!pt) return;
+entries.push({ x: pt.x, y: pt.y, val, ds });
+});
+if(!entries.length) return;
+// Resolve vertical collisions: sort top-to-bottom, then push any label
+// that's closer than minGap to the previous one further down.
+const minGap = 12;
+entries.sort((a,b)=> a.y - b.y);
+entries[0].labelY = entries[0].y;
+for(let i=1;i<entries.length;i++){
+entries[i].labelY = Math.max(entries[i].y, entries[i-1].labelY + minGap);
+}
 ctx.save();
 ctx.font = '600 10.5px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
-ctx.fillStyle = ds.borderColor || ds.backgroundColor || '#888';
 ctx.textBaseline = 'middle';
-ctx.fillText(fmt(val, ds), pt.x + 6, pt.y);
-ctx.restore();
+entries.forEach(e=>{
+ctx.fillStyle = e.ds.borderColor || e.ds.backgroundColor || '#888';
+ctx.fillText(fmt(e.val, e.ds), e.x + 6, e.labelY);
 });
+ctx.restore();
 }
 };
 }
@@ -2546,12 +2642,6 @@ const distGeoMetricSel = document.getElementById('distGeoMetric');
 if(distGeoMetricSel){
 distGeoMetricSel.addEventListener('change', ()=>{ distGeoState.metric = distGeoMetricSel.value; renderDistributors(); });
 }
-const cohortViewState = { mode: 'heatmap' };
-const cohortViewSel = document.getElementById('cohortViewSel');
-if(cohortViewSel){
-cohortViewSel.addEventListener('change', ()=>{ cohortViewState.mode = cohortViewSel.value; renderDistributors(); });
-}
-
 function renderDistributors(){
 const bFirst = buyerFirstMonth(filters);
 const filtered = getFiltered();
@@ -2576,16 +2666,36 @@ const i = ctx.dataIndex;
 if(ctx.dataset.label==='New distributors') return `${fmtINR(ctx.parsed.y)} · ${fmtNum(newDistCount[i])} distributor${newDistCount[i]===1?'':'s'}`;
 return `${fmtINR(ctx.parsed.y)} · ${fmtNum(repeatDistCount[i])} distributor${repeatDistCount[i]===1?'':'s'}`;
 };
+// line, not stacked bar — the same reason as everywhere else this session:
+// a stacked segment's own baseline shifts every month, which hides whether
+// NEW or REPEAT revenue is itself rising or falling. Two lines let each
+// trend read straight off its own slope, with the latest month's rupee
+// figure labeled at the line's end.
 charts.dist = new Chart(document.getElementById('distChart'), {
-type:'bar',
+type:'line',
 data:{ labels:months, datasets:[
-{label:'New distributors', data:newRev, backgroundColor:cssVar('--s1'), borderRadius:3, maxBarThickness:26, stack:'s'},
-{label:'Repeat distributors', data:repeatRev, backgroundColor:cssVar('--s3'), borderRadius:3, maxBarThickness:26, stack:'s'},
+{label:'New distributors', data:newRev, borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1'), borderWidth:2, pointRadius:3, tension:.25, fill:false},
+{label:'Repeat distributors', data:repeatRev, borderColor:cssVar('--s3'), backgroundColor:cssVar('--s3'), borderWidth:2, pointRadius:3, tension:.25, fill:false},
 ]},
 options:{ ...baseLineOptions(distTooltipFmt),
-scales:{ x:{stacked:true, grid:{display:false}, ticks:{color:cssVar('--text-muted'),font:{size:11}}},
-y:{stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'),font:{size:11}, callback:(v)=>fmtINR(v)}} } }
+layout:{ padding:{ right:64 } },
+scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'),font:{size:11}}},
+y:{ min:0, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'),font:{size:11}, callback:(v)=>fmtINR(v)}} } },
+plugins:[ endLabelPlugin((v)=>fmtINR(v)) ]
 });
+setSummary('summary-distgrowth', (()=>{
+const totalNew = newRev.reduce((a,b)=>a+b,0), totalRepeat = repeatRev.reduce((a,b)=>a+b,0);
+const grand = totalNew+totalRepeat;
+if(grand<=0) return null;
+const {cmgr:newCmgr} = cmgrCagr(newRev);
+const {cmgr:repCmgr} = cmgrCagr(repeatRev);
+const repeatShare = totalRepeat/grand*100;
+let s = `Repeat distributors made up <b>${repeatShare.toFixed(1)}%</b> of revenue across the selected period`+
+(repCmgr!==null ? `, growing at <b>${fmtPct(repCmgr,1)}</b> CMGR` : '')+`. `;
+s += `New-distributor revenue`+(newCmgr!==null ? ` moved at <b>${fmtPct(newCmgr,1)}</b> CMGR` : '')+
+` and made up the remaining <b>${(100-repeatShare).toFixed(1)}%</b>.`;
+return s;
+})());
 
 // ---- growth by region & tier — TIME SERIES line charts, month on the
 // x-axis, one line per region / per tier: growth reads directly off each
@@ -2767,7 +2877,7 @@ wireHeaderSort('distTable', distTableSortState, drawDistTable);
 drawDistTable();
 
 renderParetoChart('paretoChart', buyerRows.map(r=>r.rev), 'summary-pareto');
-renderCohort(bFirst);
+renderRetentionFlow();
 renderDistCategorySplit(buyerCatRev, buyerRows);
 renderRetentionWaterfall();
 renderDistQuiet();
@@ -3057,137 +3167,90 @@ tbody.appendChild(tr);
 }
 }
 
-function renderCohort(bFirst){
-const wrap = document.getElementById('cohortWrap');
-wrap.innerHTML='';
-wrap.style.display='';
-const curveBoxEarly = document.getElementById('cohortCurveBox');
-if(curveBoxEarly) curveBoxEarly.style.display='none';
-const cohortMonths = [];
-for(let m=filters.monthFrom;m<=filters.monthTo;m++) cohortMonths.push(m);
-
-// cohort membership: buyers whose first-ever active month (under the
-// current filters, incl. category) == cohort month
-const cohortBuyers = new Map();
-cohortMonths.forEach(m=>cohortBuyers.set(m, []));
-bFirst.forEach((fm,b)=>{ if(cohortBuyers.has(fm)) cohortBuyers.get(fm).push(b); });
-
-// new distributors acquired per month
-destroyChart('newDist');
-if(cohortMonths.length>0){
-charts.newDist = new Chart(document.getElementById('newDistChart'), {
-type:'bar',
-data:{ labels: cohortMonths.map(m=>monthLabel(D.months[m])), datasets:[{
-data: cohortMonths.map(m=>cohortBuyers.get(m).length),
-backgroundColor: cssVar('--s1'), borderRadius:3, maxBarThickness:22
-}]},
-options:{
-responsive:true, maintainAspectRatio:false,
-plugins:{ legend:{display:false}, tooltip:{ backgroundColor:cssVar('--card'), titleColor:cssVar('--text-primary'), bodyColor:cssVar('--text-primary'),
-borderColor:cssVar('--border'), borderWidth:1, padding:8, callbacks:{ label:(c)=> ` ${c.parsed.y} new distributor${c.parsed.y===1?'':'s'}` } } },
-scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10}} },
-y:{ grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:10}, stepSize:1} } }
-}
+// ============================================================
+// RETENTION & ATTRITION — New / Retained / Lapsed distributor counts per
+// month, plus the month-over-month retention rate they imply. Replaces
+// the old cohort heatmap/curve (indexed to "months since a distributor's
+// own first order" — a life-stage view) with a calendar-month view: for
+// every month, how many distributors are brand new, how many who ordered
+// last month ordered again, and how many who ordered last month went
+// quiet. That's the flow a business owner actually watches month to
+// month, and it reads as 2 lines charts instead of a toggle between a
+// dense grid and an indexed curve.
+// Uses buyerOrderHistory's full-history active-months set (not clipped to
+// the top date range) so "was this distributor active last calendar
+// month" is still correct even at the very first displayed month.
+// ============================================================
+function renderRetentionFlow(){
+const flowCanvas = document.getElementById('distFlowChart');
+const rateCanvas = document.getElementById('distRetentionRateChart');
+if(!flowCanvas && !rateCanvas) return;
+const hist = buyerOrderHistory(filters);
+const monthLabels = [];
+const newArr=[], retainedArr=[], lapsedArr=[], rateArr=[];
+for(let m=filters.monthFrom; m<=filters.monthTo; m++){
+monthLabels.push(monthLabel(D.months[m]));
+let newC=0, retC=0, lapC=0, activeLastC=0;
+hist.forEach(o=>{
+const activeThis = o.months.has(m);
+const activeLast = m>0 && o.months.has(m-1);
+if(activeLast) activeLastC++;
+if(activeThis && o.first===m) newC++;
+else if(activeThis && activeLast) retC++;
+else if(!activeThis && activeLast) lapC++;
 });
+newArr.push(newC);
+if(m===0){ retainedArr.push(null); lapsedArr.push(null); rateArr.push(null); }
+else { retainedArr.push(retC); lapsedArr.push(lapC); rateArr.push(activeLastC>0 ? retC/activeLastC*100 : null); }
 }
 
-if(cohortMonths.length===0){ wrap.innerHTML='<div class="empty-state">No months in range.</div>'; return; }
-const maxOffset = Math.min(11, filters.monthTo - filters.monthFrom);
-
-// active buyers per month (within dims filters)
-const activeByMonth = new Map();
-for(const f of D.facts){
-if(f[F_VAL]<=0 || !matchesDims(f,filters)) continue;
-if(!activeByMonth.has(f[F_MONTH])) activeByMonth.set(f[F_MONTH], new Set());
-activeByMonth.get(f[F_MONTH]).add(f[F_BUYER]);
-}
-
-// ---- "Average retention curve" alternative to the heatmap grid — one
-// line, averaged across all cohorts, showing % still ordering at M+k.
-// Toggled via #cohortViewSel; the heatmap is more precise (every cohort
-// its own row) but the curve reads faster when the grid gets big. ----
-if(cohortViewState.mode==='curve'){
-wrap.style.display='none';
-destroyChart('cohortCurve');
-const canvas = document.getElementById('cohortCurveChart');
-const curveBox = document.getElementById('cohortCurveBox');
-if(curveBox) curveBox.style.display='';
-const sumPct = new Array(maxOffset+1).fill(0);
-const cnt = new Array(maxOffset+1).fill(0);
-let anyCohort=false;
-cohortMonths.forEach(m=>{
-const cohort = cohortBuyers.get(m);
-if(!cohort || cohort.length===0) return;
-anyCohort=true;
-for(let k=0;k<=maxOffset;k++){
-const targetM = m+k;
-if(targetM > filters.monthTo || targetM >= D.months.length) continue;
-const activeSet = activeByMonth.get(targetM) || new Set();
-const retained = cohort.filter(b=>activeSet.has(b)).length;
-sumPct[k] += cohort.length ? retained/cohort.length*100 : 0;
-cnt[k]++;
-}
-});
-if(!anyCohort){ wrap.innerHTML='<div class="empty-state">Not enough distributors acquired in this range to show cohorts.</div>'; return; }
-const avgPct = sumPct.map((s,k)=> cnt[k]>0 ? s/cnt[k] : null);
-if(canvas){
-const curveBase = baseLineOptions((ctx)=> ctx.parsed.y===null?'—':ctx.parsed.y.toFixed(1)+'%');
-charts.cohortCurve = new Chart(canvas, {
+if(flowCanvas){
+destroyChart('distFlow');
+charts.distFlow = new Chart(flowCanvas, {
 type:'line',
-data:{ labels: avgPct.map((_,k)=>'M+'+k), datasets:[{
-label:'Avg. % of cohort still ordering', data: avgPct, borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1')+'1f',
-borderWidth:2, pointRadius:3, pointBackgroundColor:cssVar('--s1'), tension:.2, fill:true
+data:{ labels: monthLabels, datasets:[
+{ label:'New', data:newArr, borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1'), borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true },
+{ label:'Retained', data:retainedArr, borderColor:cssVar('--good'), backgroundColor:cssVar('--good'), borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true },
+{ label:'Lapsed', data:lapsedArr, borderColor:cssVar('--critical'), backgroundColor:cssVar('--critical'), borderWidth:2, pointRadius:3, tension:.25, fill:false, spanGaps:true },
+]},
+options:{
+...baseLineOptions((ctx)=> ctx.parsed.y===null?'—':`${fmtNum(ctx.parsed.y)} distributor${ctx.parsed.y===1?'':'s'}`),
+layout:{ padding:{ right:64 } },
+scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
+y:{ min:0, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, stepSize:1} } }
+},
+plugins:[ endLabelPlugin((v)=>v===null?'':fmtNum(v)) ]
+});
+}
+
+if(rateCanvas){
+destroyChart('distRetentionRate');
+const rateBase = baseLineOptions((ctx)=> ctx.parsed.y===null?'—':ctx.parsed.y.toFixed(1)+'%');
+charts.distRetentionRate = new Chart(rateCanvas, {
+type:'line',
+data:{ labels: monthLabels, datasets:[{
+label:'MoM retention rate', data: rateArr, borderColor:cssVar('--s1'), backgroundColor:cssVar('--s1')+'1f',
+borderWidth:2, pointRadius:3, pointBackgroundColor:cssVar('--s1'), tension:.2, fill:true, spanGaps:true
 }]},
-options:{ ...curveBase, plugins:{ ...curveBase.plugins, legend:{display:false} },
+options:{ ...rateBase, plugins:{ ...rateBase.plugins, legend:{display:false} },
 scales:{ x:{ grid:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}} },
 y:{ min:0, max:100, grid:{color:cssVar('--gridline')}, border:{display:false}, ticks:{color:cssVar('--text-muted'), font:{size:11}, callback:(v)=>v+'%'} } }
 }
 });
 }
-return;
-}
-destroyChart('cohortCurve');
-const curveBox = document.getElementById('cohortCurveBox');
-if(curveBox) curveBox.style.display='none';
-wrap.style.display='';
 
-const gridEl = document.createElement('div');
-gridEl.className='heatgrid';
-gridEl.style.gridTemplateColumns = `120px repeat(${maxOffset+1}, 1fr)`;
-// header row
-gridEl.appendChild(Object.assign(document.createElement('div'), {className:'heatlabel', textContent:'Cohort'}));
-for(let k=0;k<=maxOffset;k++){
-const h=document.createElement('div'); h.className='heatlabel'; h.style.justifyContent='center'; h.textContent='M+'+k;
-gridEl.appendChild(h);
-}
-let anyRow=false;
-cohortMonths.forEach(m=>{
-const cohort = cohortBuyers.get(m);
-if(!cohort || cohort.length===0) return;
-anyRow=true;
-const label=document.createElement('div'); label.className='heatlabel'; label.textContent = monthLabel(D.months[m])+' ('+cohort.length+')';
-gridEl.appendChild(label);
-for(let k=0;k<=maxOffset;k++){
-const targetM = m+k;
-const cell=document.createElement('div');
-if(targetM > filters.monthTo || targetM >= D.months.length){
-cell.className='heatcell empty'; cell.textContent='';
-} else {
-const activeSet = activeByMonth.get(targetM) || new Set();
-const retained = cohort.filter(b=>activeSet.has(b)).length;
-const pct = cohort.length? retained/cohort.length*100 : 0;
-cell.className='heatcell';
-const alpha = Math.max(0.12, pct/100);
-cell.style.background = cssVar('--s1');
-cell.style.opacity = alpha.toFixed(2);
-cell.textContent = pct.toFixed(1)+'%';
-cell.title = `${monthLabel(D.months[m])} cohort, ${k} months later: ${retained}/${cohort.length} still ordering (${pct.toFixed(1)}%)`;
-}
-gridEl.appendChild(cell);
-}
-});
-if(!anyRow){ wrap.innerHTML='<div class="empty-state">Not enough distributors acquired in this range to show cohorts.</div>'; return; }
-wrap.appendChild(gridEl);
+setSummary('summary-distflow', (()=>{
+const validRates = rateArr.filter(v=>v!==null);
+if(validRates.length===0) return null;
+const lastRate = validRates[validRates.length-1];
+const firstRate = validRates[0];
+const totalNew = newArr.reduce((a,b)=>a+b,0);
+const totalLapsed = lapsedArr.filter(v=>v!==null).reduce((a,b)=>a+b,0);
+const trendWord = validRates.length>1 ? (lastRate>firstRate+2 ? 'improving' : lastRate<firstRate-2 ? 'slipping' : 'holding steady') : null;
+let s = `Month-over-month retention is running at <b>${lastRate.toFixed(1)}%</b> most recently`+(trendWord?`, ${trendWord} across the selected period`:'')+`. `;
+s += `<b>${fmtNum(totalNew)}</b> new distributors came on board and <b>${fmtNum(totalLapsed)}</b> went quiet across the same months.`;
+return s;
+})());
 }
 
 // ============================================================
