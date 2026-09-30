@@ -142,7 +142,12 @@ table{max-width:100%;}
 
 table{width:100%; border-collapse:collapse; font-size:12.8px;}
 th,td{padding:7px 8px; text-align:left; border-bottom:1px solid var(--gridline); white-space:nowrap;}
-th{color:var(--text-muted); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer; user-select:none; position:sticky; top:0; background:var(--card);}
+th{color:var(--text-muted); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; cursor:default; user-select:none; position:sticky; top:0; background:var(--card);}
+th[data-key]{cursor:pointer;}
+th[data-key]:hover{color:var(--text-primary);}
+th[data-key].sorted-asc, th[data-key].sorted-desc{color:var(--text-primary);}
+th[data-key].sorted-asc::after{content:' \25B4'; font-size:10px;}
+th[data-key].sorted-desc::after{content:' \25BE'; font-size:10px;}
 th:hover{color:var(--text-primary);}
 th .arrow{opacity:.5; font-size:10px;}
 td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
@@ -459,11 +464,11 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="tablewrap" style="margin-top:10px;">
 <table id="distQuietTable">
 <thead><tr>
-<th>Distributor</th>
-<th>State</th>
-<th>Last order</th>
-<th class="num">Months quiet</th>
-<th class="num">All-time revenue</th>
+<th data-key="name">Distributor</th>
+<th data-key="state">State</th>
+<th data-key="lastM">Last order</th>
+<th class="num" data-key="monthsSince">Months quiet</th>
+<th class="num" data-key="rev">All-time revenue</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -550,6 +555,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 </div>
 <div class="ai-summary" id="summary-category"></div>
 <div class="chartbox tall"><canvas id="catChart"></canvas></div>
+<div id="catOtherBreakdown" style="display:none;"></div>
 </div>
 
 <div class="card">
@@ -565,11 +571,11 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="tablewrap" style="max-height:520px;">
 <table id="skuTable">
 <thead><tr>
-<th>Product hierarchy</th>
-<th class="num">Revenue (period)</th>
-<th class="num">Units</th>
-<th class="num">Growth (CMGR)</th>
-<th>Trend</th>
+<th data-key="name">Product hierarchy</th>
+<th class="num" data-key="rev">Revenue (period)</th>
+<th class="num" data-key="qty">Units</th>
+<th class="num" data-key="growth">Growth (CMGR)</th>
+<th data-key="trend">Trend</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -593,7 +599,7 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="explore-controls">
 <label>Group by</label>
 <select id="launchGroupSel">
-<option value="category">Category (all, no grouping)</option>
+<option value="category">Category (top 10 + Other)</option>
 <option value="sku">Individual SKU (top 10 + Other)</option>
 </select>
 </div>
@@ -637,11 +643,11 @@ if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter') att
 <div class="tablewrap" style="max-height:280px;">
 <table id="discontinuedTable">
 <thead><tr>
-<th>Product</th>
-<th>Category</th>
-<th>Last active</th>
-<th class="num">Months since last sale</th>
-<th class="num">All-time revenue</th>
+<th data-key="product">Product</th>
+<th data-key="category">Category</th>
+<th data-key="lastActiveIdx">Last active</th>
+<th class="num" data-key="monthsSince">Months since last sale</th>
+<th class="num" data-key="cum">All-time revenue</th>
 </tr></thead>
 <tbody></tbody>
 </table>
@@ -1709,18 +1715,62 @@ y:{ grid:{ color:cssVar('--gridline') }, border:{display:false}, ticks:{ color:c
 // ============================================================
 // CATEGORY MIX
 // ============================================================
+const TOP_CAT_SERIES = 8;
 function renderCategory(){
 const cats = D.categories.map((c,i)=>({name:c, idx:i})).filter(c=> !filters.cats || filters.cats.has(c.idx));
+const catIdxSet = new Set(cats.map(c=>c.idx));
 const months = [];
-const datasets = cats.map(c=>({ label:c.name, data:[], backgroundColor:catColor(c.name), borderRadius:3, maxBarThickness:24 }));
+// single pass over the selected months — build a per-category monthly
+// series map once, instead of re-scanning facts per category (the old
+// approach) or per category per month (much worse)
+const perCatSeries = new Map(cats.map(c=>[c.idx, new Array(filters.monthTo-filters.monthFrom+1).fill(0)]));
 for(let m=filters.monthFrom; m<=filters.monthTo; m++){
 months.push(monthLabel(D.months[m]));
 const rows = factsForMonth(m, filters);
-cats.forEach((c,ci)=>{
-let s=0; for(const f of rows) if(f[F_CAT]===c.idx) s+=f[F_VAL];
-datasets[ci].data.push(s);
-});
+const i = m-filters.monthFrom;
+for(const f of rows){ if(catIdxSet.has(f[F_CAT])) perCatSeries.get(f[F_CAT])[i] += f[F_VAL]; }
 }
+
+const totals = cats.map(c=>{
+const arr = perCatSeries.get(c.idx);
+return {name:c.name, idx:c.idx, val: arr.reduce((a,b)=>a+b,0), arr};
+}).sort((a,b)=>b.val-a.val);
+const grand = totals.reduce((a,t)=>a+t.val,0) || 1;
+
+// ---- Top-N + "Other" bucket ----
+// A stacked bar with every category (up to 30+) draws a legend nobody can
+// read and, with more categories than the palette has distinct hues,
+// silently repeats colors across unrelated categories — see the dataviz
+// skill's "never a generated/cycled hue" rule. Cap the chart at the
+// TOP_CAT_SERIES biggest categories (by revenue in the selected period)
+// and fold the rest into one muted "Other categories" band, exactly like
+// the Revenue-by-launch-vintage chart already does for SKUs below.
+const topCats = totals.slice(0, TOP_CAT_SERIES);
+const otherCats = totals.slice(TOP_CAT_SERIES);
+const topCatsByVal = topCats.slice().sort((a,b)=>a.val-b.val); // smallest-of-the-top at the top of the stack, largest anchors the base
+const datasets = [];
+if(otherCats.length){
+const arr = new Array(months.length).fill(0);
+otherCats.forEach(c=> c.arr.forEach((v,i)=> arr[i]+=v));
+datasets.push({ label:`Other categories — ${otherCats.length} combined`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:3, maxBarThickness:24 });
+}
+topCatsByVal.forEach(c=>{
+datasets.push({ label:c.name, data:c.arr, backgroundColor:catColor(c.name), borderRadius:3, maxBarThickness:24 });
+});
+
+const otherBox = document.getElementById('catOtherBreakdown');
+if(otherBox){
+if(otherCats.length===0){ otherBox.style.display='none'; }
+else {
+otherBox.style.display='';
+const rowsHtml = otherCats.map(c=>
+`<tr><td><span class="catdot" style="background:${catColor(c.name)}"></span>${escapeHtml(c.name)}</td><td class="num">${fmtINR(c.val)}</td><td class="num">${(c.val/grand*100).toFixed(1)}%</td></tr>`
+).join('');
+otherBox.innerHTML = `<div class="sub" style="margin:10px 0 6px;">Exactly what's inside "Other categories" — every one of these ${otherCats.length} categories is real and individually tracked; they're only combined above so the chart stays readable.</div>`+
+`<div class="tablewrap" style="max-height:220px;"><table><thead><tr><th>Category</th><th class="num">Revenue (period)</th><th class="num">% of total</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+}
+}
+
 destroyChart('cat');
 const catBaseOpts = baseLineOptions((ctx)=>fmtINR(ctx.parsed.y));
 charts.cat = new Chart(document.getElementById('catChart'), {
@@ -1739,34 +1789,26 @@ y:{ stacked:true, grid:{color:cssVar('--gridline')}, border:{display:false}, tic
 }
 });
 
-// category share bar (sequential ranking by magnitude within period, but colored by category identity)
-const filtered = getFiltered();
-const totals = cats.map(c=>{
-let s=0; for(const f of filtered) if(f[F_CAT]===c.idx) s+=f[F_VAL];
-return {name:c.name, val:s};
-}).sort((a,b)=>b.val-a.val);
-const grand = totals.reduce((a,t)=>a+t.val,0) || 1;
-
 setSummary('summary-category', (()=>{
 if(totals.length===0 || grand<=0) return null;
 const top = totals[0];
 let growLine = '';
-if(datasets.length && datasets[0].data.length>1){
+{
 const minBase = Math.max(grand*0.01, 25000); // ignore low-base noise
 // CMGR (compound monthly growth rate), not a raw (last-first)/first
 // delta — a raw delta blows up into absurd percentages whenever the
 // window starts near zero, the same failure mode fixed everywhere
 // else in this dashboard (see periodGrowthPct/cmgrCagr above)
-const perCatGrowth = cats.map((c,ci)=>{
-const arr = datasets[ci].data;
-if(Math.max(...arr.map(Math.abs)) < minBase) return null;
-const g = periodGrowthPct(arr);
+const perCatGrowth = totals.filter(c=> Math.max(...c.arr.map(Math.abs)) >= minBase).map(c=>{
+const g = periodGrowthPct(c.arr);
 return g===null ? null : {name:c.name, g};
 }).filter(Boolean);
 perCatGrowth.sort((a,b)=>b.g-a.g);
 if(perCatGrowth[0]) growLine = ` <b>${escapeHtml(perCatGrowth[0].name)}</b> grew fastest across the period (${fmtPct(perCatGrowth[0].g,1)} CMGR).`;
 }
-return `<b>${escapeHtml(top.name)}</b> leads the mix at <b>${(top.val/grand*100).toFixed(1)}%</b> of revenue (${fmtINR(top.val)}) in the selected period.${growLine}`;
+let topNLine = '';
+if(otherCats.length) topNLine = ` Chart shows the top <b>${TOP_CAT_SERIES}</b> categories (<b>${(topCats.reduce((a,c)=>a+c.val,0)/grand*100).toFixed(1)}%</b> of revenue); the remaining <b>${otherCats.length}</b> are folded into "Other categories" below.`;
+return `<b>${escapeHtml(top.name)}</b> leads the mix at <b>${(top.val/grand*100).toFixed(1)}%</b> of revenue (${fmtINR(top.val)}) in the selected period.${growLine}${topNLine}`;
 })());
 }
 
@@ -1800,6 +1842,13 @@ return s;
 })());
 
 destroyChart('catGrowth');
+// This is a ranked horizontal bar — one row per active category, which
+// can be 25-30+ rows. A fixed chart height (the "tall" default) squeezes
+// every bar down to a few illegible pixels, so size the box to the data:
+// enough vertical room per row to keep labels and bars readable, however
+// many categories are active.
+const catGrowthBox = document.getElementById('catGrowthChart').parentElement;
+if(catGrowthBox) catGrowthBox.style.height = Math.max(340, rows.length*24 + 50) + 'px';
 charts.catGrowth = new Chart(document.getElementById('catGrowthChart'), {
 type:'bar',
 data:{
@@ -1837,13 +1886,22 @@ const skuSortState = { key:'rev', dir:-1 };
 const MIN_GEO_BASE = 15000; // ignore MoM% noise below this revenue in both months
 
 function wireHeaderSort(tableId, state, onchange){
-document.querySelectorAll('#'+tableId+' th').forEach(th=>{
+const ths = [...document.querySelectorAll('#'+tableId+' th')].filter(th=>th.dataset.key);
+function updateIndicators(){
+ths.forEach(th=>{
+th.classList.remove('sorted-asc','sorted-desc');
+if(th.dataset.key===state.key) th.classList.add(state.dir===1?'sorted-asc':'sorted-desc');
+});
+}
+ths.forEach(th=>{
 th.onclick = ()=>{
-const k = th.dataset.key; if(!k) return;
+const k = th.dataset.key;
 if(state.key===k) state.dir=-state.dir; else { state.key=k; state.dir=-1; }
+updateIndicators();
 onchange();
 };
 });
+updateIndicators();
 }
 function genericSort(rows, state){
 const key = state.key==='trend' ? 'rev' : state.key; // trend column isn't sortable on its own; falls back to revenue
@@ -2173,6 +2231,26 @@ return s;
 
 function toggleExplorer(key){ if(explorerExpanded.has(key)) explorerExpanded.delete(key); else explorerExpanded.add(key); redrawExplorer(); }
 
+// Sorts a set of sibling nodes at ANY level of the hierarchy (super
+// category / category / short name / grammage) by the shared skuSortState
+// — this is a tree, not a flat list, so "sort by column" means "sort each
+// group of siblings the same way," preserving the drill-down structure
+// rather than flattening it.
+function sortSiblingKeys(keys, nodeOf, labelOf, state){
+const key = state.key==='trend' ? 'rev' : state.key; // trend has no scalar of its own — falls back to revenue, same convention as genericSort()
+if(key==='name'){
+return keys.slice().sort((a,b)=> String(labelOf(a)).localeCompare(String(labelOf(b))) * state.dir);
+}
+return keys.slice().sort((a,b)=>{
+const na=nodeOf(a), nb=nodeOf(b);
+let va, vb;
+if(key==='qty'){ va=na.qty; vb=nb.qty; }
+else if(key==='growth'){ va=periodGrowthPct(na.trend||[]); vb=periodGrowthPct(nb.trend||[]); va=va===null?-Infinity:va; vb=vb===null?-Infinity:vb; }
+else { va=na.rev; vb=nb.rev; }
+return (va-vb)*state.dir;
+});
+}
+
 function statesPanelRow(sk, rows){
 const rowsForSku = rows.filter(f=>f[F_SKU]===sk);
 const byState = new Map();
@@ -2244,7 +2322,7 @@ const skNode=snNode.skus.get(sk); skNode.rev+=f[F_VAL]; skNode.qty+=f[F_QTY];
 
 const tbody = document.querySelector('#skuTable tbody');
 tbody.innerHTML='';
-const supIdxs = [...tree.keys()].sort((a,b)=> tree.get(b).rev - tree.get(a).rev);
+const supIdxs = sortSiblingKeys([...tree.keys()], k=>tree.get(k), k=>D.superCategories[k], skuSortState);
 if(supIdxs.length===0){
 const tr=document.createElement('tr'); const t0=td('No matching products.','empty-state'); t0.colSpan=5; tr.appendChild(t0); tbody.appendChild(tr);
 return;
@@ -2255,14 +2333,14 @@ const supKey='S'+supI;
 const {tr:supTr, isOpen:supOpen} = makeRow(0, supKey, D.superCategories[supI], supNode, true, false);
 tbody.appendChild(supTr);
 if(!supOpen) return;
-const catIdxs = [...supNode.cats.keys()].sort((a,b)=> supNode.cats.get(b).rev - supNode.cats.get(a).rev);
+const catIdxs = sortSiblingKeys([...supNode.cats.keys()], k=>supNode.cats.get(k), k=>D.categories[k], skuSortState);
 catIdxs.forEach(catI=>{
 const catNode = supNode.cats.get(catI);
 const catKey = supKey+'>C'+catI;
 const {tr:catTr, isOpen:catOpen} = makeRow(1, catKey, D.categories[catI], catNode, true, false, null, catColor(D.categories[catI]));
 tbody.appendChild(catTr);
 if(!catOpen) return;
-const shortNames = [...catNode.shorts.keys()].sort((a,b)=> catNode.shorts.get(b).rev - catNode.shorts.get(a).rev);
+const shortNames = sortSiblingKeys([...catNode.shorts.keys()], k=>catNode.shorts.get(k), k=>k, skuSortState);
 shortNames.forEach(sn=>{
 const snNode = catNode.shorts.get(sn);
 const snKey = catKey+'>N'+sn;
@@ -2270,7 +2348,7 @@ const multi = snNode.skus.size>1;
 const {tr:snTr, isOpen:snOpen} = makeRow(2, snKey, sn, snNode, multi, false);
 tbody.appendChild(snTr);
 if(multi && !snOpen) return;
-const skuIdxs = [...snNode.skus.keys()].sort((a,b)=> snNode.skus.get(b).rev - snNode.skus.get(a).rev);
+const skuIdxs = sortSiblingKeys([...snNode.skus.keys()], k=>snNode.skus.get(k), k=>D.skuSize[k]||D.skuNames[k], skuSortState);
 skuIdxs.forEach(sk=>{
 const skNode = snNode.skus.get(sk);
 const skKey = snKey+'>K'+sk;
@@ -2284,6 +2362,7 @@ if(skOpen) tbody.appendChild(statesPanelRow(sk, rows));
 }
 
 searchEl.oninput = redrawExplorer;
+wireHeaderSort('skuTable', skuSortState, redrawExplorer);
 redrawExplorer();
 }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
@@ -2898,6 +2977,7 @@ renderDistQuiet();
 // skuLastMonth, a distributor needs their full life to date to judge
 // "quiet" — but still respects state/zone/tier/distributor-search.
 // ============================================================
+const distQuietSortState = { key:'monthsSince', dir:-1 };
 function renderDistQuiet(){
 const tbl = document.getElementById('distQuietTable');
 if(!tbl) return;
@@ -2915,10 +2995,14 @@ const sm = stateCount.get(b); sm.set(f[F_STATE], (sm.get(f[F_STATE])||0)+1);
 const topState = new Map();
 stateCount.forEach((m,b)=>{ let top=null,c=-1; m.forEach((v,s)=>{ if(v>c){c=v; top=s;} }); topState.set(b, top); });
 
-const flagged = [...hist.entries()]
+const flaggedUnsorted = [...hist.entries()]
 .filter(([,o])=> o.months.size>=2 && (lastOverall-o.last)>=QUIET_THRESHOLD_MONTHS)
-.map(([b,o])=>({ b, lastM:o.last, monthsSince: lastOverall-o.last, rev: allTimeRev.get(b)||0 }))
-.sort((a,b)=> (a.lastM-b.lastM) || (b.rev-a.rev));
+.map(([b,o])=>{
+const st = topState.get(b);
+return { b, name: D.buyers[b], state: (st!==null && st!==undefined) ? D.states[st] : '—',
+lastM:o.last, monthsSince: lastOverall-o.last, rev: allTimeRev.get(b)||0 };
+});
+const flagged = genericSort(flaggedUnsorted, distQuietSortState);
 
 setSummary('summary-distquiet', (()=>{
 let repeatTotal=0; hist.forEach(o=>{ if(o.months.size>=2) repeatTotal++; });
@@ -2934,9 +3018,8 @@ const tr=document.createElement('tr'); const t0=td('No repeat distributors have 
 }
 flagged.slice(0,25).forEach(r=>{
 const tr=document.createElement('tr');
-tr.appendChild(td(D.buyers[r.b]));
-const st = topState.get(r.b);
-tr.appendChild(td(st!==null && st!==undefined ? D.states[st] : '—'));
+tr.appendChild(td(r.name));
+tr.appendChild(td(r.state));
 const lastTd=document.createElement('td');
 lastTd.innerHTML = `${escapeHtml(D.months[r.lastM])} <span class="pill slowing">Quiet</span>`;
 tr.appendChild(lastTd);
@@ -2947,6 +3030,7 @@ body.appendChild(tr);
 if(flagged.length>25){
 const tr=document.createElement('tr'); const t0=td(`+ ${flagged.length-25} more — narrow with the search/filters above to see the rest.`,'empty-state'); t0.colSpan=5; tr.appendChild(t0); body.appendChild(tr);
 }
+wireHeaderSort('distQuietTable', distQuietSortState, renderDistQuiet);
 }
 
 // ============================================================
@@ -3263,17 +3347,17 @@ return s;
 // filters apply)
 // ============================================================
 const launchSortState = { key:'share', dir:-1 };
+const newSkuImpactSortState = { key:'monthIdx', dir:-1 };
+const discontinuedSortState = { key:'monthsSince', dir:-1 };
 const TOP_LAUNCH_SERIES = 10;
-// "Group by" toggle for the launch chart — defaults to CATEGORY (all 15,
-// every rupee accounted for, no "Other" bucket at all — same trusted
-// grouping as the Category mix chart above). SKU-level view is opt-in for
-// anyone who wants launch-vintage detail; it still needs an "Other" band
-// for legibility (56 real SKU variants can't each get a legend color) but
-// that band is NOT a data-quality bucket — no SKU is tagged "Other" in the
-// source data (see build script: "rows falling back to Other: 0"). It is
-// purely a chart-legend grouping of the lower-volume SKUs, and every one
-// of them is listed individually just below the chart and in the full
-// table further down.
+// "Group by" toggle for the launch chart — defaults to CATEGORY, capped at
+// the top TOP_LAUNCH_SERIES(10) by all-time revenue with the rest folded
+// into an "Other categories" band, same treatment as the Individual-SKU
+// view below (a catalog with 25-30+ categories can't give each its own
+// legend color — see the dataviz skill's "never a generated/cycled hue"
+// rule). Neither band is a data-quality bucket — nothing is tagged
+// "Other" in the source data; every entry folded in is listed individually
+// in the breakdown box below the chart.
 const launchGroupState = { mode: 'category' };
 const launchGroupSel = document.getElementById('launchGroupSel');
 if(launchGroupSel){
@@ -3359,29 +3443,49 @@ const monthLabels = D.months.map(monthLabel);
 const otherTotal = otherSkus.reduce((a,t)=>a+t.total,0);
 const otherBox = document.getElementById('launchOtherBreakdown');
 let datasets;
+let otherCatsLaunch = [];
 if(launchGroupState.mode==='category'){
-// default view — stack by category (all 15, every rupee accounted for,
-// ordered by each category's own first-launch month) so there is NO
-// "Other" bucket at all, using the exact same grouping already trusted
-// in the Category mix chart above.
+// Stack by category, ordered by each category's own first-launch month
+// so vintage turns on at its real launch month. With 25-30+ categories
+// in the catalog, showing every one blows past a readable legend and
+// (worse) runs the fixed 8-color categorical palette past its length,
+// silently repeating a hue across unrelated categories — see the
+// dataviz skill's "never a generated/cycled hue" rule. Cap it at the
+// same TOP_LAUNCH_SERIES(10) used for the SKU view below and fold the
+// rest into one muted "Other categories" band, same treatment.
 const catFirstLaunch = new Map();
 allSkuFirst.forEach((fm, sk)=>{
 const ci = skuCat.get(sk); if(ci===undefined) return;
 if(!catFirstLaunch.has(ci) || fm<catFirstLaunch.get(ci)) catFirstLaunch.set(ci, fm);
 });
-const catsByLaunch = D.categories.map((c,ci)=>ci)
-.filter(ci=> (cadenceCatHasData(ci)))
-.sort((a,b)=> (catFirstLaunch.get(a)??Infinity) - (catFirstLaunch.get(b)??Infinity));
-function cadenceCatHasData(ci){
-for(const f of dimsAll) if(f[F_CAT]===ci) return true;
-return false;
-}
-datasets = catsByLaunch.map(ci=>{
+const catAllTime = new Map();
+for(const f of dimsAll) catAllTime.set(f[F_CAT], (catAllTime.get(f[F_CAT])||0)+f[F_VAL]);
+const catsRanked = [...catAllTime.entries()].map(([ci,total])=>({ci, total})).sort((a,b)=>b.total-a.total);
+const topCatsLaunch = catsRanked.slice(0, TOP_LAUNCH_SERIES);
+otherCatsLaunch = catsRanked.slice(TOP_LAUNCH_SERIES);
+const topCatsByLaunch = topCatsLaunch.slice().sort((a,b)=> (catFirstLaunch.get(a.ci)??Infinity) - (catFirstLaunch.get(b.ci)??Infinity));
+datasets = topCatsByLaunch.map(t=>{
 const arr = new Array(D.months.length).fill(0);
-for(const f of dimsAll) if(f[F_CAT]===ci) arr[f[F_MONTH]]+=f[F_VAL];
-return { label: D.categories[ci], data:arr, backgroundColor: catColor(D.categories[ci]), borderRadius:1, maxBarThickness:26 };
+for(const f of dimsAll) if(f[F_CAT]===t.ci) arr[f[F_MONTH]]+=f[F_VAL];
+return { label: D.categories[t.ci], data:arr, backgroundColor: catColor(D.categories[t.ci]), borderRadius:1, maxBarThickness:26 };
 });
-if(otherBox) otherBox.style.display='none';
+const catAllTimeGrand = catsRanked.reduce((a,t)=>a+t.total,0) || 1;
+if(otherCatsLaunch.length){
+const arr = new Array(D.months.length).fill(0);
+for(const f of dimsAll) if(otherCatsLaunch.some(t=>t.ci===f[F_CAT])) arr[f[F_MONTH]]+=f[F_VAL];
+datasets.unshift({ label:`Other categories — ${otherCatsLaunch.length} combined`, data:arr, backgroundColor:cssVar('--text-muted')+'80', borderRadius:1, maxBarThickness:26 });
+}
+if(otherBox){
+if(otherCatsLaunch.length===0){ otherBox.style.display='none'; }
+else {
+otherBox.style.display='';
+const rowsHtml = otherCatsLaunch.slice().sort((a,b)=>b.total-a.total).map(t=>
+`<tr><td><span class="catdot" style="background:${catColor(D.categories[t.ci])}"></span>${escapeHtml(D.categories[t.ci])}</td><td class="num">${fmtINR(t.total)}</td><td class="num">${(t.total/catAllTimeGrand*100).toFixed(1)}%</td></tr>`
+).join('');
+otherBox.innerHTML = `<div class="sub" style="margin:10px 0 6px;">Exactly what's inside "Other categories" — every one of these ${otherCatsLaunch.length} categories is real and individually tracked; they're only combined here so the chart above stays readable.</div>`+
+`<div class="tablewrap" style="max-height:260px;"><table><thead><tr><th>Category</th><th class="num">All-time revenue</th><th class="num">% of total</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+}
+}
 } else {
 // Product-level view — top 10 all-time earners named individually
 // (a bundle cluster counts as ONE of these), every other product folded
@@ -3509,8 +3613,6 @@ count: newSkuIdxs.length, skuNames: newSkuIdxs.map(sk=>D.skuNames[sk]).join(', '
 newUnits, existingUnits, volPct, newRev
 });
 });
-impactRows.sort((a,b)=> b.monthIdx-a.monthIdx || b.newRev-a.newRev);
-
 setSummary('summary-newskuimpact', (()=>{
 if(impactRows.length===0) return null;
 const totalNewRev = impactRows.reduce((a,r)=>a+r.newRev,0);
@@ -3521,11 +3623,13 @@ if(biggest) s += ` Biggest single-month volume jump: <b>${escapeHtml(biggest.cat
 return s;
 })());
 
+function drawImpactTable(){
+const sorted = genericSort(impactRows, newSkuImpactSortState);
 const tbody = tbl.querySelector('tbody'); tbody.innerHTML='';
-if(impactRows.length===0){
+if(sorted.length===0){
 const tr=document.createElement('tr'); const t0=td('No new-SKU launch events in this selection.','empty-state'); t0.colSpan=7; tr.appendChild(t0); tbody.appendChild(tr);
 } else {
-impactRows.forEach(r=>{
+sorted.forEach(r=>{
 const tr=document.createElement('tr');
 tr.appendChild(td(r.month));
 const catTd=document.createElement('td'); catTd.innerHTML=`<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`; tr.appendChild(catTd);
@@ -3537,6 +3641,9 @@ tr.appendChild(td(fmtINR(r.newRev),'num'));
 tbody.appendChild(tr);
 });
 }
+}
+drawImpactTable();
+wireHeaderSort('newSkuImpactTable', newSkuImpactSortState, drawImpactTable);
 })();
 
 // ---- summary ----
@@ -3549,7 +3656,10 @@ let s = `<b>${standaloneCount}</b> standalone products have launched since ${mon
 (bundleCount ? `, plus <b>${bundleCount}</b> sampler/bundle assortment${bundleCount===1?'':'s'} (${bundleClusters.clusters.reduce((a,c)=>a+c.members.length,0)} niche products that were never sold on their own — see the note above)` : '')+
 `, contributing <b>${fmtINR(grandTotal)}</b> all-time.`;
 if(launchGroupState.mode==='category'){
-s += ` Chart is grouped by category (all ${new Set([...skuCat.values()]).size} of them) — every rupee is accounted for above, no "Other" bucket.`;
+const totalCatCount = new Set([...skuCat.values()]).size;
+s += otherCatsLaunch.length
+? ` Chart shows the top <b>${TOP_LAUNCH_SERIES}</b> categories by all-time revenue; the remaining <b>${otherCatsLaunch.length}</b> of ${totalCatCount} are folded into "Other categories" — see the breakdown box below the chart for the exact list.`
+: ` Chart is grouped by category (all ${totalCatCount} of them) — every rupee is accounted for above, no "Other" bucket.`;
 } else {
 s += ` The top ${TOP_LAUNCH_SERIES} entries make up <b>${topShare.toFixed(1)}%</b> of that total`+
 (otherSkus.length ? `; the remaining <b>${otherSkus.length}</b> are genuinely spread thin (${(100-topShare).toFixed(1)}% of revenue, ${fmtINR(otherTotal)}) — a catalog this wide naturally has no single product dominating. See the breakdown box below the chart for the exact list.` : '.');
@@ -3591,7 +3701,7 @@ mom: momGrowth(arr), qoq: qoqGrowth(arr), sixM: sixMonthGrowth(arr), cmgr, cagr
 const dTbl = document.getElementById('discontinuedTable');
 if(!dTbl) return;
 const flagged = rows.filter(r=>r.status==='Discontinued' || r.status==='Slowing')
-.sort((a,b)=> (a.lastActiveIdx-b.lastActiveIdx) || (b.cum-a.cum));
+.map(r=> ({...r, monthsSince: r.lastActiveIdx>=0 ? (D.months.length-1-r.lastActiveIdx) : null}));
 setSummary('summary-discontinued', (()=>{
 if(flagged.length===0) return `No products have gone quiet — every SKU with sales history sold something in the last two months of data.`;
 const discCount = flagged.filter(r=>r.status==='Discontinued').length;
@@ -3602,23 +3712,27 @@ let s = `<b>${discCount}</b> product${discCount===1?'':'s'} flagged <b>Discontin
 if(discCount) s += ` Discontinued products represent <b>${fmtINR(lostRev)}</b> in all-time revenue.`;
 return s;
 })());
+function drawDiscontinued(){
+const sorted = genericSort(flagged, discontinuedSortState);
 const dBody = dTbl.querySelector('tbody'); dBody.innerHTML='';
-if(flagged.length===0){
+if(sorted.length===0){
 const tr=document.createElement('tr'); const t0=td('No discontinued or slowing products in this selection.','empty-state'); t0.colSpan=5; tr.appendChild(t0); dBody.appendChild(tr);
 } else {
-flagged.forEach(r=>{
+sorted.forEach(r=>{
 const tr=document.createElement('tr');
 const nameTd=document.createElement('td'); nameTd.textContent = r.product + (r.isBundle?` (${r.members.length} items)`:''); tr.appendChild(nameTd);
 const catTd=document.createElement('td'); catTd.innerHTML=`<span class="catdot" style="background:${catColor(r.category)}"></span>${escapeHtml(r.category)}`; tr.appendChild(catTd);
 const lastTd=document.createElement('td');
-const monthsSince = r.lastActiveIdx>=0 ? (D.months.length-1-r.lastActiveIdx) : null;
 lastTd.innerHTML = `${escapeHtml(r.lastActive)} <span class="pill ${r.status.toLowerCase()}">${escapeHtml(r.statusLabel)}</span>`;
 tr.appendChild(lastTd);
-tr.appendChild(td(monthsSince===null?'—':fmtNum(monthsSince),'num'));
+tr.appendChild(td(r.monthsSince===null?'—':fmtNum(r.monthsSince),'num'));
 tr.appendChild(td(fmtINR(r.cum),'num'));
 dBody.appendChild(tr);
 });
 }
+}
+drawDiscontinued();
+wireHeaderSort('discontinuedTable', discontinuedSortState, drawDiscontinued);
 })();
 const searchEl = document.getElementById('launchSearch');
 function renderRow(r){
