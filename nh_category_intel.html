@@ -4107,7 +4107,7 @@ refresh();
   (function () {
     const root = document.getElementById('app-content'); if (!root) return;
     const re = /^[+\-−]?[\d,]{7,}(\.\d+)?%$/; let tm = null;
-    const clean = () => root.querySelectorAll('td,.delta').forEach(e => { if (!e.children.length && re.test(e.textContent.trim())) { e.title = 'Growth vs. a near-zero prior month: not meaningful'; e.textContent = 'n/m'; } });
+    const clean = () => root.querySelectorAll('td,td *,.delta').forEach(e => { if (!e.children.length && re.test(e.textContent.trim())) { e.title = 'Growth vs. a near-zero prior month: not meaningful'; e.textContent = 'n/m'; } });
     new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(clean, 150); }).observe(root, { childList: true, subtree: true, characterData: true });
     clean();
   })();
